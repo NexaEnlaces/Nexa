@@ -30,7 +30,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .logo-wm .lx{color:var(--purple);font-style:italic}
 .logo-wm .ly{color:var(--yellow);font-size:34px;vertical-align:-2px}
 .logo-tag{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:4px;font-family:var(--font2)}
-.nav-sec{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.3);padding:16px 22px 6px;font-family:var(--font2);font-weight:700}
+.nav-sec{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);padding:16px 22px 6px;font-family:var(--font2);font-weight:800;display:flex;align-items:center;gap:5px;border-top:1px solid rgba(255,255,255,.06);margin-top:4px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 22px;cursor:pointer;border-left:3px solid transparent;transition:.15s;font-size:13px;font-weight:700;color:rgba(255,255,255,.55)}
 .nav-item:hover{color:#fff;background:rgba(255,255,255,.08)}
 .nav-item.active{color:#fff;border-left-color:var(--yellow);background:rgba(255,255,255,.11)}
@@ -218,6 +218,99 @@ textarea.finput{resize:vertical;min-height:68px}
 .sync-off{background:var(--muted2);animation:none}
 .sync-syncing{background:var(--yellow);animation:blink .6s infinite}
 .gs-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* ── CONTROL MENSUAL ── */
+.cm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.cm-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:.2s}
+.cm-card:hover{box-shadow:var(--shadow-lg)}
+.cm-card-head{padding:14px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px}
+.cm-avatar{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0}
+.cm-client-name{font-size:13px;font-weight:800;line-height:1.2}
+.cm-client-sub{font-size:10px;color:var(--muted);font-family:var(--font2);margin-top:2px}
+.cm-tasks{padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.cm-task-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border2);cursor:pointer;transition:.15s}
+.cm-task-row:hover{border-color:var(--blue);background:var(--blue-light)}
+.cm-task-row.done{background:var(--green-light);border-color:var(--green)}
+.cm-task-row.done .cm-task-lbl{color:#2d6a00}
+.cm-task-lbl{font-size:12px;font-weight:700;font-family:var(--font2);display:flex;align-items:center;gap:7px}
+.cm-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:.15s}
+.cm-task-row.done .cm-check{background:var(--green);border-color:var(--green);color:#fff}
+.cm-progress-bar{height:4px;background:var(--border);border-radius:20px;overflow:hidden;margin:0 16px 12px}
+.cm-progress-fill{height:100%;border-radius:20px;background:var(--green);transition:width .4s ease}
+.cm-card-foot{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border2)}
+.cm-pct{font-size:11px;font-weight:800;color:var(--muted);font-family:var(--font2)}
+.cm-month-sel{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px;background:var(--surface);padding:16px 20px;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow)}
+.cm-month-btn{padding:6px 14px;border-radius:50px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:.15s;color:var(--muted)}
+.cm-month-btn:hover{border-color:var(--blue);color:var(--blue)}
+.cm-month-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.cm-resp-filter{background:var(--bg);border:1.5px solid var(--border);border-radius:50px;padding:6px 12px;font-family:var(--font);font-size:12px;color:var(--text);outline:none;cursor:pointer}
+.cm-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.cm-sum-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;text-align:center;box-shadow:var(--shadow)}
+.cm-sum-num{font-size:24px;font-weight:900}
+.cm-sum-lbl{font-size:10px;color:var(--muted);font-family:var(--font2);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.cm-no-sueldo{opacity:.6}
+
+/* ── CLIENTES ÚNICOS ── */
+.cu-grid{display:flex;flex-direction:column;gap:16px}
+.cu-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:.2s}
+.cu-card:hover{box-shadow:var(--shadow-lg)}
+.cu-card-head{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;cursor:pointer}
+.cu-avatar{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0}
+.cu-card-body{padding:0;max-height:0;overflow:hidden;transition:max-height .3s ease}
+.cu-card-body.open{max-height:1000px}
+.cu-encargo-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.cu-encargo{border-bottom:1px solid var(--border2);padding:14px 18px}
+.cu-encargo:nth-child(even){border-left:1px solid var(--border2)}
+.cu-encargo-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cu-encargo-title{font-size:13px;font-weight:800}
+.cu-encargo-meta{font-size:10px;color:var(--muted);font-family:var(--font2);margin-bottom:10px;line-height:1.6}
+.cu-tasks{display:flex;flex-direction:column;gap:5px}
+.cu-task-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border2);cursor:pointer;transition:.15s}
+.cu-task-row:hover{border-color:var(--blue);background:var(--blue-light)}
+.cu-task-row.done{background:var(--green-light);border-color:var(--green)}
+.cu-task-row.done .cu-task-lbl{color:#2d6a00}
+.cu-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:.15s}
+.cu-task-row.done .cu-check{background:var(--green);border-color:var(--green);color:#fff}
+.cu-task-lbl{font-size:12px;font-weight:700;font-family:var(--font2);display:flex;align-items:center;gap:7px}
+.cu-prog-bar{height:4px;background:var(--border);border-radius:20px;overflow:hidden;margin:8px 0 0}
+.cu-prog-fill{height:100%;border-radius:20px;background:var(--green);transition:width .4s ease}
+.cu-encargo-foot{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:var(--bg);border-top:1px solid var(--border2)}
+.cu-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.cu-sum-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;text-align:center;box-shadow:var(--shadow)}
+.cu-sum-num{font-size:24px;font-weight:900}
+.cu-sum-lbl{font-size:10px;color:var(--muted);font-family:var(--font2);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.cu-filters{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+.badge-cu-pend{background:var(--yellow-light);color:#8a6200;border:1px solid var(--yellow)}
+.badge-cu-prog{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-mid)}
+.badge-cu-done{background:var(--green-light);color:#2d6a00;border:1px solid var(--green)}
+.badge-cu-venc{background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
+
+/* ── CONTROL RENTA ── */
+.renta-table-wrap{overflow-x:auto}
+.renta-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font2)}
+.renta-table th{padding:9px 12px;text-align:left;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:800;background:#fafbfe;border-bottom:1px solid var(--border);white-space:nowrap}
+.renta-table th.yr{background:var(--blue);color:#fff;text-align:center}
+.renta-table th.yr2{background:#4d3a9a;color:#fff;text-align:center}
+.renta-table th.yr3{background:#1a5c2a;color:#fff;text-align:center}
+.renta-table td{padding:10px 12px;border-bottom:1px solid var(--border2);vertical-align:middle}
+.renta-table tr:hover td{background:#f7f9ff}
+.renta-table td.yr-cell{text-align:center;border-left:1px solid var(--border2)}
+.renta-table td.sep{border-left:2px solid var(--border)}
+.renta-sel{background:transparent;border:none;font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer;outline:none;border-radius:20px;padding:3px 8px}
+.renta-sel.pend{background:var(--yellow-light);color:#8a6200}
+.renta-sel.pres{background:var(--blue-light);color:var(--blue)}
+.renta-sel.obs{background:var(--red-light);color:var(--red)}
+.renta-sel.acep{background:var(--green-light);color:#2d6a00}
+.renta-sel.na{background:#f3f4f6;color:var(--muted)}
+.renta-dj-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:800;margin:1px;cursor:pointer}
+.renta-filters{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:var(--shadow)}
+.renta-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.renta-sum-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;text-align:center;box-shadow:var(--shadow)}
+.renta-sum-num{font-size:22px;font-weight:900}
+.renta-sum-lbl{font-size:10px;color:var(--muted);font-family:var(--font2);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.dj-toggle{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:1.5px solid;transition:.15s;user-select:none}
+.dj-on{background:var(--blue-light);color:var(--blue);border-color:var(--blue-mid)}
+.dj-off{background:#f3f4f6;color:var(--muted);border-color:#d1d5db;text-decoration:line-through;opacity:.6}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--blue);color:#fff;border-radius:50px;padding:10px 20px;font-size:13px;font-weight:700;z-index:9999;transform:translateY(80px);opacity:0;transition:.3s;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(0,58,208,.35)}
 .toast.show{transform:translateY(0);opacity:1}
 .t-ico{width:18px;height:18px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
@@ -227,11 +320,12 @@ textarea.finput{resize:vertical;min-height:68px}
 <body>
 <div class="shell">
 <aside class="sidebar">
-  <div class="logo-area">
-    <div class="logo-wm">nex<span class="lx">a</span><span class="ly">.</span></div>
+  <div class="logo-area" style="padding:16px 22px 14px">
+    <img src="data:image/png;base64,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" alt="Nexa" style="width:140px;display:block;margin-bottom:6px">
     <div class="logo-tag">Conectando Negocios</div>
   </div>
-  <div class="nav-sec">Principal</div>
+  <!-- ═══ NAV ═══ -->
+  <div class="nav-sec">📊 Ventas</div>
   <div class="nav-item active" onclick="go('dashboard')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
   </div>
@@ -239,30 +333,44 @@ textarea.finput{resize:vertical;min-height:68px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Facturas
     <span class="nav-badge" id="nb-venc" style="display:none">!</span>
   </div>
-  <div class="nav-item" onclick="go('kanban')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="11" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>Tablero Kanban
-  </div>
-  <div class="nav-item" onclick="go('clientes')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes
-  </div>
-  <div class="nav-sec">Gestión</div>
   <div class="nav-item" onclick="go('notas')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Notas de Venta
     <span class="nav-badge" id="nb-notas" style="display:none">0</span>
   </div>
+  <div class="nav-item" onclick="go('kanban')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="11" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>Cobranza Kanban
+  </div>
   <div class="nav-item" onclick="go('sii')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>Validación SII
   </div>
-  <div class="nav-sec">Análisis</div>
-  <div class="nav-item" onclick="go('gsheets')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>Google Sheets
-    <span class="nav-badge" id="nb-gs" style="display:none;background:var(--green)">✓</span>
+  <div class="nav-item" onclick="go('informes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Informes
   </div>
+  <div class="nav-sec">👥 Clientes</div>
+  <div class="nav-item" onclick="go('clientes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Mensuales
+  </div>
+  <div class="nav-item" onclick="go('unicos')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h0"/><path d="M18 14l2 2 4-4"/></svg>Únicos
+    <span class="nav-badge" id="nb-cu" style="display:none;background:var(--purple)">0</span>
+  </div>
+  <div class="nav-sec">✅ Control de Tareas</div>
+  <div class="nav-item" onclick="go('control')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>Control Mensual
+    <span class="nav-badge" id="nb-cm" style="display:none;background:var(--yellow)">0</span>
+  </div>
+  <div class="nav-sec">📋 Control de Renta</div>
+  <div class="nav-item" onclick="go('renta')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>Renta Anual
+    <span class="nav-badge" id="nb-renta" style="display:none;background:var(--yellow)">0</span>
+  </div>
+  <div class="nav-sec">⚙️ Configuraciones</div>
   <div class="nav-item" onclick="go('email')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Envío de Emails
   </div>
-  <div class="nav-item" onclick="go('informes')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Informes de Ventas
+  <div class="nav-item" onclick="go('gsheets')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>Google Sheets
+    <span class="nav-badge" id="nb-gs" style="display:none;background:var(--green)">✓</span>
   </div>
   <div class="sb-foot">
     <div class="sync-row"><span class="sync-dot"></span>Auto-guardado activo</div>
@@ -446,15 +554,30 @@ textarea.finput{resize:vertical;min-height:68px}
 <!-- EMAIL -->
 <div id="view-email" class="view">
   <div class="ph"><div><div class="ph-title">Envío de <span>Emails</span></div><div class="ph-sub">Notificaciones y seguimiento vía EmailJS</div></div></div>
-  <div class="alert a-warn" style="margin-bottom:16px">⚙️ <strong>Configura EmailJS (1 vez):</strong> Crea cuenta en emailjs.com → conecta Gmail/Outlook → crea Template con variables {{to_name}} {{to_email}} {{subject}} {{message}} {{folio}} {{monto}} → pega credenciales abajo</div>
+  <div id="em-method-status" class="alert a-info" style="margin-bottom:16px">
+  ℹ️ Para enviar emails conecta con Google en <strong>Configuraciones → Google Sheets</strong>. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.
+</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
     <div class="card" style="padding:20px;margin-bottom:0">
-      <div class="card-t" style="margin-bottom:14px">🔑 Credenciales EmailJS</div>
-      <div class="ef-group"><label class="ef-lbl">Public Key</label><input class="finput" id="ejs-pk" placeholder="user_xxxxxxxxxx" oninput="saveEJS()"></div>
-      <div class="ef-group"><label class="ef-lbl">Service ID</label><input class="finput" id="ejs-sid" placeholder="service_xxxxxxx" oninput="saveEJS()"></div>
-      <div class="ef-group"><label class="ef-lbl">Template ID</label><input class="finput" id="ejs-tid" placeholder="template_xxxxxxx" oninput="saveEJS()"></div>
-      <div class="ef-group"><label class="ef-lbl">Tu Email remitente</label><input class="finput" id="ejs-from" placeholder="tu@email.cl" oninput="saveEJS()"></div>
-      <div id="ejs-ok" class="alert a-ok" style="display:none;margin:0">✓ Credenciales guardadas</div>
+      <div class="card-t" style="margin-bottom:6px">📧 Método de envío</div>
+      <div style="font-size:11px;color:var(--muted);font-family:var(--font2);margin-bottom:16px;line-height:1.6">
+        La app detecta automáticamente el método disponible:<br>
+        <strong>1° opción:</strong> Gmail directo (si estás conectada con Google)<br>
+        <strong>2° opción:</strong> EmailJS (alternativa sin Google)
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:800;margin-bottom:8px">🔗 Gmail (recomendado)</div>
+        <div id="em-gmail-st" style="font-size:11px;font-family:var(--font2);color:var(--muted)">Conecta con Google en Configuraciones → Google Sheets</div>
+        <button class="btn btn-blue btn-sm" style="margin-top:10px" onclick="go('gsheets')">Ir a Google Sheets →</button>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:11px;font-weight:800;margin-bottom:10px;color:var(--muted)">⚡ EmailJS (alternativa)</div>
+        <div class="ef-group"><label class="ef-lbl">Public Key</label><input class="finput" id="ejs-pk" placeholder="user_xxxxxxxxxx" oninput="saveEJS()"></div>
+        <div class="ef-group"><label class="ef-lbl">Service ID</label><input class="finput" id="ejs-sid" placeholder="service_xxxxxxx" oninput="saveEJS()"></div>
+        <div class="ef-group"><label class="ef-lbl">Template ID</label><input class="finput" id="ejs-tid" placeholder="template_xxxxxxx" oninput="saveEJS()"></div>
+        <div class="ef-group"><label class="ef-lbl">Tu Email</label><input class="finput" id="ejs-from" placeholder="tu@email.cl" oninput="saveEJS()"></div>
+        <div id="ejs-ok" class="alert a-ok" style="display:none;margin:0">✓ EmailJS configurado</div>
+      </div>
     </div>
     <div class="card" style="padding:20px;margin-bottom:0">
       <div class="card-t" style="margin-bottom:14px">📧 Enviar Email</div>
@@ -475,6 +598,116 @@ textarea.finput{resize:vertical;min-height:68px}
 
 <!-- INFORMES -->
 <!-- GOOGLE SHEETS -->
+<!-- CONTROL MENSUAL -->
+<!-- CLIENTES ÚNICOS -->
+<!-- CONTROL RENTA -->
+<div id="view-renta" class="view">
+  <div class="ph">
+    <div><div class="ph-title">Control <span>Renta</span></div><div class="ph-sub">Estado de procesos de Renta Anual y Declaraciones Juradas por cliente</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-ghost btn-sm" onclick="rentaExportExcel()">📗 Exportar Excel</button>
+      <button class="btn btn-blue" onclick="openRentaCliente()">+ Agregar Cliente</button>
+    </div>
+  </div>
+
+  <div class="renta-filters">
+    <input class="srch" style="width:220px" placeholder="🔍 Cliente, RUT..." id="renta-q" oninput="renderRenta()">
+    <select class="fsel" id="renta-resp" onchange="renderRenta()">
+      <option value="">Todos los responsables</option>
+      <option value="Berny">Berny</option>
+      <option value="Javi">Javi</option>
+      <option value="Nexa">Nexa</option>
+    </select>
+    <select class="fsel" id="renta-anio" onchange="renderRenta()">
+      <option value="">Todos los años</option>
+      <option value="2026">AT 2026</option>
+      <option value="2025">AT 2025</option>
+      <option value="2024">AT 2024</option>
+    </select>
+    <select class="fsel" id="renta-estado" onchange="renderRenta()">
+      <option value="">Todos los estados</option>
+      <option value="Pendiente">Con Pendientes</option>
+      <option value="Aceptada">Todos Aceptados</option>
+    </select>
+  </div>
+
+  <div class="renta-summary" id="renta-summary"></div>
+
+  <div class="card">
+    <div class="card-h">
+      <span class="card-t">Clientes en Control de Renta</span>
+      <span id="renta-count" class="card-sub"></span>
+    </div>
+    <div class="renta-table-wrap">
+      <table class="renta-table" id="renta-table">
+        <thead id="renta-thead"></thead>
+        <tbody id="renta-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="view-unicos" class="view">
+  <div class="ph">
+    <div><div class="ph-title">Clientes <span>Únicos</span></div><div class="ph-sub">Encargos esporádicos · seguimiento por tarea</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-ghost btn-sm" onclick="cuExportExcel()">📗 Exportar</button>
+      <button class="btn btn-blue" onclick="openCUEncargo()">+ Nuevo Encargo</button>
+    </div>
+  </div>
+  <div class="cu-filters">
+    <div style="font-size:11px;font-weight:800;color:var(--muted);font-family:var(--font2);text-transform:uppercase;letter-spacing:1px">Filtrar:</div>
+    <input class="srch" style="width:200px" placeholder="🔍 Cliente, encargo..." id="cu-q" oninput="renderCU()">
+    <select class="fsel" id="cu-estado" onchange="renderCU()">
+      <option value="">Todos los estados</option>
+      <option value="Pendiente">Pendiente</option>
+      <option value="En Proceso">En Proceso</option>
+      <option value="Completado">Completado</option>
+      <option value="Vencido">Vencido</option>
+    </select>
+    <select class="fsel" id="cu-resp" onchange="renderCU()">
+      <option value="">Todos los responsables</option>
+      <option value="Berny">Berny</option>
+      <option value="Javi">Javi</option>
+      <option value="Nexa">Nexa</option>
+    </select>
+  </div>
+  <div class="cu-summary" id="cu-summary"></div>
+  <div class="cu-grid" id="cu-grid"></div>
+</div>
+
+<div id="view-control" class="view">
+  <div class="ph">
+    <div><div class="ph-title">Control <span>Mensual</span></div><div class="ph-sub">Seguimiento de tareas por cliente · mes a mes</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-ghost btn-sm" onclick="cmExportExcel()">📗 Exportar Excel</button>
+      <button class="btn btn-blue" onclick="cmResetMes()">🔄 Nuevo Mes</button>
+    </div>
+  </div>
+
+  <div class="cm-month-sel">
+    <div style="font-size:11px;font-weight:800;color:var(--muted);font-family:var(--font2);text-transform:uppercase;letter-spacing:1px;margin-right:4px">Mes:</div>
+    <div id="cm-months" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <select class="cm-resp-filter" id="cm-resp" onchange="renderCM()">
+        <option value="">Todos los responsables</option>
+        <option value="Berny">Berny</option>
+        <option value="Javi">Javi</option>
+        <option value="Nexa">Nexa</option>
+      </select>
+      <select class="cm-resp-filter" id="cm-tipo" onchange="renderCM()">
+        <option value="">Todos los tipos</option>
+        <option value="Mensual">Mensuales</option>
+        <option value="Único">Únicos</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="cm-summary" id="cm-summary"></div>
+
+  <div class="cm-grid" id="cm-grid"></div>
+</div>
+
 <div id="view-gsheets" class="view">
   <div class="ph">
     <div><div class="ph-title">Google <span>Sheets</span></div><div class="ph-sub">Sincronización en tiempo real con tu socia</div></div>
@@ -625,6 +858,14 @@ textarea.finput{resize:vertical;min-height:68px}
     <div class="modal-t"><span id="nc-modal-t">Nuevo Cliente</span> <button class="close-x" onclick="closeM('nc')">✕</button></div>
     <div class="fgrid">
       <div class="fg full"><label class="flbl">Razón Social / Nombre *</label><input class="finput" id="nc-nom" placeholder="Empresa S.A."></div>
+      <div class="fg"><label class="flbl">Tipo de Cliente</label>
+        <select class="finput" id="nc-tipo"><option value="Mensual">Mensual</option><option value="Único">Único / Esporádico</option></select></div>
+      <div class="fg"><label class="flbl">A Cargo</label>
+        <select class="finput" id="nc-acargo"><option value="Berny">Berny</option><option value="Javi">Javi</option><option value="Nexa">Nexa</option></select></div>
+      <div class="fg"><label class="flbl">¿Tiene Liquidación de Sueldo?</label>
+        <select class="finput" id="nc-sueldo"><option value="">No</option><option value="si">Sí</option></select></div>
+      <div class="fg"><label class="flbl">N° Liquidaciones</label>
+        <input class="finput" id="nc-nliq" type="number" placeholder="0" min="0"></div>
       <div class="fg"><label class="flbl">RUT *</label><input class="finput" id="nc-rut" placeholder="XX.XXX.XXX-X" oninput="fmtRUT(this)"></div>
       <div class="fg"><label class="flbl">Giro</label><input class="finput" id="nc-giro"></div>
       <div class="fg"><label class="flbl">Email</label><input class="finput" id="nc-email" type="email"></div>
@@ -632,6 +873,8 @@ textarea.finput{resize:vertical;min-height:68px}
       <div class="fg full"><label class="flbl">Dirección</label><input class="finput" id="nc-dir"></div>
       <div class="fg"><label class="flbl">Ciudad</label><input class="finput" id="nc-ciudad" placeholder="Santiago"></div>
       <div class="fg"><label class="flbl">Contacto de Pago</label><input class="finput" id="nc-cpago"></div>
+      <div class="fg full"><label class="flbl">Servicio Contratado</label><textarea class="finput" id="nc-servicio" placeholder="Descripción del servicio contratado, alcance, condiciones especiales..." style="min-height:80px"></textarea></div>
+      <div class="fg full"><label class="flbl">Observaciones</label><input class="finput" id="nc-obs-cl" placeholder="Notas internas..."></div>
     </div>
     <div class="mfoot"><button class="btn btn-ghost" onclick="closeM('nc')">Cancelar</button><button class="btn btn-blue" id="nc-save-btn" onclick="saveOrUpdateCL()">💾 Guardar</button></div>
   </div>
@@ -678,13 +921,127 @@ textarea.finput{resize:vertical;min-height:68px}
   </div>
 </div>
 <div class="overlay" id="ov-fp"><div class="fp-wrap" id="fp-content"></div></div>
+<!-- MODAL TAREAS CM -->
+<!-- MODAL NUEVO ENCARGO -->
+<!-- MODAL AGREGAR/EDITAR CLIENTE RENTA -->
+<div class="overlay" id="ov-renta-cl">
+  <div class="modal modal-lg">
+    <div class="modal-t"><span id="renta-cl-title">Agregar Cliente a Control Renta</span><button class="close-x" onclick="closeM('renta-cl')">✕</button></div>
+    <div class="fgrid" style="margin-bottom:16px">
+      <div class="fg"><label class="flbl">Cliente (buscar existente)</label>
+        <select class="finput" id="renta-cl-cid" onchange="rentaFillCliente()">
+          <option value="">— Seleccionar o ingresar manual —</option>
+        </select></div>
+      <div class="fg"><label class="flbl">A Cargo</label>
+        <select class="finput" id="renta-cl-resp"><option value="Berny">Berny</option><option value="Javi">Javi</option><option value="Nexa">Nexa</option></select></div>
+      <div class="fg full"><label class="flbl">Razón Social *</label>
+        <input class="finput" id="renta-cl-nom" placeholder="Razón social del cliente"></div>
+      <div class="fg"><label class="flbl">RUT *</label>
+        <input class="finput" id="renta-cl-rut" placeholder="XX.XXX.XXX-X" oninput="fmtRUT(this)"></div>
+      <div class="fg"><label class="flbl">Régimen Tributario</label>
+        <select class="finput" id="renta-cl-regimen">
+          <option value="">— Seleccionar —</option>
+          <option>Régimen Pro-Pyme (14d3)</option>
+          <option>Régimen Pro-Pyme Transparente (14d8)</option>
+          <option>Régimen General (14a)</option>
+          <option>Renta Presunta</option>
+          <option>Persona Natural</option>
+        </select></div>
+      <div class="fg"><label class="flbl">Tipo Contabilidad</label>
+        <select class="finput" id="renta-cl-contab">
+          <option value="">— Seleccionar —</option>
+          <option>Completa</option>
+          <option>Simplificada</option>
+          <option>Sin contabilidad</option>
+        </select></div>
+      <div class="fg full"><label class="flbl">Observaciones</label>
+        <input class="finput" id="renta-cl-obs" placeholder="Notas internas..."></div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <div class="flbl" style="margin-bottom:12px">Declaraciones Juradas que aplican a este cliente</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px" id="renta-dj-toggles"></div>
+      <div style="font-size:10px;color:var(--muted);font-family:var(--font2)">Click para activar/desactivar cada DJ. Solo aparecerán las que actives.</div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeM('renta-cl')">Cancelar</button>
+      <button class="btn btn-blue" onclick="saveRentaCliente()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-cu-enc">
+  <div class="modal modal-lg">
+    <div class="modal-t"><span id="cu-enc-title">Nuevo Encargo</span><button class="close-x" onclick="closeM('cu-enc')">✕</button></div>
+    <div class="fgrid">
+      <div class="fg"><label class="flbl">Cliente *</label>
+        <select class="finput" id="cu-enc-cid" onchange="cuFillClientData()">
+          <option value="">— Seleccionar cliente —</option>
+        </select></div>
+      <div class="fg"><label class="flbl">A Cargo</label>
+        <select class="finput" id="cu-enc-resp"><option value="Berny">Berny</option><option value="Javi">Javi</option><option value="Nexa">Nexa</option></select></div>
+      <div class="fg full"><label class="flbl">Servicio / Encargo *</label>
+        <textarea class="finput" id="cu-enc-serv" placeholder="Descripción del encargo..."></textarea></div>
+      <div class="fg"><label class="flbl">Fecha Encargo</label>
+        <input class="finput" id="cu-enc-fecha" type="date"></div>
+      <div class="fg"><label class="flbl">Fecha Entrega Comprometida</label>
+        <input class="finput" id="cu-enc-entrega" type="date"></div>
+      <div class="fg"><label class="flbl">Monto (CLP)</label>
+        <input class="finput" id="cu-enc-monto" type="number" placeholder="0"></div>
+      <div class="fg"><label class="flbl">Estado</label>
+        <select class="finput" id="cu-enc-estado">
+          <option value="Pendiente">Pendiente</option>
+          <option value="En Proceso">En Proceso</option>
+          <option value="Completado">Completado</option>
+        </select></div>
+      <div class="fg full"><label class="flbl">Observaciones</label>
+        <input class="finput" id="cu-enc-obs" placeholder="Notas internas..."></div>
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+      <div class="flbl" style="margin-bottom:10px">Tareas del Encargo</div>
+      <div id="cu-enc-tasks-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+      <button class="add-item-btn" onclick="cuAddEncTarea()">+ Agregar tarea</button>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeM('cu-enc')">Cancelar</button>
+      <button class="btn btn-blue" onclick="saveCUEncargo()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR TAREAS ENCARGO -->
+<div class="overlay" id="ov-cu-tareas">
+  <div class="modal">
+    <div class="modal-t"><span id="cu-tar-title">Tareas del Encargo</span><button class="close-x" onclick="closeM('cu-tareas')">✕</button></div>
+    <div style="font-size:11px;color:var(--muted);font-family:var(--font2);margin-bottom:14px">Agrega, edita o elimina las tareas de este encargo.</div>
+    <div id="cu-tar-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+    <button class="add-item-btn" onclick="cuAddTareaEdit()">+ Agregar tarea</button>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeM('cu-tareas')">Cancelar</button>
+      <button class="btn btn-blue" onclick="saveCUTareas()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-cm-tareas">
+  <div class="modal">
+    <div class="modal-t"><span id="cm-tareas-title">Tareas del Cliente</span><button class="close-x" onclick="closeM('cm-tareas')">✕</button></div>
+    <div style="font-size:11px;color:var(--muted);font-family:var(--font2);margin-bottom:14px">Personaliza las tareas para este cliente. Los cambios se aplican a todos los meses.</div>
+    <div id="cm-tareas-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+    <button class="add-item-btn" onclick="cmAddTarea()">+ Agregar tarea</button>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeM('cm-tareas')">Cancelar</button>
+      <button class="btn btn-ghost btn-sm" onclick="cmResetTareas()">↺ Restaurar predeterminadas</button>
+      <button class="btn btn-blue" onclick="cmSaveTareasModal()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"><span class="t-ico">✓</span><span id="toast-msg"></span></div>
 <script>
 // ══════════════════════════════════════════════
 // STATE — inicia vacío
 // ══════════════════════════════════════════════
 const AVC=[{bg:'#e8eeff',c:'#003ad0'},{bg:'#f5e8fd',c:'#7020b0'},{bg:'#edfad0',c:'#2d6a00'},{bg:'#fff8d6',c:'#8a6200'}];
-let S={facturas:[],clientes:[],notas:[],sii:[],emails:[],ejs:{pk:'',sid:'',tid:'',from:''},gsConfig:{clientId:'',sheetId:''},folioN:1,notaN:1,lastSync:null};
+let S={facturas:[],clientes:[],notas:[],sii:[],emails:[],ejs:{pk:'',sid:'',tid:'',from:''},gsConfig:{clientId:'',sheetId:''},cmChecks:{},cmTareas:{},encargos:[],rentaClientes:[],folioN:1,notaN:1,lastSync:null};
 function load(){const r=localStorage.getItem('nexa_v5');if(r){S=JSON.parse(r);return;}/* App vacía */}
 function save(){localStorage.setItem('nexa_v5',JSON.stringify(S));}
 function exportJSON(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='nexa_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();toast('Backup exportado — guárdalo en Google Drive');}
@@ -736,9 +1093,9 @@ function normRUT(r){
   const dv=v.slice(-1),body=v.slice(0,-1);
   return formatRUTbody(body)+'-'+dv;
 }
-function renderAll(){renderDash();renderF();renderKB();renderCL();renderNV();renderSII();renderInf();}
+function renderAll(){renderDash();renderF();renderKB();renderCL();renderNV();renderSII();renderInf();renderCM();renderCU();renderRenta();}
 // ══ NAV ══
-function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));const el=document.getElementById('view-'+v);if(el)el.classList.add('active');document.querySelectorAll('.nav-item').forEach(x=>{if(x.getAttribute('onclick')?.includes("'"+v+"'"))x.classList.add('active');});({dashboard:renderDash,facturas:renderF,kanban:renderKB,clientes:renderCL,notas:renderNV,sii:renderSII,email:renderEmail,informes:renderInf,gsheets:()=>{loadGSConfig();if(gsIsSignedIn())gsOnSignedIn();}})[v]?.();}
+function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));const el=document.getElementById('view-'+v);if(el)el.classList.add('active');document.querySelectorAll('.nav-item').forEach(x=>{if(x.getAttribute('onclick')?.includes("'"+v+"'"))x.classList.add('active');});({dashboard:renderDash,facturas:renderF,kanban:renderKB,clientes:renderCL,notas:renderNV,sii:renderSII,email:renderEmail,informes:renderInf,control:renderCM,unicos:renderCU,renta:renderRenta,gsheets:()=>{loadGSConfig();if(gsIsSignedIn())gsOnSignedIn();}})[v]?.();}
 // ══ DASHBOARD ══
 function renderDash(){
   const fs=S.facturas,
@@ -837,7 +1194,7 @@ function verF(id){
   const f=S.facturas.find(x=>x.id===id);if(!f)return;
   const c=cl(f.cid),s=st(f),neto=Number(f.monto);
   const smap={pendiente:'background:var(--yellow-light);color:#8a6200;border:1.5px solid var(--yellow)','en-progreso':'background:var(--purple-light);color:#7020b0;border:1.5px solid var(--purple)',facturado:'background:var(--green-light);color:#2d6a00;border:1.5px solid var(--green)',vencido:'background:var(--red-light);color:#991b1b;border:1.5px solid #fca5a5'};
-  document.getElementById('fp-content').innerHTML=`<div id="fp-inner"><div class="fp-strip"></div><div class="fp-top"><div><div class="fp-logo">nex<span style="color:var(--purple);font-style:italic">a</span><span style="color:var(--yellow)">.</span></div><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:var(--font2);margin-top:4px;text-transform:uppercase">Conectando Negocios</div></div><div style="text-align:right"><div style="background:var(--blue);color:#fff;border-radius:8px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;display:inline-block">${f.folio}</div><div style="margin-top:8px"><span style="display:inline-flex;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;${smap[s]||smap.pendiente}">${s.replace('-',' ')}</span></div>${f.oc?`<div style="font-size:11px;color:var(--muted);margin-top:5px">OC: ${f.oc}</div>`:''}</div></div><div class="fp-meta-grid"><div class="fp-mbox"><div class="fp-mlbl">Cliente</div><div class="fp-mval">${c.nom}</div><div style="font-size:12px;color:var(--muted);margin-top:3px">RUT: ${c.rut}</div><div style="font-size:12px;color:var(--muted)">${c.giro||''}</div><div style="font-size:12px;color:var(--muted)">${c.dir||''}</div></div><div class="fp-mbox"><div class="fp-mlbl">Datos</div><div style="font-size:12px;display:flex;flex-direction:column;gap:5px"><div><strong>Emisión:</strong> ${f.em}</div><div><strong>Vencimiento:</strong> <span style="color:${isV(f)?'var(--red)':'inherit'}">${f.ve}</span></div><div><strong>Condición:</strong> ${f.cond||'30 días'}</div></div></div></div><table class="fp-tbl"><thead><tr><th>Descripción</th><th style="text-align:right">Monto Neto</th></tr></thead><tbody><tr><td>${f.desc||'—'}</td><td style="text-align:right;font-weight:700">${CLP(neto)}</td></tr></tbody></table><div class="fp-tots"><div class="fp-tr fp-total"><span>TOTAL EXENTO IVA</span><span>${CLP(neto)}</span></div></div><div class="fp-foot">nexa · Contabilidad · Capacitación · Asesorías · Conectando Negocios<br>Empresa exenta de IVA · Documento interno · No reemplaza el DTE oficial</div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)"><button class="btn btn-ghost" onclick="closeM('fp')">Cerrar</button><button class="btn btn-purple" onclick="quickEmail('${f.id}');closeM('fp')">✉ Email</button><button class="btn btn-yellow" onclick="printF()">🖨 Imprimir</button></div>`;
+  document.getElementById('fp-content').innerHTML=`<div id="fp-inner"><div class="fp-strip"></div><div class="fp-top"><div><img src="data:image/png;base64,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" alt="Nexa" style="height:36px"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:var(--font2);margin-top:4px;text-transform:uppercase">Conectando Negocios</div></div><div style="text-align:right"><div style="background:var(--blue);color:#fff;border-radius:8px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;display:inline-block">${f.folio}</div><div style="margin-top:8px"><span style="display:inline-flex;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;${smap[s]||smap.pendiente}">${s.replace('-',' ')}</span></div>${f.oc?`<div style="font-size:11px;color:var(--muted);margin-top:5px">OC: ${f.oc}</div>`:''}</div></div><div class="fp-meta-grid"><div class="fp-mbox"><div class="fp-mlbl">Cliente</div><div class="fp-mval">${c.nom}</div><div style="font-size:12px;color:var(--muted);margin-top:3px">RUT: ${c.rut}</div><div style="font-size:12px;color:var(--muted)">${c.giro||''}</div><div style="font-size:12px;color:var(--muted)">${c.dir||''}</div></div><div class="fp-mbox"><div class="fp-mlbl">Datos</div><div style="font-size:12px;display:flex;flex-direction:column;gap:5px"><div><strong>Emisión:</strong> ${f.em}</div><div><strong>Vencimiento:</strong> <span style="color:${isV(f)?'var(--red)':'inherit'}">${f.ve}</span></div><div><strong>Condición:</strong> ${f.cond||'30 días'}</div></div></div></div><table class="fp-tbl"><thead><tr><th>Descripción</th><th style="text-align:right">Monto Neto</th></tr></thead><tbody><tr><td>${f.desc||'—'}</td><td style="text-align:right;font-weight:700">${CLP(neto)}</td></tr></tbody></table><div class="fp-tots"><div class="fp-tr fp-total"><span>TOTAL EXENTO IVA</span><span>${CLP(neto)}</span></div></div><div class="fp-foot">nexa · Contabilidad · Capacitación · Asesorías · Conectando Negocios<br>Empresa exenta de IVA · Documento interno · No reemplaza el DTE oficial</div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)"><button class="btn btn-ghost" onclick="closeM('fp')">Cerrar</button><button class="btn btn-purple" onclick="quickEmail('${f.id}');closeM('fp')">✉ Email</button><button class="btn btn-yellow" onclick="printF()">🖨 Imprimir</button></div>`;
   document.getElementById('ov-fp').classList.add('open');
 }
 function printF(){const h=document.getElementById('fp-inner').innerHTML;const w=window.open('','_blank','width=800,height=900');w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Factura Nexa</title><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet"><style>:root{--blue:#003ad0;--purple:#c175ef;--green:#8eda3c;--yellow:#fbca00;--blue-light:#e8eeff;--bg:#f2f5fc;--border:#dde3f0;--text:#0d1f4e;--muted:#7b8ab8;--red:#ef4444}*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Nunito",sans-serif;color:var(--text);padding:28px;background:#fff}.fp-strip{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--blue) 60%,#c175ef 60%,#c175ef 80%,var(--yellow) 80%,var(--yellow) 95%,#8eda3c 95%);margin-bottom:18px}.fp-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:3px solid var(--blue)}.fp-logo{font-size:26px;font-weight:900;color:var(--blue)}.fp-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.fp-mbox{background:var(--bg);border-radius:10px;padding:12px 14px}.fp-mlbl{font-size:8.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:800;margin-bottom:4px}.fp-mval{font-size:13px;font-weight:700}.fp-tbl{width:100%;border-collapse:collapse;margin-bottom:16px}.fp-tbl th{background:var(--blue);color:#fff;padding:8px 12px;font-size:10px;font-weight:700;text-align:left}.fp-tbl td{padding:8px 12px;font-size:11px;border-bottom:1px solid var(--border)}.fp-tots{display:flex;flex-direction:column;align-items:flex-end;gap:5px;margin-bottom:16px}.fp-tr{display:flex;gap:18px;font-size:12px}.fp-trl{width:100px;text-align:right;color:var(--muted)}.fp-trv{width:90px;text-align:right;font-weight:700}.fp-total{font-size:16px;font-weight:900;color:var(--blue);background:var(--blue-light);padding:8px 14px;border-radius:9px;margin-top:3px}.fp-foot{border-top:1px solid var(--border);padding-top:12px;font-size:9.5px;color:var(--muted);text-align:center;line-height:1.8}</style></head><body>'+h+'</body></html>');w.document.close();setTimeout(()=>w.print(),700);}
@@ -872,7 +1229,7 @@ function renderNV(){
   document.getElementById('nv-pend-badge').textContent=pendFact.length+' notas';
   document.getElementById('nv-pend-tbody').innerHTML=pendFact.map(n=>{const c=cl(n.cid),p=pct[n.estado]||0,pc=pcol[n.estado]||'var(--muted)';return`<tr style="background:rgba(251,202,0,.03)"><td><strong>${n.cod}</strong></td><td><div style="font-weight:700;font-size:12px">${c.nom}</div><div style="font-size:10px;color:var(--muted)">${c.rut}</div></td><td style="font-size:11px;color:var(--muted);max-width:150px">${n.desc}</td><td class="amt">${n.moneda==='UF'?'UF '+Number(n.montoOriginal||0).toFixed(4)+' ('+CLP(n.monto)+')':CLP(n.monto)}</td><td style="font-size:11px;color:var(--muted)">${n.fecha}</td><td style="min-width:110px"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${p}%</div><div class="prog-wrap"><div class="prog-fill" style="width:${p}%;background:${pc}"></div></div></td><td><div style="display:flex;gap:5px"><button class="btn btn-blue btn-xs" onclick="facturarNV('${n.id}')">🧾 Facturar</button><button class="btn btn-ghost btn-xs" onclick="editNV('${n.id}')">✏️</button></div></td></tr>`;}).join('')||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">✓ No hay notas pendientes de facturar</td></tr>';
   let ns=S.notas.filter(n=>(!q||n.cod.toLowerCase().includes(q)||cl(n.cid).nom.toLowerCase().includes(q)||n.desc.toLowerCase().includes(q))&&(!sf||n.estado===sf));
-  document.getElementById('nv-all-tbody').innerHTML=ns.map(n=>{const c=cl(n.cid),fac=n.factId?S.facturas.find(f=>f.id===n.factId):null;return`<tr><td><strong>${n.cod}</strong></td><td><div style="font-weight:700;font-size:12px">${c.nom}</div><div style="font-size:10px;color:var(--muted)">${c.rut}</div></td><td style="font-size:11px;color:var(--muted);max-width:130px">${n.desc}</td><td class="amt">${n.moneda==='UF'?'UF '+Number(n.montoOriginal||0).toFixed(4)+' ('+ CLP(n.monto)+')':CLP(n.monto)}</td><td style="font-size:11px;color:var(--muted)">${n.fecha}</td><td>${badge(n.estado)}</td><td>${fac?`<span style="font-size:11px;font-weight:700;color:var(--blue)">${fac.folio}</span>`:'<span style="color:var(--muted);font-size:11px">—</span>'}</td><td><div style="display:flex;gap:5px;flex-wrap:wrap">${n.estado==='borrador'?`<button class="btn btn-yellow btn-xs" onclick="avanzarNV('${n.id}')">→ Aprobar</button>`:''} ${n.estado==='aprobado'&&!n.factId?`<button class="btn btn-blue btn-xs" onclick="facturarNV('${n.id}')">🧾 Facturar</button>`:''}<button class="btn btn-ghost btn-xs" onclick="editNV('${n.id}')">✏️</button><button class="btn btn-red btn-xs" onclick="delNV('${n.id}')">🗑</button></div></td></tr>`;}).join('')||`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--muted)">${S.notas.length===0?'Agrega tu primera nota de venta':'Sin resultados'}</td></tr>`;
+  document.getElementById('nv-all-tbody').innerHTML=ns.map(n=>{const c=cl(n.cid),fac=n.factId?S.facturas.find(f=>f.id===n.factId):null;return`<tr><td><strong>${n.cod}</strong></td><td><div style="font-weight:700;font-size:12px">${c.nom}</div><div style="font-size:10px;color:var(--muted)">${c.rut}</div></td><td style="font-size:11px;color:var(--muted);max-width:130px">${n.desc}</td><td class="amt">${n.moneda==='UF'?'UF '+Number(n.montoOriginal||0).toFixed(4)+' ('+ CLP(n.monto)+')':CLP(n.monto)}</td><td style="font-size:11px;color:var(--muted)">${n.fecha}</td><td>${badge(n.estado)}</td><td>${fac?`<span style="font-size:11px;font-weight:700;color:var(--blue)">${fac.folio}</span>`:'<span style="color:var(--muted);font-size:11px">—</span>'}</td><td><div style="display:flex;gap:5px;flex-wrap:wrap">${n.estado==='borrador'?`<button class="btn btn-yellow btn-xs" onclick="avanzarNV('${n.id}')">→ Aprobar</button>`:''} ${n.estado==='aprobado'&&!n.factId?`<button class="btn btn-blue btn-xs" onclick="facturarNV('${n.id}')">🧾 Facturar</button>`:''}<button class="btn btn-ghost btn-xs" onclick="editNV('${n.id}')">✏️</button><button class="btn btn-ghost btn-xs" onclick="cloneNV('${n.id}')" title="Clonar nota">⧉</button><button class="btn btn-red btn-xs" onclick="delNV('${n.id}')">🗑</button></div></td></tr>`;}).join('')||`<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--muted)">${S.notas.length===0?'Agrega tu primera nota de venta':'Sin resultados'}</td></tr>`;
 }
 function avanzarNV(id){const n=S.notas.find(x=>x.id===id);if(!n)return;const nx={borrador:'aprobado',aprobado:'facturado'};if(nx[n.estado]){n.estado=nx[n.estado];save();renderNV();toast(n.cod+' → '+n.estado);}}
 function delNV(id){if(!confirm('¿Eliminar nota?'))return;S.notas=S.notas.filter(n=>n.id!==id);save();renderNV();toast('Nota eliminada');}
@@ -1002,12 +1359,91 @@ function renderSII(){
 function exportSIIExcel(){if(!window.XLSX){toast('XLSX no disponible',false);return;}const rows=[['Folio','Fecha','RUT','Razón Social','Neto Nexa','Neto SII','Diferencia','Tipo Doc','Resultado']];S.facturas.forEach(f=>{const d=S.sii.find(x=>String(x.folio)===String(f.folio)),mN=Number(f.monto),mS=d?d.neto:null;rows.push([f.folio,f.em,cl(f.cid).rut,cl(f.cid).nom,mN,mS,mS!==null?mN-mS:'',d?d.tipo:'—',d?(Math.abs((mN-(d.neto||0))/mN*100)<1?'Coincide':'Diferencia'):'Sin doc SII']);});S.sii.forEach(d=>{if(!S.facturas.find(f=>String(f.folio)===String(d.folio)))rows.push([d.folio,d.fecha,d.rut,d.razon,'',d.neto,'',d.tipo,'Solo en SII']);});const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:14},{wch:12},{wch:16},{wch:26},{wch:14},{wch:14},{wch:12},{wch:10},{wch:14}];XLSX.utils.book_append_sheet(wb,ws,'Validación SII');XLSX.writeFile(wb,'validacion_sii_'+new Date().toISOString().split('T')[0]+'.xlsx');toast('Excel exportado');}
 // ══ EMAIL ══
 function saveEJS(){S.ejs={pk:document.getElementById('ejs-pk').value,sid:document.getElementById('ejs-sid').value,tid:document.getElementById('ejs-tid').value,from:document.getElementById('ejs-from').value};save();const ok=document.getElementById('ejs-ok');(S.ejs.pk&&S.ejs.sid&&S.ejs.tid)?ok.style.display='flex':ok.style.display='none';}
-function renderEmail(){['pk','sid','tid','from'].forEach(k=>{const el=document.getElementById('ejs-'+k);if(el)el.value=S.ejs?.[k]||'';});if(S.ejs?.pk&&S.ejs?.sid&&S.ejs?.tid)document.getElementById('ejs-ok').style.display='flex';const sel=document.getElementById('em-fact');sel.innerHTML='<option value="">— Seleccionar —</option>'+S.facturas.map(f=>`<option value="${f.id}">${f.folio} — ${cl(f.cid).nom}</option>`).join('');renderEmHist();}
+function renderEmail(){
+  ['pk','sid','tid','from'].forEach(k=>{const el=document.getElementById('ejs-'+k);if(el)el.value=S.ejs?.[k]||'';});
+  if(S.ejs?.pk&&S.ejs?.sid&&S.ejs?.tid)document.getElementById('ejs-ok').style.display='flex';
+  const sel=document.getElementById('em-fact');
+  sel.innerHTML='<option value="">— Seleccionar —</option>'+S.facturas.map(f=>`<option value="${f.id}">${f.folio} — ${cl(f.cid).nom}</option>`).join('');
+  // Show Gmail connected status
+  const stEl=document.getElementById('em-method-status');
+  if(stEl){
+    if(gsIsSignedIn()){
+      stEl.className='alert a-ok';
+      stEl.innerHTML='✅ <strong>Gmail conectado</strong> — Los emails se enviarán directamente desde tu cuenta Google. Sin límites adicionales.';
+    } else {
+      stEl.className='alert a-info';
+      stEl.innerHTML='ℹ️ Para enviar emails conecta con Google en <strong>Configuraciones → Google Sheets</strong>. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.';
+    }
+  }
+  renderEmHist();
+}
 const ETPL={emision:(f,c)=>({s:'Factura '+f.folio+' — Nexa',m:'Estimado/a '+c.nom+',\n\nAdjunto la factura N° '+f.folio+' por concepto de:\n'+(f.desc||'Servicios profesionales')+'\n\nTotal (Exento IVA): '+CLP(f.monto)+'\nVencimiento: '+f.ve+'\n\nAtentamente,\nEquipo Nexa'}),recordatorio:(f,c)=>({s:'Recordatorio de pago — '+f.folio,m:'Estimado/a '+c.nom+',\n\nLe recordamos que la factura '+f.folio+' por '+CLP(f.monto)+' vence el '+f.ve+'.\n\nNexa · Conectando Negocios'}),vencido:(f,c)=>({s:'⚠️ Factura vencida — '+f.folio,m:'Estimado/a '+c.nom+',\n\nLa factura '+f.folio+' por '+CLP(f.monto)+' está VENCIDA desde '+f.ve+'.\n\nNexa'}),cobrado:(f,c)=>({s:'✅ Pago confirmado — '+f.folio,m:'Estimado/a '+c.nom+',\n\nConfirmamos recepción del pago de la factura '+f.folio+' por '+CLP(f.monto)+'.\n\nGracias.\nNexa'})};
 function fillEmail(){const id=document.getElementById('em-fact').value;if(!id)return;const f=S.facturas.find(x=>x.id===id),c=cl(f.cid);document.getElementById('em-to').value=c.email||'';setEmailTpl();}
 function setEmailTpl(){const id=document.getElementById('em-fact').value;if(!id)return;const f=S.facturas.find(x=>x.id===id),c=cl(f.cid),t=document.getElementById('em-tipo').value,tpl=ETPL[t]?.(f,c)||{s:'',m:''};document.getElementById('em-subj').value=tpl.s;document.getElementById('em-msg').value=tpl.m;}
-async function sendEmail(){const cfg=S.ejs||{};if(!cfg.pk||!cfg.sid||!cfg.tid){toast('Configura credenciales EmailJS primero',false);return;}const fid=document.getElementById('em-fact').value,to=document.getElementById('em-to').value,subj=document.getElementById('em-subj').value,msg=document.getElementById('em-msg').value;if(!to||!subj){toast('Completa destinatario y asunto',false);return;}const f=fid?S.facturas.find(x=>x.id===fid):{};const st=document.getElementById('em-st');st.style.display='block';st.style.cssText='display:block;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;background:var(--blue-light);border:1px solid var(--blue-mid);color:var(--blue)';st.textContent='Enviando...';try{emailjs.init(cfg.pk);await emailjs.send(cfg.sid,cfg.tid,{to_email:to,to_name:to.split('@')[0],subject:subj,message:msg,folio:f?.folio||'',monto:f?CLP(f.monto):'',vencimiento:f?.ve||'',from_name:'Nexa',reply_to:cfg.from});st.style.cssText='display:block;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;background:var(--green-light);border:1px solid var(--green);color:#2d6a00';st.textContent='✓ Email enviado';S.emails.unshift({id:'e'+Date.now(),fecha:new Date().toISOString().split('T')[0],folio:f?.folio||'—',to,tipo:document.getElementById('em-tipo').value,estado:'enviado'});save();renderEmHist();toast('Email enviado a '+to);}catch(err){st.style.cssText='display:block;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;background:var(--red-light);border:1px solid #fca5a5;color:var(--red)';st.textContent='Error: '+(err.text||err.message);toast('Error al enviar',false);}}
-function quickEmail(fid){go('email');setTimeout(()=>{const sel=document.getElementById('em-fact');sel.value=fid;fillEmail();setEmailTpl();},100);}
+async function sendEmail(){
+  // Use Gmail API if Google token available, else fallback to EmailJS
+  const to=document.getElementById('em-to').value;
+  const subj=document.getElementById('em-subj').value;
+  const msg=document.getElementById('em-msg').value;
+  const fid=document.getElementById('em-fact').value;
+  if(!to||!subj){toast('Completa destinatario y asunto',false);return;}
+  const f=fid?S.facturas.find(x=>x.id===fid):{};
+  const stEl=document.getElementById('em-st');
+  const showSt=(txt,type)=>{stEl.style.display='block';stEl.style.cssText='display:block;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;background:var(--'+(type==='ok'?'green-light);border:1px solid var(--green);color:#2d6a00':type==='err'?'red-light);border:1px solid #fca5a5;color:var(--red)':'blue-light);border:1px solid var(--blue-mid);color:var(--blue)')+';';stEl.textContent=txt;};
+  showSt('Enviando...','info');
+  if(gsIsSignedIn()){
+    // ── Gmail API ──
+    try{
+      const fromName='Nexa · Conectando Negocios';
+      const boundary='nexaboundary'+Date.now();
+      const emailBody=[
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        `To: ${to}`,
+        `Subject: ${subj}`,
+        `From: ${fromName} <me>`,
+        '',
+        msg,
+        '',
+        '---',
+        'Nexa · Contabilidad · Capacitación · Asesorías',
+      ].join('\r\n');
+      // Base64url encode
+      const encoded = btoa(unescape(encodeURIComponent(emailBody)))
+        .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+GS.token,'Content-Type':'application/json'},
+        body:JSON.stringify({raw:encoded})
+      });
+      if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Error Gmail API');}
+      showSt('✓ Email enviado vía Gmail','ok');
+      S.emails.unshift({id:'e'+Date.now(),fecha:new Date().toISOString().split('T')[0],folio:f?.folio||'—',to,tipo:document.getElementById('em-tipo').value,estado:'enviado (Gmail)'});
+      save();renderEmHist();toast('Email enviado a '+to);
+    }catch(err){
+      showSt('Error Gmail: '+err.message,'err');
+      toast('Error al enviar: '+err.message,false);
+    }
+  } else {
+    // ── EmailJS fallback ──
+    const cfg=S.ejs||{};
+    if(!cfg.pk||!cfg.sid||!cfg.tid){
+      showSt('Conecta con Google (sidebar → Google Sheets) o configura EmailJS abajo','err');
+      return;
+    }
+    try{
+      emailjs.init(cfg.pk);
+      await emailjs.send(cfg.sid,cfg.tid,{to_email:to,to_name:to.split('@')[0],subject:subj,message:msg,folio:f?.folio||'',monto:f?CLP(f.monto):'',vencimiento:f?.ve||'',from_name:'Nexa',reply_to:cfg.from});
+      showSt('✓ Email enviado vía EmailJS','ok');
+      S.emails.unshift({id:'e'+Date.now(),fecha:new Date().toISOString().split('T')[0],folio:f?.folio||'—',to,tipo:document.getElementById('em-tipo').value,estado:'enviado (EmailJS)'});
+      save();renderEmHist();toast('Email enviado a '+to);
+    }catch(err){
+      showSt('Error EmailJS: '+(err.text||err.message),'err');
+      toast('Error al enviar',false);
+    }
+  }
+}
+function quickEmail(fid){go('email');setTimeout(()=>{renderEmail();const sel=document.getElementById('em-fact');sel.value=fid;fillEmail();setEmailTpl();},100);}
 function renderEmHist(){document.getElementById('em-hist').innerHTML=(S.emails||[]).slice(0,20).map(e=>`<tr><td style="font-size:11px">${e.fecha}</td><td><strong>${e.folio}</strong></td><td style="font-size:11px">${e.to}</td><td><span class="badge b-prog">${e.tipo}</span></td><td><span class="badge b-fact">✓ enviado</span></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Sin emails enviados aún</td></tr>';}
 // ══ INFORMES ══
 function resetInf(){['if-desde','if-hasta'].forEach(id=>document.getElementById(id).value='');['if-cl','if-st'].forEach(id=>{if(document.getElementById(id))document.getElementById(id).value='';});document.getElementById('if-grp').value='mes';renderInf();}
@@ -1051,7 +1487,7 @@ function delCL(id){
 let _editCLId=null;
 function openM_nc_new(){_editCLId=null;const t=document.getElementById('nc-modal-t'),b=document.getElementById('nc-save-btn');if(t)t.textContent='Nuevo Cliente';if(b)b.textContent='💾 Guardar';['nc-nom','nc-rut','nc-giro','nc-email','nc-tel','nc-dir','nc-ciudad','nc-cpago'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});openM('nc');}
 function editCL(id){const c=S.clientes.find(x=>x.id===id);if(!c)return;_editCLId=id;const t=document.getElementById('nc-modal-t'),b=document.getElementById('nc-save-btn');if(t)t.textContent='Editar Cliente';if(b)b.textContent='💾 Guardar cambios';document.getElementById('nc-nom').value=c.nom||'';document.getElementById('nc-rut').value=c.rut||'';document.getElementById('nc-giro').value=c.giro||'';document.getElementById('nc-email').value=c.email||'';document.getElementById('nc-tel').value=c.tel||'';document.getElementById('nc-dir').value=c.dir||'';document.getElementById('nc-ciudad').value=c.ciudad||'';document.getElementById('nc-cpago').value=c.cpago||'';openM('nc');}
-function saveOrUpdateCL(){const nom=document.getElementById('nc-nom').value.trim(),rut=document.getElementById('nc-rut').value.trim();if(!nom||!rut){toast('Nombre y RUT son obligatorios',false);return;}const datos={nom,rut:normRUT(rut),giro:document.getElementById('nc-giro').value,email:document.getElementById('nc-email').value,tel:document.getElementById('nc-tel').value,dir:document.getElementById('nc-dir').value,ciudad:document.getElementById('nc-ciudad').value,cpago:document.getElementById('nc-cpago').value};if(_editCLId){const idx=S.clientes.findIndex(c=>c.id===_editCLId);if(idx>=0)S.clientes[idx]={...S.clientes[idx],...datos};save();closeM('nc');renderCL();toast('Cliente actualizado');}else{S.clientes.push({id:'c'+Date.now(),...datos,ci:S.clientes.length%4});save();closeM('nc');renderCL();renderDash();toast('Cliente '+nom+' agregado');}}
+function saveOrUpdateCL(){const nom=document.getElementById('nc-nom').value.trim(),rut=document.getElementById('nc-rut').value.trim();if(!nom||!rut){toast('Nombre y RUT son obligatorios',false);return;}const datos={nom,rut:normRUT(rut),giro:document.getElementById('nc-giro').value,email:document.getElementById('nc-email').value,tel:document.getElementById('nc-tel').value,dir:document.getElementById('nc-dir').value,ciudad:document.getElementById('nc-ciudad').value,cpago:document.getElementById('nc-cpago').value,servicio:document.getElementById('nc-servicio')?.value||'',obsInterna:document.getElementById('nc-obs-cl')?.value||'',tipo:document.getElementById('nc-tipo')?.value||'Mensual',aCargo:document.getElementById('nc-acargo')?.value||'',tieneSueldo:document.getElementById('nc-sueldo')?.value==='si',nLiq:Number(document.getElementById('nc-nliq')?.value)||0,estado:'Activo'};if(_editCLId){const idx=S.clientes.findIndex(c=>c.id===_editCLId);if(idx>=0)S.clientes[idx]={...S.clientes[idx],...datos};save();closeM('nc');renderCL();toast('Cliente actualizado');}else{S.clientes.push({id:'c'+Date.now(),...datos,ci:S.clientes.length%4});save();closeM('nc');renderCL();renderDash();toast('Cliente '+nom+' agregado');}}
 function saveCL(){saveOrUpdateCL();}
 
 // ══════════════════════════════════════════════════════════════════════
@@ -1063,7 +1499,7 @@ const GS = {
   tokenExpiry: null,
   clientId: '',
   sheetId: '',
-  SCOPES: 'https://www.googleapis.com/auth/spreadsheets',
+  SCOPES: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send',
   SHEETS: ['Clientes','Facturas','Notas','SII','Emails','Config'],
 };
 
@@ -1301,6 +1737,839 @@ function initGS(){
     const nb=document.getElementById('nb-gs');
     if(GS.clientId&&GS.sheetId&&nb) nb.style.display='inline';
   }
+}
+
+
+// ══════════════════════════════════════════════════════════
+// CONTROL MENSUAL
+// ══════════════════════════════════════════════════════════
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// ══════════════════════════════════════════════════════════
+// CLIENTES ÚNICOS — ENCARGOS
+// ══════════════════════════════════════════════════════════
+// S.encargos: [{id, cid, aCargo, serv, fecha, entrega, monto, estado, obs, tareas:[{id,lbl,icon,done}], factId}]
+
+let _cuEncEditId = null;
+let _cuEncTareasEditing = [];
+let _cuTarEditEncId = null;
+let _cuTarEditList = [];
+let _cuOpenCards = {};
+
+function cuEstado(enc){
+  if(enc.estado==='Completado') return 'Completado';
+  if(enc.entrega && new Date(enc.entrega)<new Date() && enc.estado!=='Completado') return 'Vencido';
+  if(enc.estado==='En Proceso') return 'En Proceso';
+  return 'Pendiente';
+}
+
+function cuBadge(est){
+  const m={
+    Pendiente:`<span class="badge badge-borrador">⏳ Pendiente</span>`,
+    'En Proceso':`<span class="badge b-apro">🔄 En Proceso</span>`,
+    Completado:`<span class="badge b-fact">✅ Completado</span>`,
+    Vencido:`<span class="badge b-venc">⚠️ Vencido</span>`,
+  };
+  return m[est]||`<span class="badge b-bord">${est}</span>`;
+}
+
+function renderCU(){
+  if(!S.encargos) S.encargos=[];
+  const q=(document.getElementById('cu-q')?.value||'').toLowerCase();
+  const ef=document.getElementById('cu-estado')?.value||'';
+  const rf=document.getElementById('cu-resp')?.value||'';
+
+  // Group encargos by cliente (only tipo=Único clientes)
+  const unicosClientes = S.clientes.filter(c=>c.tipo==='Único');
+
+  // Also include encargos from clients not yet classified
+  const encFiltered = S.encargos.filter(enc=>{
+    const c=S.clientes.find(x=>x.id===enc.cid)||{nom:enc.cid};
+    const est=cuEstado(enc);
+    if(q && !c.nom.toLowerCase().includes(q) && !enc.serv.toLowerCase().includes(q)) return false;
+    if(ef && est!==ef) return false;
+    if(rf && enc.aCargo!==rf) return false;
+    return true;
+  });
+
+  // Summary
+  const total=encFiltered.length;
+  const pend=encFiltered.filter(e=>cuEstado(e)==='Pendiente').length;
+  const enProc=encFiltered.filter(e=>cuEstado(e)==='En Proceso').length;
+  const comp=encFiltered.filter(e=>cuEstado(e)==='Completado').length;
+  const venc=encFiltered.filter(e=>cuEstado(e)==='Vencido').length;
+
+  const nb=document.getElementById('nb-cu');
+  const pendientes=pend+enProc+venc;
+  if(nb){pendientes>0?(nb.style.display='inline',nb.textContent=pendientes):nb.style.display='none';}
+
+  document.getElementById('cu-summary').innerHTML=`
+    <div class="cu-sum-box"><div class="cu-sum-num" style="color:var(--blue)">${total}</div><div class="cu-sum-lbl">Encargos</div></div>
+    <div class="cu-sum-box"><div class="cu-sum-num" style="color:#8a6200">${pend+enProc}</div><div class="cu-sum-lbl">En Curso</div></div>
+    <div class="cu-sum-box"><div class="cu-sum-num" style="color:#2d6a00">${comp}</div><div class="cu-sum-lbl">Completados</div></div>
+    <div class="cu-sum-box"><div class="cu-sum-num" style="color:var(--red)">${venc}</div><div class="cu-sum-lbl">Vencidos</div></div>`;
+
+  // Group by cliente
+  const byCliente={};
+  encFiltered.forEach(enc=>{
+    if(!byCliente[enc.cid]) byCliente[enc.cid]=[];
+    byCliente[enc.cid].push(enc);
+  });
+
+  // Render
+  const grid=document.getElementById('cu-grid');
+  if(!grid) return;
+
+  if(Object.keys(byCliente).length===0){
+    grid.innerHTML=`<div style="padding:40px;text-align:center;color:var(--muted)">${S.encargos.length===0?'Agrega tu primer encargo con el botón + Nuevo Encargo':'Sin resultados para los filtros seleccionados'}</div>`;
+    return;
+  }
+
+  grid.innerHTML=Object.entries(byCliente).map(([cid,encs])=>{
+    const c=S.clientes.find(x=>x.id===cid)||{nom:cid,rut:'',ci:0};
+    const ac=AVC[c.ci%AVC.length];
+    const ini=c.nom.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const isOpen=_cuOpenCards[cid]!==false; // default open
+    const totalEncs=encs.length;
+    const compEncs=encs.filter(e=>cuEstado(e)==='Completado').length;
+
+    return`<div class="cu-card">
+      <div class="cu-card-head" onclick="toggleCUCard('${cid}')">
+        <div class="cu-avatar" style="background:${ac.bg};color:${ac.c}">${ini}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800">${c.nom}</div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--font2)">${c.aCargo||''} · ${totalEncs} encargo(s) · ${compEncs}/${totalEncs} completados</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-blue btn-xs" onclick="event.stopPropagation();openCUEncargo('${cid}')">+ Encargo</button>
+          <span style="color:var(--muted);font-size:16px">${isOpen?'▲':'▼'}</span>
+        </div>
+      </div>
+      <div class="cu-card-body${isOpen?' open':''}">
+        <div class="cu-encargo-grid">
+          ${encs.map(enc=>{
+            const est=cuEstado(enc);
+            const tareas=enc.tareas||[];
+            const tarDone=tareas.filter(t=>t.done).length;
+            const tarPct=tareas.length>0?Math.round(tarDone/tareas.length*100):100;
+            const diasEntrega=enc.entrega?Math.ceil((new Date(enc.entrega)-new Date())/(1000*60*60*24)):null;
+            const entregaLabel=diasEntrega===null?'Sin fecha':diasEntrega<0?'Venció hace '+Math.abs(diasEntrega)+'d':diasEntrega===0?'Entrega HOY':'Entrega en '+diasEntrega+'d';
+            const entregaColor=diasEntrega===null?'var(--muted)':diasEntrega<0?'var(--red)':diasEntrega<=3?'var(--red)':diasEntrega<=7?'#8a6200':'var(--muted)';
+            return`<div class="cu-encargo">
+              <div class="cu-encargo-head">
+                <div class="cu-encargo-title">${enc.serv.slice(0,40)}${enc.serv.length>40?'...':''}</div>
+                <div style="display:flex;gap:5px">
+                  <button class="btn btn-ghost btn-xs" onclick="openCUTareasEdit('${enc.id}')" title="Editar tareas">⚙️</button>
+                  <button class="btn btn-ghost btn-xs" onclick="openCUEncargoEdit('${enc.id}')" title="Editar encargo">✏️</button>
+                  <button class="btn btn-red btn-xs" onclick="delCUEncargo('${enc.id}')">🗑</button>
+                </div>
+              </div>
+              <div class="cu-encargo-meta">
+                ${cuBadge(est)}
+                <span style="margin-left:6px;color:${entregaColor};font-weight:${diasEntrega!==null&&diasEntrega<=7?'700':'400'}">${entregaLabel}</span><br>
+                ${enc.monto>0?'<span class="amt" style="font-size:12px">'+CLP(enc.monto)+'</span>':''}
+                ${enc.aCargo?'<span style="font-size:10px;color:var(--muted)"> · '+enc.aCargo+'</span>':''}
+              </div>
+              <div class="cu-tasks">
+                ${tareas.length===0
+                  ?'<div style="font-size:11px;color:var(--muted);padding:8px;text-align:center">Sin tareas — click ⚙️ para agregar</div>'
+                  :tareas.map(t=>`<div class="cu-task-row${t.done?' done':''}" onclick="cuToggleTask('${enc.id}','${t.id}')">
+                    <div class="cu-task-lbl"><div class="cu-check">${t.done?'✓':''}</div>${t.icon||'📋'} ${t.lbl}</div>
+                    ${t.done?'<span style="font-size:10px;color:#2d6a00;font-weight:700">✓</span>':'<span style="font-size:10px;color:var(--muted)">—</span>'}
+                  </div>`).join('')}
+              </div>
+              ${tareas.length>0?`<div class="cu-prog-bar"><div class="cu-prog-fill" style="width:${tarPct}%"></div></div>`:''}
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                <span style="font-size:10px;color:var(--muted);font-family:var(--font2)">${tareas.length>0?tarDone+'/'+tareas.length+' tareas':'Sin tareas'}</span>
+                ${est!=='Completado'?`<button class="btn btn-green btn-xs" onclick="cuMarcarCompleto('${enc.id}')">✅ Completar</button>`:''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCUCard(cid){ _cuOpenCards[cid]=!(_cuOpenCards[cid]!==false); renderCU(); }
+
+function cuToggleTask(encId, tarId){
+  if(!S.encargos) return;
+  const enc=S.encargos.find(e=>e.id===encId); if(!enc) return;
+  const tar=enc.tareas.find(t=>t.id===tarId); if(!tar) return;
+  tar.done=!tar.done;
+  save(); renderCU();
+}
+
+function cuMarcarCompleto(encId){
+  const enc=S.encargos.find(e=>e.id===encId); if(!enc) return;
+  enc.estado='Completado';
+  enc.tareas.forEach(t=>t.done=true);
+  enc.fechaCompletado=new Date().toISOString().split('T')[0];
+  save(); renderCU(); toast('Encargo marcado como completado');
+}
+
+function delCUEncargo(id){
+  if(!confirm('¿Eliminar este encargo y todas sus tareas?')) return;
+  S.encargos=S.encargos.filter(e=>e.id!==id);
+  save(); renderCU(); toast('Encargo eliminado');
+}
+
+// ── NUEVO/EDITAR ENCARGO ──
+let _cuEncTareas=[];
+
+function openCUEncargo(cid){
+  _cuEncEditId=null; _cuEncTareas=[];
+  document.getElementById('cu-enc-title').textContent='Nuevo Encargo';
+  document.getElementById('cu-enc-fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('cu-enc-entrega').value='';
+  document.getElementById('cu-enc-monto').value='';
+  document.getElementById('cu-enc-obs').value='';
+  document.getElementById('cu-enc-serv').value='';
+  document.getElementById('cu-enc-estado').value='Pendiente';
+  // Populate cliente select — show only Únicos
+  const unicosClientes=S.clientes.filter(c=>c.tipo==='Único');
+  document.getElementById('cu-enc-cid').innerHTML=
+    '<option value="">— Seleccionar cliente —</option>'+
+    unicosClientes.map(c=>`<option value="${c.id}"${c.id===cid?' selected':''}>${c.nom}</option>`).join('');
+  if(cid){
+    const c=S.clientes.find(x=>x.id===cid);
+    if(c) document.getElementById('cu-enc-resp').value=c.aCargo||'Berny';
+  }
+  renderCUEncTareas();
+  openM('cu-enc');
+}
+
+function openCUEncargoEdit(id){
+  const enc=S.encargos.find(e=>e.id===id); if(!enc) return;
+  _cuEncEditId=id;
+  _cuEncTareas=(enc.tareas||[]).map(t=>({...t}));
+  document.getElementById('cu-enc-title').textContent='Editar Encargo';
+  const unicosClientes=S.clientes.filter(c=>c.tipo==='Único');
+  document.getElementById('cu-enc-cid').innerHTML=
+    '<option value="">— Seleccionar —</option>'+
+    unicosClientes.map(c=>`<option value="${c.id}"${c.id===enc.cid?' selected':''}>${c.nom}</option>`).join('');
+  document.getElementById('cu-enc-resp').value=enc.aCargo||'';
+  document.getElementById('cu-enc-serv').value=enc.serv||'';
+  document.getElementById('cu-enc-fecha').value=enc.fecha||'';
+  document.getElementById('cu-enc-entrega').value=enc.entrega||'';
+  document.getElementById('cu-enc-monto').value=enc.monto||'';
+  document.getElementById('cu-enc-estado').value=enc.estado||'Pendiente';
+  document.getElementById('cu-enc-obs').value=enc.obs||'';
+  renderCUEncTareas();
+  openM('cu-enc');
+}
+
+function cuFillClientData(){
+  const cid=document.getElementById('cu-enc-cid').value;
+  if(!cid) return;
+  const c=S.clientes.find(x=>x.id===cid);
+  if(c) document.getElementById('cu-enc-resp').value=c.aCargo||'Berny';
+}
+
+function renderCUEncTareas(){
+  document.getElementById('cu-enc-tasks-list').innerHTML=_cuEncTareas.map((t,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:9px 12px">
+      <input class="finput" style="width:40px" value="${t.icon||'📋'}" oninput="_cuEncTareas[${i}].icon=this.value">
+      <input class="finput" style="flex:1" value="${t.lbl}" placeholder="Nombre de la tarea" oninput="_cuEncTareas[${i}].lbl=this.value">
+      <button class="del-item" onclick="_cuEncTareas.splice(${i},1);renderCUEncTareas()">✕</button>
+    </div>`).join('')||'<div style="font-size:11px;color:var(--muted);text-align:center;padding:10px">Sin tareas — agrega abajo</div>';
+}
+
+function cuAddEncTarea(){
+  _cuEncTareas.push({id:'t'+Date.now(),lbl:'',icon:'📋',done:false});
+  renderCUEncTareas();
+}
+
+function saveCUEncargo(){
+  const cid=document.getElementById('cu-enc-cid').value;
+  const serv=document.getElementById('cu-enc-serv').value.trim();
+  if(!cid||!serv){toast('Cliente y encargo son obligatorios',false);return;}
+  if(!S.encargos) S.encargos=[];
+  const datos={
+    cid,serv,
+    aCargo:document.getElementById('cu-enc-resp').value,
+    fecha:document.getElementById('cu-enc-fecha').value,
+    entrega:document.getElementById('cu-enc-entrega').value,
+    monto:Number(document.getElementById('cu-enc-monto').value)||0,
+    estado:document.getElementById('cu-enc-estado').value,
+    obs:document.getElementById('cu-enc-obs').value,
+    tareas:_cuEncTareas.filter(t=>t.lbl.trim()),
+  };
+  if(_cuEncEditId){
+    const idx=S.encargos.findIndex(e=>e.id===_cuEncEditId);
+    if(idx>=0) S.encargos[idx]={...S.encargos[idx],...datos};
+    toast('Encargo actualizado');
+  } else {
+    S.encargos.push({id:'enc'+Date.now(),...datos,fechaCompletado:null});
+    toast('Encargo creado');
+  }
+  save(); closeM('cu-enc'); renderCU();
+}
+
+// ── EDITAR TAREAS DE UN ENCARGO ──
+function openCUTareasEdit(encId){
+  const enc=S.encargos.find(e=>e.id===encId); if(!enc) return;
+  _cuTarEditEncId=encId;
+  _cuTarEditList=(enc.tareas||[]).map(t=>({...t}));
+  document.getElementById('cu-tar-title').textContent='Tareas — '+enc.serv.slice(0,30);
+  renderCUTarList();
+  openM('cu-tareas');
+}
+
+function renderCUTarList(){
+  document.getElementById('cu-tar-list').innerHTML=_cuTarEditList.map((t,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:9px 12px">
+      <input class="finput" style="width:40px" value="${t.icon||'📋'}" oninput="_cuTarEditList[${i}].icon=this.value">
+      <input class="finput" style="flex:1" value="${t.lbl}" placeholder="Nombre de la tarea" oninput="_cuTarEditList[${i}].lbl=this.value">
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;white-space:nowrap;cursor:pointer">
+        <input type="checkbox" ${t.done?'checked':''} onchange="_cuTarEditList[${i}].done=this.checked"> Hecho
+      </label>
+      <button class="del-item" onclick="_cuTarEditList.splice(${i},1);renderCUTarList()">✕</button>
+    </div>`).join('')||'<div style="font-size:11px;color:var(--muted);text-align:center;padding:10px">Sin tareas</div>';
+}
+
+function cuAddTareaEdit(){
+  _cuTarEditList.push({id:'t'+Date.now(),lbl:'',icon:'📋',done:false});
+  renderCUTarList();
+}
+
+function saveCUTareas(){
+  const enc=S.encargos.find(e=>e.id===_cuTarEditEncId); if(!enc) return;
+  enc.tareas=_cuTarEditList.filter(t=>t.lbl.trim());
+  save(); closeM('cu-tareas'); renderCU(); toast('Tareas actualizadas');
+}
+
+function cuExportExcel(){
+  if(!window.XLSX){toast('XLSX no disponible',false);return;}
+  const rows=[['Cliente','RUT','A Cargo','Encargo','Fecha','Entrega','Monto','Estado','Tareas Completadas','Observaciones']];
+  (S.encargos||[]).forEach(enc=>{
+    const c=S.clientes.find(x=>x.id===enc.cid)||{nom:enc.cid,rut:''};
+    const tareas=enc.tareas||[];
+    const done=tareas.filter(t=>t.done).length;
+    rows.push([c.nom,c.rut,enc.aCargo||'',enc.serv,enc.fecha||'',enc.entrega||'',enc.monto||0,cuEstado(enc),done+'/'+tareas.length,enc.obs||'']);
+  });
+  const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:28},{wch:14},{wch:10},{wch:30},{wch:12},{wch:12},{wch:12},{wch:12},{wch:16},{wch:24}];
+  XLSX.utils.book_append_sheet(wb,ws,'Clientes Únicos');
+  XLSX.writeFile(wb,'clientes_unicos_'+new Date().toISOString().split('T')[0]+'.xlsx');
+  toast('Excel exportado');
+}
+
+
+// ══════════════════════════════════════════════════════════
+// CONTROL RENTA ANUAL
+// ══════════════════════════════════════════════════════════
+// S.rentaClientes: [{
+//   id, cid(optional), nom, rut, aCargo, regimen, contab, obs,
+//   djs: ['1879','1835','1887','1948'],  // which DJs apply
+//   estados: {
+//     '2026': { at:'Pendiente', dj1879:'Pendiente', dj1835:'N/A', ... obs:'' },
+//     '2025': { ... },
+//     '2024': { ... }
+//   }
+// }]
+
+const RENTA_ANIOS = ['2026','2025','2024'];
+const RENTA_DJS   = ['1879','1835','1887','1948'];
+const RENTA_ESTADOS = ['Pendiente','Presentada','Observada','Aceptada'];
+const RENTA_ESTADO_CLASS = {Pendiente:'pend',Presentada:'pres',Observada:'obs',Aceptada:'acep','N/A':'na'};
+
+let _rentaEditId = null;
+let _rentaDJsActive = ['1879','1835','1887','1948'];
+
+function rentaGetEstado(rc, anio, campo){
+  return rc.estados?.[anio]?.[campo] || 'Pendiente';
+}
+function rentaSetEstado(rcId, anio, campo, val){
+  const rc = (S.rentaClientes||[]).find(x=>x.id===rcId);
+  if(!rc) return;
+  if(!rc.estados) rc.estados={};
+  if(!rc.estados[anio]) rc.estados[anio]={};
+  rc.estados[anio][campo] = val;
+  save();
+  // Update just the select style without full re-render
+  const sel = document.getElementById(`rst_${rcId}_${anio}_${campo}`);
+  if(sel) sel.className = 'renta-sel '+(RENTA_ESTADO_CLASS[val]||'pend');
+  updateRentaBadge();
+}
+
+function updateRentaBadge(){
+  const rcs = S.rentaClientes||[];
+  let pendientes = 0;
+  rcs.forEach(rc=>{
+    RENTA_ANIOS.forEach(anio=>{
+      const djs = rc.djs||[];
+      const vals = [
+        rentaGetEstado(rc,anio,'at'),
+        ...djs.map(dj=>rentaGetEstado(rc,anio,'dj'+dj))
+      ];
+      if(vals.some(v=>v==='Pendiente'||v==='Observada')) pendientes++;
+    });
+  });
+  const nb=document.getElementById('nb-renta');
+  if(nb){pendientes>0?(nb.style.display='inline',nb.textContent=pendientes):nb.style.display='none';}
+}
+
+function renderRenta(){
+  if(!S.rentaClientes) S.rentaClientes=[];
+  const q   = (document.getElementById('renta-q')?.value||'').toLowerCase();
+  const rf  = document.getElementById('renta-resp')?.value||'';
+  const af  = document.getElementById('renta-anio')?.value||'';
+  const ef  = document.getElementById('renta-estado')?.value||'';
+
+  let rcs = S.rentaClientes.filter(rc=>{
+    if(q && !rc.nom.toLowerCase().includes(q) && !rc.rut.includes(q)) return false;
+    if(rf && rc.aCargo!==rf) return false;
+    return true;
+  });
+
+  // Summary
+  let totPend=0,totPres=0,totObs=0,totAcep=0,totTotal=0;
+  S.rentaClientes.forEach(rc=>{
+    RENTA_ANIOS.forEach(anio=>{
+      const campos = ['at',...(rc.djs||[]).map(dj=>'dj'+dj)];
+      campos.forEach(c=>{
+        const v=rentaGetEstado(rc,anio,c);
+        totTotal++;
+        if(v==='Pendiente') totPend++;
+        else if(v==='Presentada') totPres++;
+        else if(v==='Observada') totObs++;
+        else if(v==='Aceptada') totAcep++;
+      });
+    });
+  });
+  document.getElementById('renta-summary').innerHTML=`
+    <div class="renta-sum-box"><div class="renta-sum-num" style="color:var(--blue)">${S.rentaClientes.length}</div><div class="renta-sum-lbl">Clientes</div></div>
+    <div class="renta-sum-box"><div class="renta-sum-num" style="color:#8a6200">${totPend}</div><div class="renta-sum-lbl">Pendientes</div></div>
+    <div class="renta-sum-box"><div class="renta-sum-num" style="color:var(--blue)">${totPres}</div><div class="renta-sum-lbl">Presentadas</div></div>
+    <div class="renta-sum-box"><div class="renta-sum-num" style="color:var(--red)">${totObs}</div><div class="renta-sum-lbl">Observadas</div></div>
+    <div class="renta-sum-box"><div class="renta-sum-num" style="color:#2d6a00">${totAcep}</div><div class="renta-sum-lbl">Aceptadas</div></div>`;
+
+  document.getElementById('renta-count').textContent = rcs.length+' clientes';
+
+  // Build table header
+  const anioColors = {'2026':'yr','2025':'yr2','2024':'yr3'};
+  let thead = `<tr>
+    <th style="min-width:200px">Cliente</th>
+    <th>RUT</th>
+    <th>A Cargo</th>
+    <th>Régimen</th>`;
+  RENTA_ANIOS.forEach(anio=>{
+    const cls = anioColors[anio];
+    thead += `<th class="${cls} sep">AT ${anio}</th>`;
+    // Show all 4 DJ headers but only relevant ones will have dropdowns
+    RENTA_DJS.forEach(dj=>{
+      thead += `<th class="${cls}">DJ ${dj}</th>`;
+    });
+    thead += `<th class="${cls}">Obs. ${anio}</th>`;
+  });
+  thead += `<th></th></tr>`;
+  document.getElementById('renta-thead').innerHTML = thead;
+
+  // Build rows
+  document.getElementById('renta-tbody').innerHTML = rcs.map(rc=>{
+    let row = `<tr>
+      <td><div style="font-weight:700;font-size:12px">${rc.nom}</div><div style="font-size:10px;color:var(--muted);font-family:var(--font2)">${rc.regimen||''}</div></td>
+      <td style="font-size:11px">${rc.rut||''}</td>
+      <td style="font-size:11px">${rc.aCargo||''}</td>
+      <td style="font-size:11px;color:var(--muted)">${rc.contab||''}</td>`;
+
+    RENTA_ANIOS.forEach(anio=>{
+      // AT estado
+      const atVal = rentaGetEstado(rc,anio,'at');
+      row += `<td class="yr-cell sep">
+        <select id="rst_${rc.id}_${anio}_at"
+          class="renta-sel ${RENTA_ESTADO_CLASS[atVal]||'pend'}"
+          onchange="rentaSetEstado('${rc.id}','${anio}','at',this.value);this.className='renta-sel '+(${JSON.stringify(RENTA_ESTADO_CLASS)}[this.value]||'pend')">
+          ${RENTA_ESTADOS.map(e=>`<option value="${e}"${e===atVal?' selected':''}>${e}</option>`).join('')}
+        </select></td>`;
+
+      // DJ columns
+      RENTA_DJS.forEach(dj=>{
+        const applies = (rc.djs||[]).includes(dj);
+        if(applies){
+          const djVal = rentaGetEstado(rc,anio,'dj'+dj);
+          row += `<td class="yr-cell">
+            <select id="rst_${rc.id}_${anio}_dj${dj}"
+              class="renta-sel ${RENTA_ESTADO_CLASS[djVal]||'pend'}"
+              onchange="rentaSetEstado('${rc.id}','${anio}','dj${dj}',this.value);this.className='renta-sel '+(${JSON.stringify(RENTA_ESTADO_CLASS)}[this.value]||'pend')">
+              ${RENTA_ESTADOS.map(e=>`<option value="${e}"${e===djVal?' selected':''}>${e}</option>`).join('')}
+            </select></td>`;
+        } else {
+          row += `<td class="yr-cell"><span style="font-size:10px;color:var(--muted)">—</span></td>`;
+        }
+      });
+
+      // Observación año
+      const obsVal = rc.estados?.[anio]?.obs||'';
+      row += `<td class="yr-cell" style="min-width:120px">
+        <input style="background:transparent;border:none;border-bottom:1px solid var(--border2);width:100%;font-size:11px;font-family:var(--font2);padding:2px 4px;outline:none"
+          value="${obsVal.replace(/"/g,'&quot;')}" placeholder="Observación..."
+          onblur="rentaSetObs('${rc.id}','${anio}',this.value)"></td>`;
+    });
+
+    row += `<td style="white-space:nowrap">
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-ghost btn-xs" onclick="openRentaClienteEdit('${rc.id}')">✏️</button>
+        <button class="btn btn-red btn-xs" onclick="delRentaCliente('${rc.id}')">🗑</button>
+      </div></td></tr>`;
+    return row;
+  }).join('')||`<tr><td colspan="30" style="text-align:center;padding:40px;color:var(--muted)">
+    ${S.rentaClientes.length===0?'Agrega tu primer cliente con el botón + Agregar Cliente':'Sin resultados'}
+  </td></tr>`;
+
+  updateRentaBadge();
+}
+
+function rentaSetObs(rcId, anio, val){
+  const rc=(S.rentaClientes||[]).find(x=>x.id===rcId); if(!rc)return;
+  if(!rc.estados) rc.estados={};
+  if(!rc.estados[anio]) rc.estados[anio]={};
+  rc.estados[anio].obs=val;
+  save();
+}
+
+// ── MODAL AGREGAR/EDITAR ──
+function openRentaCliente(){
+  _rentaEditId=null; _rentaDJsActive=['1879','1835','1887','1948'];
+  document.getElementById('renta-cl-title').textContent='Agregar Cliente a Control Renta';
+  ['renta-cl-nom','renta-cl-rut','renta-cl-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('renta-cl-regimen').value='';
+  document.getElementById('renta-cl-contab').value='';
+  document.getElementById('renta-cl-resp').value='Berny';
+  // Populate select with all clientes
+  document.getElementById('renta-cl-cid').innerHTML=
+    '<option value="">— Seleccionar o ingresar manual —</option>'+
+    S.clientes.map(c=>`<option value="${c.id}">${c.nom} (${c.rut})</option>`).join('');
+  renderRentaDJToggles();
+  openM('renta-cl');
+}
+
+function openRentaClienteEdit(id){
+  const rc=(S.rentaClientes||[]).find(x=>x.id===id); if(!rc)return;
+  _rentaEditId=id; _rentaDJsActive=[...(rc.djs||[])];
+  document.getElementById('renta-cl-title').textContent='Editar — '+rc.nom;
+  document.getElementById('renta-cl-nom').value=rc.nom||'';
+  document.getElementById('renta-cl-rut').value=rc.rut||'';
+  document.getElementById('renta-cl-obs').value=rc.obs||'';
+  document.getElementById('renta-cl-resp').value=rc.aCargo||'Berny';
+  document.getElementById('renta-cl-regimen').value=rc.regimen||'';
+  document.getElementById('renta-cl-contab').value=rc.contab||'';
+  document.getElementById('renta-cl-cid').innerHTML=
+    '<option value="">— Vinculado manual —</option>'+
+    S.clientes.map(c=>`<option value="${c.id}"${c.id===rc.cid?' selected':''}>${c.nom} (${c.rut})</option>`).join('');
+  renderRentaDJToggles();
+  openM('renta-cl');
+}
+
+function rentaFillCliente(){
+  const cid=document.getElementById('renta-cl-cid').value; if(!cid)return;
+  const c=S.clientes.find(x=>x.id===cid); if(!c)return;
+  document.getElementById('renta-cl-nom').value=c.nom||'';
+  document.getElementById('renta-cl-rut').value=c.rut||'';
+  document.getElementById('renta-cl-resp').value=c.aCargo||'Berny';
+  if(c.regimen) document.getElementById('renta-cl-regimen').value=c.regimen;
+}
+
+function renderRentaDJToggles(){
+  document.getElementById('renta-dj-toggles').innerHTML = RENTA_DJS.map(dj=>{
+    const on=_rentaDJsActive.includes(dj);
+    return `<span class="dj-toggle ${on?'dj-on':'dj-off'}" onclick="toggleRentaDJ('${dj}',this)">
+      DJ ${dj}
+    </span>`;
+  }).join('');
+}
+
+function toggleRentaDJ(dj, el){
+  if(_rentaDJsActive.includes(dj)){
+    _rentaDJsActive=_rentaDJsActive.filter(x=>x!==dj);
+    el.className='dj-toggle dj-off';
+  } else {
+    _rentaDJsActive.push(dj);
+    el.className='dj-toggle dj-on';
+  }
+}
+
+function saveRentaCliente(){
+  const nom=document.getElementById('renta-cl-nom').value.trim();
+  const rut=document.getElementById('renta-cl-rut').value.trim();
+  if(!nom||!rut){toast('Razón Social y RUT son obligatorios',false);return;}
+  if(!S.rentaClientes) S.rentaClientes=[];
+  const datos={
+    nom,rut:normRUT(rut),
+    cid:document.getElementById('renta-cl-cid').value||null,
+    aCargo:document.getElementById('renta-cl-resp').value,
+    regimen:document.getElementById('renta-cl-regimen').value,
+    contab:document.getElementById('renta-cl-contab').value,
+    obs:document.getElementById('renta-cl-obs').value,
+    djs:[..._rentaDJsActive],
+  };
+  if(_rentaEditId){
+    const idx=S.rentaClientes.findIndex(x=>x.id===_rentaEditId);
+    if(idx>=0) S.rentaClientes[idx]={...S.rentaClientes[idx],...datos};
+    toast('Cliente actualizado');
+  } else {
+    S.rentaClientes.push({id:'rc'+Date.now(),...datos,estados:{}});
+    toast('Cliente agregado a Control Renta');
+  }
+  save();closeM('renta-cl');renderRenta();
+}
+
+function delRentaCliente(id){
+  if(!confirm('¿Eliminar este cliente del Control de Renta? Se perderán todos sus estados.')) return;
+  S.rentaClientes=(S.rentaClientes||[]).filter(x=>x.id!==id);
+  save();renderRenta();toast('Cliente eliminado del Control Renta');
+}
+
+function rentaExportExcel(){
+  if(!window.XLSX){toast('XLSX no disponible',false);return;}
+  const headers=['Cliente','RUT','A Cargo','Régimen','Contabilidad',
+    'AT 2026','DJ1879-26','DJ1835-26','DJ1887-26','DJ1948-26','Obs.2026',
+    'AT 2025','DJ1879-25','DJ1835-25','DJ1887-25','DJ1948-25','Obs.2025',
+    'AT 2024','DJ1879-24','DJ1835-24','DJ1887-24','DJ1948-24','Obs.2024'];
+  const rows=[headers];
+  (S.rentaClientes||[]).forEach(rc=>{
+    const row=[rc.nom,rc.rut,rc.aCargo||'',rc.regimen||'',rc.contab||''];
+    RENTA_ANIOS.forEach(anio=>{
+      row.push(rentaGetEstado(rc,anio,'at'));
+      RENTA_DJS.forEach(dj=>{
+        row.push((rc.djs||[]).includes(dj)?rentaGetEstado(rc,anio,'dj'+dj):'N/A');
+      });
+      row.push(rc.estados?.[anio]?.obs||'');
+    });
+    rows.push(row);
+  });
+  const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb,ws,'Control Renta');
+  XLSX.writeFile(wb,'control_renta_'+new Date().getFullYear()+'.xlsx');
+  toast('Excel exportado');
+}
+
+// DEFAULT tasks — used when a client has no custom tasks defined
+const CM_TASKS_DEFAULT = [
+  {id:'sueldos',   lbl:'Proc. Sueldos',   icon:'💰', soloSueldo:true},
+  {id:'previred',  lbl:'Carga Previred',   icon:'📤', soloSueldo:true},
+  {id:'mailSueldo',lbl:'Mail Sueldo',      icon:'✉️', soloSueldo:true},
+  {id:'mailPrev',  lbl:'Mail Previred',    icon:'📧', soloSueldo:true},
+  {id:'f29',       lbl:'F.29',             icon:'📋', soloSueldo:false},
+  {id:'mailF29',   lbl:'Mail F.29',        icon:'📨', soloSueldo:false},
+];
+function cmGetTareas(cid){
+  if(!S.cmTareas) S.cmTareas={};
+  return S.cmTareas[cid] || CM_TASKS_DEFAULT.map(t=>({...t}));
+}
+function cmSaveTareas(cid, tareas){
+  if(!S.cmTareas) S.cmTareas={};
+  S.cmTareas[cid]=tareas;
+  save();
+}
+
+let _cmMes = new Date().getMonth(); // 0-11
+let _cmAnio = new Date().getFullYear();
+
+function cmKey(cid, anio, mes, taskId){
+  return `cm_${cid}_${anio}_${mes}_${taskId}`;
+}
+
+function cmGetCheck(cid, anio, mes, taskId){
+  if(!S.cmChecks) S.cmChecks={};
+  return S.cmChecks[cmKey(cid,anio,mes,taskId)]||false;
+}
+
+function cmSetCheck(cid, anio, mes, taskId, val){
+  if(!S.cmChecks) S.cmChecks={};
+  S.cmChecks[cmKey(cid,anio,mes,taskId)]=val;
+  save();
+  renderCM();
+}
+
+function cmToggle(cid, anio, mes, taskId){
+  const cur = cmGetCheck(cid,anio,mes,taskId);
+  cmSetCheck(cid,anio,mes,taskId,!cur);
+}
+
+function renderCMMonths(){
+  const el = document.getElementById('cm-months');
+  if(!el) return;
+  el.innerHTML = MESES.map((m,i)=>`
+    <button class="cm-month-btn${i===_cmMes?' active':''}" onclick="setCMMonth(${i})">${m.slice(0,3)}</button>
+  `).join('');
+}
+
+function setCMMonth(i){
+  _cmMes = i;
+  renderCMMonths();
+  renderCM();
+}
+
+function renderCM(){
+  renderCMMonths();
+  const resp = document.getElementById('cm-resp')?.value||'';
+  const tipo = document.getElementById('cm-tipo')?.value||'';
+
+  // Only show clientes mensuales (tipo Mensual) for monthly tasks
+  // Control mensual: SOLO clientes mensuales (los únicos van a su propio módulo)
+  const tipoFiltro = document.getElementById('cm-tipo')?.value||'';
+  let clientes = S.clientes.filter(c=>{
+    if(resp && c.aCargo !== resp) return false;
+    // Si hay filtro explícito úsalo, si no, mostrar SOLO mensuales
+    if(tipoFiltro) { if(c.tipo !== tipoFiltro) return false; }
+    else { if(c.tipo === 'Único') return false; }
+    return c.estado !== 'Inactivo';
+  });
+
+  // Summary
+  let totalTareas=0, completadas=0, pendientes=0;
+  clientes.forEach(c=>{
+    const allTasks=cmGetTareas(c.id); const tasks = allTasks.filter(t=>!t.soloSueldo||c.tieneSueldo);
+    tasks.forEach(t=>{
+      totalTareas++;
+      if(cmGetCheck(c.id,_cmAnio,_cmMes,t.id)) completadas++;
+      else pendientes++;
+    });
+  });
+  const pct = totalTareas>0?Math.round(completadas/totalTareas*100):0;
+
+  document.getElementById('cm-summary').innerHTML=`
+    <div class="cm-sum-box"><div class="cm-sum-num" style="color:var(--blue)">${clientes.length}</div><div class="cm-sum-lbl">Clientes</div></div>
+    <div class="cm-sum-box"><div class="cm-sum-num" style="color:#2d6a00">${completadas}</div><div class="cm-sum-lbl">Completadas</div></div>
+    <div class="cm-sum-box"><div class="cm-sum-num" style="color:#8a6200">${pendientes}</div><div class="cm-sum-lbl">Pendientes</div></div>
+    <div class="cm-sum-box"><div class="cm-sum-num" style="color:${pct===100?'var(--green)':pct>50?'var(--blue)':'var(--red)'}">${pct}%</div><div class="cm-sum-lbl">Avance</div></div>`;
+
+  // Update nb-cm badge
+  const nb = document.getElementById('nb-cm');
+  if(nb){ if(pendientes>0){nb.style.display='inline';nb.textContent=pendientes;}else nb.style.display='none'; }
+
+  // Client cards
+  document.getElementById('cm-grid').innerHTML = clientes.map(c=>{
+    const ac = AVC[c.ci%AVC.length];
+    const ini = c.nom.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const allTasks=cmGetTareas(c.id); const tasks = allTasks.filter(t=>!t.soloSueldo||c.tieneSueldo);
+    const done = tasks.filter(t=>cmGetCheck(c.id,_cmAnio,_cmMes,t.id)).length;
+    const pctC = tasks.length>0?Math.round(done/tasks.length*100):100;
+    return `<div class="cm-card">
+      <div class="cm-card-head">
+        <div class="cm-avatar" style="background:${ac.bg};color:${ac.c}">${ini}</div>
+        <div>
+          <div class="cm-client-name">${c.nom}</div>
+          <div class="cm-client-sub">${c.aCargo||'—'} · ${c.tipo||'Mensual'} ${c.tieneSueldo?'· '+( c.nLiq||'?')+' liq.':''}</div>
+        </div>
+        <div style="margin-left:auto;font-size:11px;font-weight:800;color:${pctC===100?'#2d6a00':pctC>50?'var(--blue)':'var(--muted)'}">${pctC}%</div>
+      </div>
+      <div class="cm-progress-bar"><div class="cm-progress-fill" style="width:${pctC}%"></div></div>
+      <div class="cm-tasks">
+        ${tasks.map(t=>{
+          const checked = cmGetCheck(c.id,_cmAnio,_cmMes,t.id);
+          return `<div class="cm-task-row${checked?' done':''}" onclick="cmToggle('${c.id}',${_cmAnio},${_cmMes},'${t.id}')">
+            <div class="cm-task-lbl">
+              <div class="cm-check">${checked?'✓':''}</div>
+              ${t.icon} ${t.lbl}
+            </div>
+            ${checked?'<span style="font-size:10px;color:#2d6a00;font-weight:700">✓ Listo</span>':'<span style="font-size:10px;color:var(--muted)">Pendiente</span>'}
+          </div>`;
+        }).join('')}
+        ${tasks.length===0?'<div style="text-align:center;color:var(--muted);font-size:11px;padding:10px">Sin tareas configuradas</div>':''}
+      </div>
+      <div class="cm-card-foot">
+        <span class="cm-pct">${done}/${tasks.length} tareas · ${MESES[_cmMes]} ${_cmAnio}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${pctC===100?'<span style="font-size:10px;font-weight:800;color:#2d6a00">✅ Completado</span>':''}
+          <button class="btn btn-ghost btn-xs" onclick="openCMTareasModal('${c.id}')" style="font-size:10px">⚙️ Tareas</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('')||`<div style="padding:32px;color:var(--muted);text-align:center;grid-column:1/-1">
+    ${S.clientes.length===0?'Primero agrega clientes en el módulo Clientes':'Sin clientes para los filtros seleccionados'}
+  </div>`;
+}
+
+function cmResetMes(){
+  const mes = MESES[_cmMes];
+  if(!confirm(`¿Iniciar control para ${mes} ${_cmAnio}? Las tareas del mes anterior quedarán registradas.`)) return;
+  // Month is already set — just re-render (checks are stored per month so no data loss)
+  renderCM();
+  toast(`Control ${mes} ${_cmAnio} listo`);
+}
+
+function cmExportExcel(){
+  if(!window.XLSX){toast('XLSX no disponible',false);return;}
+  const mes = MESES[_cmMes];
+  const rows=[['Cliente','RUT','Responsable','Tipo','¿Sueldo?','N° Liq.','Proc. Sueldos','Carga Previred','Mail Sueldo','Mail Previred','F.29','Mail F.29','% Avance']];
+  S.clientes.forEach(c=>{
+    const allTasks=cmGetTareas(c.id); const tasks = allTasks.filter(t=>!t.soloSueldo||c.tieneSueldo);
+    const vals = CM_TASKS.map(t=>cmGetCheck(c.id,_cmAnio,_cmMes,t.id)?'✓':'');
+    const done = tasks.filter(t=>cmGetCheck(c.id,_cmAnio,_cmMes,t.id)).length;
+    const pct = tasks.length>0?Math.round(done/tasks.length*100)+'%':'100%';
+    rows.push([c.nom,c.rut,c.aCargo||'',c.tipo||'',c.tieneSueldo?'Sí':'No',c.nLiq||'',...vals,pct]);
+  });
+  const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:30},{wch:14},{wch:10},{wch:10},{wch:8},{wch:6},{wch:13},{wch:14},{wch:12},{wch:13},{wch:6},{wch:10},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws,`Control ${mes} ${_cmAnio}`);
+  XLSX.writeFile(wb,`control_mensual_${mes.toLowerCase()}_${_cmAnio}.xlsx`);
+  toast(`Excel ${mes} exportado`);
+}
+
+// ── CM TAREAS MODAL ──
+let _cmTareasCid = null;
+let _cmTareasEditing = [];
+
+function openCMTareasModal(cid){
+  _cmTareasCid = cid;
+  const c = S.clientes.find(x=>x.id===cid);
+  document.getElementById('cm-tareas-title').textContent = 'Tareas — '+(c?.nom||cid);
+  _cmTareasEditing = cmGetTareas(cid).map(t=>({...t}));
+  renderCMTareasModal();
+  openM('cm-tareas');
+}
+function renderCMTareasModal(){
+  document.getElementById('cm-tareas-list').innerHTML = _cmTareasEditing.map((t,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px 12px">
+      <span style="font-size:16px">${t.icon||'📋'}</span>
+      <input class="finput" style="flex:1" value="${t.lbl}" placeholder="Nombre de la tarea" oninput="_cmTareasEditing[${i}].lbl=this.value">
+      <input class="finput" style="width:50px" value="${t.icon||'📋'}" placeholder="🔧" oninput="_cmTareasEditing[${i}].icon=this.value">
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--font2);color:var(--muted);white-space:nowrap;cursor:pointer">
+        <input type="checkbox" ${t.soloSueldo?'checked':''} onchange="_cmTareasEditing[${i}].soloSueldo=this.checked"> Solo si sueldo
+      </label>
+      <button class="del-item" onclick="_cmTareasEditing.splice(${i},1);renderCMTareasModal()">✕</button>
+    </div>`).join('')||'<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px">Sin tareas — agrega una abajo</div>';
+}
+function cmAddTarea(){
+  _cmTareasEditing.push({id:'t'+Date.now(),lbl:'Nueva tarea',icon:'📋',soloSueldo:false});
+  renderCMTareasModal();
+}
+function cmSaveTareasModal(){
+  if(!_cmTareasCid) return;
+  const valid = _cmTareasEditing.filter(t=>t.lbl.trim());
+  cmSaveTareas(_cmTareasCid, valid);
+  closeM('cm-tareas');
+  renderCM();
+  toast('Tareas actualizadas');
+}
+function cmResetTareas(){
+  if(!confirm('¿Restaurar las tareas predeterminadas para este cliente?')) return;
+  _cmTareasEditing = CM_TASKS_DEFAULT.map(t=>({...t}));
+  renderCMTareasModal();
+}
+
+// ── CLONE NOTA DE VENTA ──
+function cloneNV(id){
+  const n = S.notas.find(x=>x.id===id); if(!n) return;
+  const nuevoCod = 'NV-'+new Date().getFullYear()+'-'+String(S.notaN).padStart(3,'0');
+  const clone = {
+    ...n,
+    id: 'nv'+Date.now(),
+    cod: nuevoCod,
+    fecha: new Date().toISOString().split('T')[0],
+    estado: 'borrador',
+    factId: null,
+    aprobadoPor: '',
+  };
+  S.notas.push(clone);
+  S.notaN++;
+  save();
+  renderNV();
+  toast('Nota clonada: '+nuevoCod);
 }
 
 // ══ INIT ══
