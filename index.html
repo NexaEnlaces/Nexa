@@ -1669,7 +1669,8 @@ const GS = {
 function saveGSConfig(){
   GS.clientId = document.getElementById('gs-client-id')?.value?.trim()||'';
   GS.sheetId  = document.getElementById('gs-sheet-id')?.value?.trim()||'';
-  S.gsConfig = {clientId:GS.clientId, sheetId:GS.sheetId};
+  const credId = document.getElementById('gs-cred-id')?.value?.trim()||'';
+  S.gsConfig = {clientId:GS.clientId, sheetId:GS.sheetId, credSheetId:credId};
   save();
   const el = document.getElementById('gs-config-status');
   if(GS.clientId && GS.sheetId){
@@ -2530,12 +2531,7 @@ function saveGSConfigCred(){
   if(el){ S.gsConfig = S.gsConfig||{}; S.gsConfig.credSheetId = el.value.trim(); save(); }
 }
 
-// Override saveGSConfig to also capture cred sheet id
-const _origSaveGSConfig = saveGSConfig;
-function saveGSConfig(){
-  _origSaveGSConfig();
-  saveGSConfigCred();
-}
+// saveGSConfigCred is called from saveGSConfig in the main GS block
 
 async function credCheckAccess(){
   const el = document.getElementById('cred-access-status');
@@ -2580,13 +2576,14 @@ function renderCred(){
       return `<div class="cred-panel">
         <div class="cred-panel-head" onclick="">
           <div class="cred-lock-icon">🔒</div>
-          <div>
+          <div style="flex:1">
             <div class="cred-panel-title">${c.alias||c.nom}</div>
             <div class="cred-panel-sub">${c.rut} · ${c.aCargo||''}</div>
           </div>
+          <button class="btn btn-blue btn-xs" onclick="event.stopPropagation();openCredModal('${c.id}')">✏️ Editar</button>
         </div>
         <div style="padding:16px 18px">
-          <div class="cred-blocked">🔑 Conecta con Google para ver las credenciales</div>
+          <div class="cred-blocked">🔑 Conecta con Google en Configuraciones → Google Sheets para ver las claves guardadas</div>
         </div>
       </div>`;
     }
@@ -2725,17 +2722,22 @@ async function credSyncToSheet(){
     const c=S.clientes.find(x=>x.id===cid)||{};
     rows.push([cid,c.nom||cr._nom||'',c.rut||cr._rut||'',cr.sii||'',cr.previred||'',cr.rep1nom||'',cr.rep1rut||'',cr.rep1clave||'',cr.rep2nom||'',cr.rep2rut||'',cr.rep2clave||'',cr.obs||'']);
   });
+  if(rows.length===1){ toast('No hay credenciales guardadas aún — agrega primero con ✏️ Editar',false); return; }
+  toast('Subiendo '+( rows.length-1)+' registros al Sheet privado...');
   try{
-    // Use private sheet ID
+    // Temporarily use private sheet ID
     const origId = GS.sheetId;
     GS.sheetId = credSheetId();
-    await gsEnsureSheets_cred();
-    await gsRequest('PUT','/values/'+encodeURIComponent('Credenciales!A1')+'?valueInputOption=RAW',
-      {range:'Credenciales!A1',majorDimension:'ROWS',values:rows});
-    GS.sheetId = origId;
-    toast('✓ Credenciales subidas al Sheet privado');
+    try{
+      await gsEnsureSheets_cred();
+      await gsRequest('PUT','/values/'+encodeURIComponent('Credenciales!A1')+'?valueInputOption=RAW',
+        {range:'Credenciales!A1',majorDimension:'ROWS',values:rows});
+      toast('✅ '+(rows.length-1)+' credenciales subidas al Sheet privado');
+    } finally {
+      GS.sheetId = origId; // always restore
+    }
   }catch(e){
-    toast('Error: '+e.message,false);
+    toast('Error al subir: '+e.message,false);
   }
 }
 
@@ -2751,11 +2753,16 @@ async function gsEnsureSheets_cred(){
 async function credSyncFromSheet(){
   if(!gsIsSignedIn()){ toast('Conecta con Google primero',false); return; }
   if(!credSheetId()){ toast('Configura el ID del Sheet privado de credenciales',false); return; }
+  toast('Cargando credenciales desde Sheet privado...');
   try{
     const origId = GS.sheetId;
     GS.sheetId = credSheetId();
-    const res = await gsRequest('GET','/values/'+encodeURIComponent('Credenciales!A1:ZZ'));
-    GS.sheetId = origId;
+    let res;
+    try{
+      res = await gsRequest('GET','/values/'+encodeURIComponent('Credenciales!A1:ZZ'));
+    } finally {
+      GS.sheetId = origId; // always restore
+    }
     if(!res||!res.values||res.values.length<2){toast('Sheet de credenciales vacío',false);return;}
     const headers=res.values[0];
     const idx={cid:0,sii:3,previred:4,rep1nom:5,rep1rut:6,rep1clave:7,rep2nom:8,rep2rut:9,rep2clave:10,obs:11};
