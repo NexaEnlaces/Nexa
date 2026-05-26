@@ -530,6 +530,17 @@ textarea.finput{resize:vertical;min-height:68px}
       <div class="toolbar">
         <input class="srch" placeholder="🔍 Código, cliente..." id="nv-q" oninput="renderNV()" style="width:200px">
         <select class="fsel" id="nv-fst" onchange="renderNV()"><option value="">Todos</option><option value="borrador">Borrador</option><option value="aprobado">Aprobado</option><option value="facturado">Facturado</option></select>
+        <select class="fsel" id="nv-fmes" onchange="renderNV()">
+          <option value="">Todos los meses</option>
+          <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+          <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+          <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <select class="fsel" id="nv-fanio" onchange="renderNV()">
+          <option value="">Todos los años</option>
+          <option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option>
+        </select>
       </div>
     </div>
     <div class="tbl-wrap"><table><thead><tr><th>Código</th><th>Cliente</th><th>Descripción</th><th>Monto</th><th>Fecha</th><th>Estado</th><th>Factura</th><th>Acciones</th></tr></thead><tbody id="nv-all-tbody"></tbody></table></div>
@@ -1433,16 +1444,6 @@ function renderNV(){
   document.getElementById('nv-pend-badge').textContent=pendFact.length+' notas';
   document.getElementById('nv-pend-tbody').innerHTML=pendFact.map(n=>{const c=cl(n.cid),p=pct[n.estado]||0,pc=pcol[n.estado]||'var(--muted)';return`<tr style="background:rgba(251,202,0,.03)"><td><strong>${n.cod}</strong></td><td><div style="font-weight:700;font-size:12px">${c.nom}</div><div style="font-size:10px;color:var(--muted)">${c.rut}</div></td><td style="font-size:11px;color:var(--muted);max-width:150px">${n.desc}</td><td class="amt">${n.moneda==='UF'?'UF '+Number(n.montoOriginal||0).toFixed(4)+' ('+CLP(n.monto)+')':CLP(n.monto)}</td><td style="font-size:11px;color:var(--muted)">${n.fecha}</td><td style="min-width:110px"><div style="font-size:10px;color:var(--muted);margin-bottom:3px">${p}%</div><div class="prog-wrap"><div class="prog-fill" style="width:${p}%;background:${pc}"></div></div></td><td><div style="display:flex;gap:5px"><button class="btn btn-blue btn-xs" onclick="facturarNV('${n.id}')">🧾 Facturar</button><button class="btn btn-ghost btn-xs" onclick="editNV('${n.id}')">✏️</button></div></td></tr>`;}).join('')||'<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">✓ No hay notas pendientes de facturar</td></tr>';
   let ns=S.notas.filter(n=>(!q||n.cod.toLowerCase().includes(q)||cl(n.cid).nom.toLowerCase().includes(q)||(n.desc||'').toLowerCase().includes(q))&&(!sf||n.estado===sf)&&(!mesF||(n.fecha||'').slice(5,7)===mesF)&&(!anioF||(n.fecha||'').startsWith(anioF)));
-  // Sort NV
-const _nvSortFn=(a,b)=>{const col=_nvSort.col,dir=_nvSort.dir;
-  if(col==='cod')return dir*String(a.cod||'').localeCompare(String(b.cod||''),undefined,{numeric:true});
-  if(col==='monto')return dir*(Number(a.monto)-Number(b.monto));
-  if(col==='fecha')return dir*(a.fecha||'').localeCompare(b.fecha||'');
-  if(col==='estado')return dir*(a.estado||'').localeCompare(b.estado||'');
-  if(col==='cliente')return dir*((cl(a.cid)?.nom||'').localeCompare(cl(b.cid)?.nom||''));
-  return 0;};
-notas2.sort(_nvSortFn);
-['cod','cliente','monto','fecha','estado'].forEach(c=>{const el=document.getElementById('nvs-'+c);if(el)el.textContent=nvSortIcon(c);});
 ns.sort((a,b)=>{const col=_nvSort.col,dir=_nvSort.dir;
   if(col==='cod')return dir*String(a.cod||'').localeCompare(String(b.cod||''),undefined,{numeric:true});
   if(col==='monto')return dir*(Number(a.monto)-Number(b.monto));
@@ -1752,7 +1753,33 @@ function openM_nc_new(){
   const nliq=document.getElementById('nc-nliq'); if(nliq)nliq.value='0';
   openM('nc');
 }
-function editCL(id){const c=S.clientes.find(x=>x.id===id);if(!c)return;_editCLId=id;const t=document.getElementById('nc-modal-t'),b=document.getElementById('nc-save-btn');if(t)t.textContent='Editar Cliente';if(b)b.textContent='💾 Guardar cambios';document.getElementById('nc-nom').value=c.nom||'';document.getElementById('nc-rut').value=c.rut||'';document.getElementById('nc-giro').value=c.giro||'';document.getElementById('nc-email').value=c.email||'';document.getElementById('nc-tel').value=c.tel||'';document.getElementById('nc-dir').value=c.dir||'';document.getElementById('nc-ciudad').value=c.ciudad||'';document.getElementById('nc-cpago').value=c.cpago||'';openM('nc');}
+function editCL(id){
+  const c=S.clientes.find(x=>x.id===id);if(!c)return;
+  _editCLId=id;
+  const t=document.getElementById('nc-modal-t'),b=document.getElementById('nc-save-btn');
+  if(t)t.textContent='Editar Cliente';
+  if(b)b.textContent='💾 Guardar cambios';
+  // Campos de texto
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+  set('nc-nom',    c.nom);
+  set('nc-alias',  c.alias);
+  set('nc-rut',    c.rut);
+  set('nc-giro',   c.giro);
+  set('nc-email',  c.email);
+  set('nc-tel',    c.tel);
+  set('nc-dir',    c.dir);
+  set('nc-ciudad', c.ciudad);
+  set('nc-cpago',  c.cpago);
+  set('nc-servicio', c.servicio);
+  set('nc-obs-cl', c.obsInterna);
+  set('nc-nliq',   c.nLiq||0);
+  // Selects
+  const sel=(id,v,def)=>{const el=document.getElementById(id);if(el)el.value=v||def||'';};
+  sel('nc-tipo',   c.tipo,   'Mensual');
+  sel('nc-acargo', c.aCargo, 'Berny');
+  sel('nc-sueldo', c.tieneSueldo?'si':'', '');
+  openM('nc');
+}
 function saveOrUpdateCL(){const nom=document.getElementById('nc-nom').value.trim(),rut=document.getElementById('nc-rut').value.trim();if(!nom||!rut){toast('Nombre y RUT son obligatorios',false);return;}const datos={nom,rut:normRUT(rut),alias:document.getElementById('nc-alias')?.value?.trim()||'',giro:document.getElementById('nc-giro').value,email:document.getElementById('nc-email').value,tel:document.getElementById('nc-tel').value,dir:document.getElementById('nc-dir').value,ciudad:document.getElementById('nc-ciudad').value,cpago:document.getElementById('nc-cpago').value,servicio:document.getElementById('nc-servicio')?.value||'',obsInterna:document.getElementById('nc-obs-cl')?.value||'',tipo:document.getElementById('nc-tipo')?.value||'Mensual',aCargo:document.getElementById('nc-acargo')?.value||'',tieneSueldo:document.getElementById('nc-sueldo')?.value==='si',nLiq:Number(document.getElementById('nc-nliq')?.value)||0,estado:'Activo'};if(_editCLId){const idx=S.clientes.findIndex(c=>c.id===_editCLId);if(idx>=0)S.clientes[idx]={...S.clientes[idx],...datos};save();closeM('nc');renderCL();toast('Cliente actualizado');}else{S.clientes.push({id:'c'+Date.now(),...datos,ci:S.clientes.length%4});save();closeM('nc');renderCL();renderDash();toast('Cliente '+nom+' agregado');}}
 function saveCL(){saveOrUpdateCL();}
 
