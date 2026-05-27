@@ -1259,33 +1259,18 @@ function load(){
   const r=localStorage.getItem('nexa_v5');
   if(r){
     S=JSON.parse(r);
-    // ── MIGRATE: fix clients where rut/alias got swapped ──
+    // ── MIGRATE: fix clients where alias has a RUT value (old data shift bug) ──
     if(S.clientes){
+      let fixed=false;
       S.clientes.forEach(c=>{
-        // Detect if alias has a RUT-like value and rut has non-RUT value
-        const rutRegex=/^[\d\.]+\-[\dkK]$/;
-        const aliasLooksLikeRut = c.alias && rutRegex.test(c.alias.trim());
-        const rutLooksWrong = c.rut && !rutRegex.test(c.rut.trim());
-        if(aliasLooksLikeRut && rutLooksWrong){
-          // Shift everything back one position
-          const realRut   = c.alias;
-          const realGiro  = c.rut;
-          const realEmail = c.giro;
-          const realTel   = c.email;
-          const realDir   = c.tel;
-          const realCiud  = c.dir;
-          const realCpago = c.ciudad;
-          c.alias  = '';
-          c.rut    = realRut;
-          c.giro   = realGiro;
-          c.email  = realEmail;
-          c.tel    = realTel;
-          c.dir    = realDir;
-          c.ciudad = realCiud;
-          c.cpago  = realCpago;
+        // If alias looks like a RUT (has digits and a dash), it's misplaced data
+        if(c.alias && /^[\d.]+\-[\dkK]$/i.test(c.alias.trim())){
+          c.rut    = c.alias;   // alias was actually the RUT
+          c.alias  = '';        // clear the misplaced value
+          fixed    = true;
         }
       });
-      save();
+      if(fixed) save();
     }
     return;
   }
@@ -1989,9 +1974,13 @@ async function gsWriteSheet(sheetName, data, headers){
 async function gsReadSheet(sheetName, headers){
   const res = await gsRequest('GET','/values/'+encodeURIComponent(sheetName+'!A1:ZZ'));
   if(!res||!res.values||res.values.length<2) return [];
-  const dataRows = res.values.slice(1); // skip header row
+  // Use the ACTUAL header row from the sheet — not the hardcoded headers
+  // This prevents column mismatch when sheet structure changes
+  const sheetHeaders = res.values[0].map(h=>(h||'').trim());
+  const dataRows = res.values.slice(1);
   return dataRows.map(row => {
-    const obj = rowToObj(row, headers);
+    const obj = {};
+    sheetHeaders.forEach((h,i)=>{ if(h) obj[h] = row[i]||''; });
     return obj;
   });
 }
