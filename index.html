@@ -1255,7 +1255,42 @@ textarea.finput{resize:vertical;min-height:68px}
 // ══════════════════════════════════════════════
 const AVC=[{bg:'#e8eeff',c:'#003ad0'},{bg:'#f5e8fd',c:'#7020b0'},{bg:'#edfad0',c:'#2d6a00'},{bg:'#fff8d6',c:'#8a6200'}];
 let S={facturas:[],clientes:[],notas:[],sii:[],emails:[],ejs:{pk:'',sid:'',tid:'',from:''},gsConfig:{clientId:'',sheetId:''},cmChecks:{},cmTareas:{},encargos:[],rentaClientes:[],creds:{},folioN:1,notaN:1,lastSync:null};
-function load(){const r=localStorage.getItem('nexa_v5');if(r){S=JSON.parse(r);return;}/* App vacía */}
+function load(){
+  const r=localStorage.getItem('nexa_v5');
+  if(r){
+    S=JSON.parse(r);
+    // ── MIGRATE: fix clients where rut/alias got swapped ──
+    if(S.clientes){
+      S.clientes.forEach(c=>{
+        // Detect if alias has a RUT-like value and rut has non-RUT value
+        const rutRegex=/^[\d\.]+\-[\dkK]$/;
+        const aliasLooksLikeRut = c.alias && rutRegex.test(c.alias.trim());
+        const rutLooksWrong = c.rut && !rutRegex.test(c.rut.trim());
+        if(aliasLooksLikeRut && rutLooksWrong){
+          // Shift everything back one position
+          const realRut   = c.alias;
+          const realGiro  = c.rut;
+          const realEmail = c.giro;
+          const realTel   = c.email;
+          const realDir   = c.tel;
+          const realCiud  = c.dir;
+          const realCpago = c.ciudad;
+          c.alias  = '';
+          c.rut    = realRut;
+          c.giro   = realGiro;
+          c.email  = realEmail;
+          c.tel    = realTel;
+          c.dir    = realDir;
+          c.ciudad = realCiud;
+          c.cpago  = realCpago;
+        }
+      });
+      save();
+    }
+    return;
+  }
+  /* App vacía */
+}
 function save(){localStorage.setItem('nexa_v5',JSON.stringify(S));}
 function exportJSON(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='nexa_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();toast('Backup exportado — guárdalo en Google Drive');}
 function importJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{S=JSON.parse(ev.target.result);save();renderAll();toast('Backup restaurado');}catch{toast('Error al leer archivo',false);}};r.readAsText(f);}
