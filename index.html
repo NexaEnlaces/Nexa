@@ -1900,15 +1900,15 @@ async function gsRequest(method, endpoint, body){
 
 // ── SHEET STRUCTURE ──────────────────────────────────────────────────
 const GS_HEADERS = {
-  Clientes: ['id','nom','rut','giro','email','tel','dir','ciudad','cpago','ci'],
-  Facturas: ['id','folio','cid','monto','estado','em','ve','desc','oc','cond'],
+  Clientes: ['id','nom','alias','rut','giro','email','tel','dir','ciudad','cpago','ci','tipo','aCargo','tieneSueldo','nLiq','servicio','obsInterna','estado'],
+  Facturas: ['id','folio','cid','monto','estado','em','ve','desc','oc','cond','abonos'],
   Notas:    ['id','cod','cid','monto','estado','fecha','desc','moneda','montoOriginal','ufRef','factId','aprobadoPor','obs'],
   SII:      ['nro','tipo','rut','razon','folio','fecha','exento','neto','iva','total'],
   Emails:   ['id','fecha','folio','to','tipo','estado'],
   Config:   ['key','value'],
 };
 
-function objToRow(obj, headers){ return headers.map(h => { const v=obj[h]; return v===undefined||v===null?'':String(v); }); }
+function objToRow(obj, headers){ return headers.map(h => { const v=obj[h]; if(v===undefined||v===null)return''; if(typeof v==='object')return JSON.stringify(v); return String(v); }); }
 function rowToObj(row, headers){ const o={}; headers.forEach((h,i)=>{ o[h]=row[i]||''; }); return o; }
 
 // ── ENSURE SHEETS EXIST ───────────────────────────────────────────────
@@ -1998,7 +1998,17 @@ async function gsLoadAll(){
     facturas.forEach(f=>{ f.monto=Number(f.monto)||0; });
     notas.forEach(n=>{ n.monto=Number(n.monto)||0; n.montoOriginal=Number(n.montoOriginal)||0; n.ufRef=Number(n.ufRef)||39200; });
     sii.forEach(d=>{ d.exento=Number(d.exento)||0; d.neto=Number(d.neto)||0; d.iva=Number(d.iva)||0; d.total=Number(d.total)||0; });
-    clientes.forEach(c=>{ c.ci=Number(c.ci)||0; });
+    clientes.forEach(c=>{
+    c.ci=Number(c.ci)||0;
+    c.tieneSueldo = c.tieneSueldo==='true'||c.tieneSueldo===true;
+    c.nLiq = Number(c.nLiq)||0;
+  });
+  facturas.forEach(f=>{
+    f.monto=Number(f.monto)||0;
+    if(typeof f.abonos==='string'&&f.abonos){
+      try{f.abonos=JSON.parse(f.abonos);}catch(e){f.abonos=[];}
+    } else if(!Array.isArray(f.abonos)) f.abonos=[];
+  });
 
     // Config
     const cfgMap = {};
