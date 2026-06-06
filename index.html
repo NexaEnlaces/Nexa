@@ -8,24 +8,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js" crossorigin="anonymous"></script>
 <script>
-// Ensure docx loads — try multiple CDNs
-(function(){
-  function tryLoad(src){
-    var s=document.createElement('script');
-    s.src=src;
-    document.head.appendChild(s);
-  }
-  window.addEventListener('load', function(){
-    if(typeof docx==='undefined'){
-      tryLoad('https://unpkg.com/docx@7.8.2/build/index.js');
-      setTimeout(function(){
-        if(typeof docx==='undefined'){
-          tryLoad('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js');
-        }
-      }, 2000);
-    }
-  });
-})();
+// Fallback: if docx didn't load from jsdelivr, try unpkg
+if(typeof docx === 'undefined'){
+  var s = document.createElement('script');
+  s.src = 'https://unpkg.com/docx@7.8.2/build/index.js';
+  document.head.appendChild(s);
+}
 </script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -877,18 +865,23 @@ textarea.finput{resize:vertical;min-height:68px}
     <div>
       <div class="ph-title">Generador de <span>Propuestas</span></div>
       <div class="ph-sub">Completa los datos y descarga el .docx listo para enviar</div>
+      <div id="prop-docx-status" style="font-size:10px;font-family:var(--font2);margin-top:2px"></div>
+      <div id="prop-drive-status" style="font-size:10px;font-family:var(--font2);margin-top:4px;color:var(--muted)"></div>
     </div>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
 
-    <!-- COLUMNA IZQUIERDA -->
+    <!-- COLUMNA IZQUIERDA: Formulario -->
     <div>
 
       <!-- Datos del cliente -->
       <div class="card">
         <div class="card-h">
-          <div><div class="card-t">📋 Datos del cliente</div></div>
+          <div>
+            <div class="card-t">📋 Datos del cliente</div>
+            <div class="card-sub">Información de la propuesta</div>
+          </div>
           <button class="btn btn-ghost btn-sm" onclick="propDesdeCliente()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             Buscar cliente
@@ -898,36 +891,21 @@ textarea.finput{resize:vertical;min-height:68px}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Nombre contacto *</label>
-              <input class="srch" style="width:100%;border-radius:8px" id="prop-nombre" placeholder="Ej: Solange" oninput="propActualizarPreview()">
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-nombre" placeholder="Ej: Solange">
             </div>
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Empresa</label>
-              <input class="srch" style="width:100%;border-radius:8px" id="prop-empresa" placeholder="Ej: NewVita" oninput="propActualizarPreview()">
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-empresa" placeholder="Ej: NewVita">
             </div>
-          </div>
-          <div style="margin-top:10px;margin-bottom:4px">
-            <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px">✍️ Firmante</label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-              <div id="lbl-firmante-javi" onclick="propSetFirmante('Javi')" style="cursor:pointer;padding:10px 14px;border:1.5px solid var(--blue);background:var(--blue-light);border-radius:8px;transition:.15s">
-                <div style="font-size:11px;font-weight:800;color:var(--blue)">Javiera Lizama</div>
-                <div style="font-size:10px;color:var(--muted)">Socia Impuestos</div>
-              </div>
-              <div id="lbl-firmante-berny" onclick="propSetFirmante('Berny')" style="cursor:pointer;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;transition:.15s">
-                <div style="font-size:11px;font-weight:800">Bernardita Sepúlveda</div>
-                <div style="font-size:10px;color:var(--muted)">Socia Contabilidad</div>
-              </div>
-            </div>
-            <input type="hidden" id="prop-firmante" value="Javi">
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Ciudad</label>
-              <input class="srch" style="width:100%;border-radius:8px" id="prop-ciudad" value="Puerto Montt" oninput="propActualizarPreview()">
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-ciudad" value="Puerto Montt">
             </div>
-            
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Fecha</label>
-              <input class="srch" type="date" style="width:100%;border-radius:8px" id="prop-fecha" onchange="propActualizarPreview()">
+              <input class="srch" type="date" style="width:100%;border-radius:8px" id="prop-fecha">
             </div>
           </div>
         </div>
@@ -936,36 +914,39 @@ textarea.finput{resize:vertical;min-height:68px}
       <!-- Servicios mensuales -->
       <div class="card">
         <div class="card-h">
-          <div><div class="card-t">📅 Servicios mensuales</div><div class="card-sub">Incluidos en el cobro mensual</div></div>
+          <div>
+            <div class="card-t">📅 Servicios mensuales</div>
+            <div class="card-sub">Se incluyen en el cobro mensual</div>
+          </div>
         </div>
         <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--blue);border-radius:8px" id="lbl-base">
-            <input type="checkbox" id="prop-base" checked onchange="propSyncLabel('base');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-base" onclick="propToggle('base')">
+            <input type="checkbox" id="prop-base" checked style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
-              <div style="font-size:12px;font-weight:800">Contabilidad + Impuestos mensuales + Renta anual</div>
+              <div style="font-size:12px;font-weight:800">Contabilidad mensual + Impuestos mensuales + Impuestos anuales</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Plan base — incluido en todos los planes</div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-facturacion">
-            <input type="checkbox" id="prop-facturacion" onchange="propSyncLabel('facturacion');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-facturacion" onclick="propToggle('facturacion')">
+            <input type="checkbox" id="prop-facturacion" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
               <div style="font-size:12px;font-weight:800">Facturación electrónica</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Emisión de facturas de venta en representación del cliente</div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-cartera">
-            <input type="checkbox" id="prop-cartera" onchange="propSyncLabel('cartera');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-cartera" onclick="propToggle('cartera')">
+            <input type="checkbox" id="prop-cartera" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
               <div style="font-size:12px;font-weight:800">Conciliación de pagos + Reporte de cartera</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Conciliación mensual e informe de clientes con saldos pendientes</div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-rrhh">
-            <input type="checkbox" id="prop-rrhh" onchange="propSyncLabel('rrhh');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-rrhh" onclick="propToggle('rrhh')">
+            <input type="checkbox" id="prop-rrhh" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
               <div style="font-size:12px;font-weight:800">Gestión de RRHH / Remuneraciones</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Liquidaciones, cotizaciones previsionales y licencias médicas</div>
@@ -975,13 +956,13 @@ textarea.finput{resize:vertical;min-height:68px}
           <div style="border-top:1px solid var(--border2);padding-top:12px;margin-top:4px">
             <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Honorario mensual (UF) *</label>
             <div style="display:flex;align-items:center;gap:8px">
-              <input class="srch" type="number" step="0.1" min="0" style="width:100px;border-radius:8px" id="prop-uf" placeholder="Ej: 3" oninput="propActualizarPreview()">
+              <input class="srch" type="number" step="0.1" min="0" style="width:100px;border-radius:8px" id="prop-uf" placeholder="Ej: 3">
               <span style="font-size:11px;color:var(--muted)">UF mensuales + IVA</span>
             </div>
           </div>
 
           <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--blue-light);border-radius:8px;border:1px solid var(--blue-mid)">
-            <input type="checkbox" id="prop-revision" onchange="propActualizarPreview()" style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0">
+            <input type="checkbox" id="prop-revision" style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0">
             <label for="prop-revision" style="font-size:11px;font-weight:700;color:var(--blue);cursor:pointer">Incluir cláusula de revisión por volumen</label>
           </div>
 
@@ -991,36 +972,39 @@ textarea.finput{resize:vertical;min-height:68px}
       <!-- Servicios únicos -->
       <div class="card">
         <div class="card-h">
-          <div><div class="card-t">⚡ Servicios únicos</div><div class="card-sub">Cobro independiente, pago por única vez</div></div>
+          <div>
+            <div class="card-t">⚡ Servicios únicos</div>
+            <div class="card-sub">Cobro independiente, pago por única vez</div>
+          </div>
         </div>
         <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-constitucion">
-            <input type="checkbox" id="prop-constitucion" onchange="propSyncLabel('constitucion');propActualizarPreview()" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-constitucion" onclick="propToggle('constitucion')">
+            <input type="checkbox" id="prop-constitucion" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
             <div style="flex:1">
               <div style="font-size:12px;font-weight:800">Constitución de empresa SpA</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px">Sociedad 100% operativa desde el día uno</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Vía portal Empresa en un Día — sociedad 100% operativa</div>
               <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">Monto ($):</span>
-                <input class="srch" type="number" style="width:110px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-constitucion-monto" value="180000" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
+                <input class="srch" type="number" style="width:110px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-constitucion-monto" value="180000" onclick="event.stopPropagation()">
               </div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-proyeccion">
-            <input type="checkbox" id="prop-proyeccion" onchange="propSyncLabel('proyeccion');propActualizarPreview()" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-proyeccion" onclick="propToggle('proyeccion')">
+            <input type="checkbox" id="prop-proyeccion" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
             <div style="flex:1">
               <div style="font-size:12px;font-weight:800">Proyección de impuestos anuales</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Estimación anticipada de carga tributaria del ejercicio</div>
               <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">UF:</span>
-                <input class="srch" type="number" step="0.1" style="width:80px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-proyeccion-uf" value="0.3" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
+                <input class="srch" type="number" step="0.1" style="width:80px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-proyeccion-uf" value="0.3" onclick="event.stopPropagation()">
               </div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-termino">
-            <input type="checkbox" id="prop-termino" onchange="propSyncLabel('termino');propActualizarPreview()" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-termino" onclick="propToggle('termino')">
+            <input type="checkbox" id="prop-termino" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
             <div style="flex:1">
               <div style="font-size:12px;font-weight:800">Término de giro</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Cierre formal de actividades ante el SII</div>
@@ -1031,7 +1015,7 @@ textarea.finput{resize:vertical;min-height:68px}
                   <option value="complejo">Complejo</option>
                 </select>
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">UF:</span>
-                <input type="number" step="0.5" min="0.5" style="width:65px;border-radius:6px;padding:4px 8px;font-size:11px;border:1px solid var(--border)" id="prop-termino-uf" value="4" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
+                <input class="srch" type="number" step="0.1" style="width:70px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-termino-uf" value="4" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
               </div>
             </div>
           </label>
@@ -1045,7 +1029,10 @@ textarea.finput{resize:vertical;min-height:68px}
     <div style="position:sticky;top:20px">
       <div class="card">
         <div class="card-h">
-          <div><div class="card-t">👁 Vista previa</div></div>
+          <div>
+            <div class="card-t">👁 Vista previa</div>
+            <div class="card-sub">Resumen de la propuesta</div>
+          </div>
           <button class="btn btn-blue" onclick="propGenerar()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Generar .docx
@@ -1056,9 +1043,11 @@ textarea.finput{resize:vertical;min-height:68px}
         </div>
       </div>
 
+      <!-- Historial -->
       <div class="card">
         <div class="card-h">
-          <div class="card-t">🗂 Últimas propuestas</div>
+          <div class="card-t">🗂 Propuestas generadas</div>
+          <div class="card-sub">Últimas 10</div>
         </div>
         <div style="padding:12px" id="prop-historial">
           <div style="color:var(--muted);font-size:11px;text-align:center;padding:10px 0">Sin propuestas generadas aún</div>
@@ -1068,11 +1057,6 @@ textarea.finput{resize:vertical;min-height:68px}
 
   </div>
 </div>
-
-
-<!-- ============================================================
-     [PASO 4] JAVASCRIPT
-     ============================================================ -->
 
 <div id="view-gsheets" class="view">
   <div class="ph">
@@ -3806,65 +3790,449 @@ function cloneNV(id){
 }
 
 
-// ══ PROPUESTAS ══
-function propSetFirmante(val){
-  document.getElementById('prop-firmante').value = val;
-  const javi=document.getElementById('lbl-firmante-javi');
-  const berny=document.getElementById('lbl-firmante-berny');
-  if(javi){javi.style.borderColor=val==='Javi'?'var(--blue)':'var(--border)';javi.style.background=val==='Javi'?'var(--blue-light)':'transparent';}
-  if(berny){berny.style.borderColor=val==='Berny'?'var(--blue)':'var(--border)';berny.style.background=val==='Berny'?'var(--blue-light)':'transparent';}
-  propActualizarPreview();
+
+// ── Imágenes embebidas para propuestas ──
+const PROP_HEADER_B64 = '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jWec3P2m4eSG5Vz1xLGwJU9cEdSa5eigDoPGXjKbxhcWH+g2ulafp1sLSx0+zDeXBFuLEZYksSxJJJ5JrnWRXxuUNj1GadRQBH5Ef/PNP++RR5Ef/PNP++RUlFADBDGCCEUEdwKfRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAAG2kMegINfVmr2x17wvdQWzqTeWZWJyflO5OK+U69H8A/F+XwzYx6bqdvJe2MfEMkRHmRD+7g/eH8q+y4bzLDYKdWjinaFRWv23Wvqm9ejPzPjfJMbmlLD4rL1zVKEr8vde69L2TacVpdXV+ozw18EtZ1K4zq2NJtUOG5DyP8A7oHGPc16/o3h3Q/AmmyNbRxWMKj99dzsN7f7zn+Q/KuM1X496VFbN/ZthdXNyR8v2gCNAffBJP4V5P4l8Xar4tufN1K6MqqcpAvyxR/Rf69a9pY7JcijfAr21X+Z9PnZW9Iq/dnzEsp4n4tnbNpfVqC+ytL/APbt236zlZdIs9M8X/HKOPfa+HYvMbob6dflH+4nf6n8q8j1DUbrVrt7q9uJLq5f70srZP8A9Ye1V6K+KzDNcXmc+bETuuiWiXov1d2fqOT5Bl2RU+TBU7N7yesn6v8ARWXkFFFFeQfRBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAFnTtTu9HvEurG5ktblOkkTYP0PqPY1674P8AjlFPstfEMYgk6C+gX5D/AL69vqOPavGaK9fL81xeWT5sPPTqnqn8v1VmfOZxw/l2e0+TGU7yW0lpJej7eTuvI+o9d8M6J4706N7qOK8jZf3N7bsN6/7rj+R4rx3xN8Fdb0u4H9lr/a9q5wrJhZE/3gTj8RXMeGPGOreEbjzNOuikZOXt5Pmif6r/AFHNetaV8eNHntlOo2l1Z3IHzLCokQn2OQfzr7V43Jc+jfGr2NXv3+drP0kr+Z+XRyvijhGdsrf1nDvaL1t/27dNesHZ9Yo7jS7c6H4WtoLl1BtLILKwPA2pzXylnPI6HmvSviB8X28S2EmmaXBJaWMvE00pHmSj+6APuj17mvNq8biXMsPjalKjhXeFNWv3229Elr1Z9RwPkmNyujiMTmC5aleV+Xsveetr2bcnpd2Vr6hRRRXxh+mBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQB//Z';
+const PROP_EMAIL_B64  = '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';
+const PROP_INSTA_B64  = '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';
+function b64ToUint8(b64){
+  const bin=atob(b64); const arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return arr;
 }
+// ══ PROPUESTAS ══
+function renderProp() {
+  propActualizarPreview();
+  propRenderHistorial();
+  // Poner fecha de hoy por defecto
+  const fd = document.getElementById('prop-fecha');
+  if (fd && !fd.value) fd.value = new Date().toISOString().split('T')[0];
+  // docx status
+  const docxEl = document.getElementById('prop-docx-status');
+  if(docxEl){
+    if(typeof docx !== 'undefined'){
+      docxEl.innerHTML = '📄 docx.js cargado — se generará archivo Word (.docx)';
+      docxEl.style.color = '#2d6a00';
+    } else {
+      docxEl.innerHTML = '⚠️ docx.js no cargado — se generará HTML. Recarga la página o verifica tu conexión.';
+      docxEl.style.color = 'var(--red)';
+    }
+  }
+  // Drive status
+  const ds = document.getElementById('prop-drive-status');
+  if(ds){
+    if(typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+      ds.innerHTML = '☁️ Las propuestas se guardarán automáticamente en Google Drive → carpeta <strong>"Propuestas APP"</strong>';
+      ds.style.color = '#2d6a00';
+    } else {
+      ds.innerHTML = '⚠️ Conecta con Google (Configuraciones → Google Sheets) para guardar automáticamente en Drive';
+      ds.style.color = '#8a6200';
+    }
+  }
+}
+
+function propGenerarConDocxJS(d) {
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, BorderStyle, UnderlineType } = docx;
+
+  const estiloNormal = { font: 'Arial Narrow', size: 20 };
+  const negrita = (txt) => new TextRun({ text: txt, bold: true, ...estiloNormal });
+  const normal = (txt) => new TextRun({ text: txt, ...estiloNormal });
+  const p = (children, opts = {}) => new Paragraph({ children: Array.isArray(children) ? children : [children], ...opts });
+  const bullet = (txt) => new Paragraph({ bullet: { level: 0 }, children: [normal(txt)], style: 'Sinespaciado' });
+  const sep = () => p([normal('')]);
+
+  const serviciosMensuales = [];
+  if (d.base) {
+    serviciosMensuales.push(
+      p([negrita('Asesoría Administrativa y Contable Permanente:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Acompañamiento técnico continuo en materias administrativas y contables, con atención permanente de consultas, orientación en el orden y respaldo de la información contable.')]),
+      sep(),
+      p([negrita('Contabilidad Mensual:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Registro contable mensual, revisión de consistencia y análisis general de la información registrada.')]),
+      sep(),
+      p([negrita('Impuestos Mensuales:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Enfoque orientado a evitar errores, multas y diferencias futuras.')]),
+      sep(),
+      p([negrita('Impuestos Anuales:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Determinación de base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas y asistencia ante revisiones del SII.')]),
+      sep()
+    );
+  }
+
+  if (d.facturacion) {
+    serviciosMensuales.push(
+      p([negrita('Facturación Electrónica:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente.')]),
+      sep()
+    );
+  }
+
+  if (d.cartera) {
+    serviciosMensuales.push(
+      p([negrita('Conciliación de Pagos y Reporte de Cartera:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Conciliación mensual de pagos recibidos e imputación a facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro para que la empresa ejecute las acciones de gestión correspondientes.')]),
+      sep()
+    );
+  }
+
+  if (d.rrhh) {
+    serviciosMensuales.push(
+      p([negrita('Gestión de Recursos Humanos:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Confección de liquidaciones de sueldo, cálculo de cotizaciones previsionales, preparación de información para pago de remuneraciones y tramitación de licencias médicas informadas por el cliente.')]),
+      sep()
+    );
+  }
+
+  const serviciosUnicos = [];
+  if (d.constitucion) {
+    serviciosUnicos.push(
+      p([negrita('Constitución de Empresa SpA (Servicio Único):')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía, con base legal adecuada a la estructura tributaria del cliente. Incluye: redacción de estatutos, inicio de actividades ante el SII, elección del régimen tributario más conveniente, e inscripción al sistema de facturación electrónica. La sociedad queda completamente operativa al término del proceso.')]),
+      p([negrita(`Valor: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  if (d.proyeccion) {
+    serviciosUnicos.push(
+      p([negrita('Proyección de Impuestos Anuales (Servicio Único):')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Estimación anticipada de la carga tributaria del ejercicio vigente, permitiendo al cliente tomar decisiones informadas antes del cierre del año tributario.')]),
+      p([negrita(`Valor: ~${d.proyeccionUF} UF + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  if (d.termino) {
+    const terminoDesc = d.terminoTipo === 'complejo'
+      ? 'Cierre formal de actividades ante el SII en casos que requieren regularización previa de obligaciones tributarias pendientes.'
+      : 'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias.';
+    serviciosUnicos.push(
+      p([negrita(`Término de Giro ${d.terminoTipo === 'complejo' ? 'Complejo' : 'Simple'} (Servicio Único):`)], { bullet: { level: 0 } }),
+      sep(),
+      p([normal(terminoDesc)]),
+      p([negrita(`Valor: ~${d.terminoUF} UF + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  const honorariosLineas = [];
+  if (d.base || d.facturacion || d.cartera || d.rrhh) {
+    const desc = [
+      d.base ? 'contabilidad mensual, impuestos mensuales e impuestos anuales' : '',
+      d.facturacion ? 'emisión de facturas' : '',
+      d.cartera ? 'conciliación de pagos y reporte de cartera' : '',
+      d.rrhh ? 'gestión de RRHH' : ''
+    ].filter(Boolean).join(', ');
+    honorariosLineas.push(p([normal(`Servicio mensual (${desc}): ${d.uf} UF mensuales + IVA.`)]));
+  }
+  if (d.constitucion) honorariosLineas.push(p([normal(`Constitución de empresa: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único).`)]));
+  if (d.proyeccion) honorariosLineas.push(p([normal(`Proyección de impuestos anuales: ~${d.proyeccionUF} UF + IVA (pago único).`)]));
+  if (d.termino) honorariosLineas.push(p([normal(`Término de giro ${d.terminoTipo}: ~${d.terminoUF} UF + IVA (pago único).`)]));
+
+  if (d.revision) {
+    honorariosLineas.push(
+      sep(),
+      p([normal('El valor del servicio mensual está definido en función del volumen de operaciones actual de la empresa. En caso de que el volumen de facturas emitidas, recibidas u operaciones contables experimente un aumento sostenido, las partes acordarán una revisión del honorario mensual acorde al nuevo nivel de actividad.')])
+    );
+  }
+
+  honorariosLineas.push(
+    sep(),
+    p([normal('Los servicios de carácter mensual serán facturados dentro de los primeros cinco días de cada mes. Los servicios extraordinarios o no contemplados serán cotizados y facturados de manera adicional.')]),
+    sep(),
+    p([normal('En caso de mora o retraso en el pago de honorarios, Nexa Enlaces Ltda. podrá suspender temporalmente la prestación de los servicios hasta la regularización de los pagos pendientes.')])
+  );
+
+  const saludo = d.nombre.endsWith('a') || ['Solange','Marcela','Javiera','Carolina','Francisca','Valentina','Daniela','Camila','Andrea','Patricia','Sandra','Mónica','Claudia','Alejandra','Nicole','Bárbara','Paola','Lorena','Verónica','Susana','Isabel','Teresa','Ana','María','Gabriela','Natalia','Beatriz','Rosa','Elena','Laura','Sara','Alicia','Emma','Sofía','Lucía','Mía','Carla','Karla'].includes(d.nombre) ? 'Estimada' : 'Estimado';
+
+  const children = [
+    p([negrita('Propuesta Prestación de Servicios')], { alignment: AlignmentType.CENTER }),
+    sep(),
+    p([normal(`${saludo} ${d.nombre}`)]),
+    sep(),
+    p([negrita('Presente')]),
+    sep(),
+    p([normal(`De nuestra consideración:\n\nJunto con saludar, y de acuerdo con lo conversado, tenemos el agrado de presentar nuestra Propuesta de Asesoría Contable y Tributaria Estratégica, diseñada para empresas que requieren más que cumplimiento, y buscan control, orden y respaldo técnico permanente en su gestión financiera y tributaria.`)]),
+    sep(),
+    p([normal('En Nexa Enlaces entendemos que una contabilidad bien llevada no solo permite cumplir con el Servicio de Impuestos Internos, sino que es una herramienta clave para la toma de decisiones, la prevención de riesgos y la continuidad del negocio.')]),
+    sep(),
+    p([negrita('Objetivo:')]),
+    sep(),
+    p([normal('El objetivo de esta asesoría es acompañar de manera permanente y especializada la gestión contable y tributaria, asegurando: cumplimiento normativo oportuno, información contable confiable, reducción de riesgos tributarios y acompañamiento técnico continuo para la toma de decisiones.')]),
+    sep(),
+    p([negrita('Alcances de los Servicios:')]),
+    sep(),
+    ...serviciosMensuales,
+    ...(serviciosUnicos.length ? [
+      p([negrita('Responsabilidades del Cliente:')]),
+      sep(),
+      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria de la empresa; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados; y confirmar los pagos recibidos dentro del plazo definido para mantener el reporte de cartera actualizado.')]),
+      sep(),
+      p([negrita('Profesionales a cargo:')]),
+      sep(),
+      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
+      sep(),
+      p([normal(`El correo de contacto oficial es: contacto@nexaen.cl`)]),
+      sep(),
+      p([negrita('Honorarios:')]),
+      sep(),
+      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
+      sep(),
+      ...honorariosLineas,
+      sep(),
+      ...serviciosUnicos
+    ] : [
+      p([negrita('Responsabilidades del Cliente:')]),
+      sep(),
+      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados.')]),
+      sep(),
+      p([negrita('Profesionales a cargo:')]),
+      sep(),
+      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
+      sep(),
+      p([normal('El correo de contacto oficial es: contacto@nexaen.cl')]),
+      sep(),
+      p([negrita('Honorarios:')]),
+      sep(),
+      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
+      sep(),
+      ...honorariosLineas
+    ]),
+    sep(),
+    p([normal('Cualquier duda con respecto a esta propuesta, pueden contactarnos para precisar cualquier asunto descrito. Una vez aceptada la propuesta, se coordinará el plan de trabajo y los plazos para ambas partes.')]),
+    sep(),
+    p([normal('Sólo si están de acuerdo con los términos, favor enviarla debidamente firmada o confirmar la aceptación por correo electrónico.')]),
+    sep(),
+    p([normal('Saludos cordiales,')]),
+    sep(),
+    p([negrita('Javiera Lizama')]),
+    p([normal('Nexa Enlaces Ltda.')]),
+    sep(),
+    p([normal(`${d.ciudad}, ${d.fechaTexto}`)]),
+    sep(),
+    p([normal('─'.repeat(80))]),
+    sep(),
+    p([normal('Aceptación de servicios:')]),
+    sep(),
+    p([normal('Expresamos nuestro entendimiento y acuerdo con los servicios y términos establecidos en esta propuesta.')]),
+    sep(),
+    p([normal('Firma:\t_____________________\t\tNombre y cargo:\t_______________________')])
+  ];
+
+  const doc_obj = new Document({
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838 },
+          margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 }
+        }
+      },
+      children
+    }]
+  });
+
+  Packer.toBlob(doc_obj).then(blob => {
+    const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    // Guardar en historial
+    propGuardarHistorial(d);
+    if (typeof toast === 'function') toast(`Propuesta para ${d.nombre} descargada`);
+    // Subir copia a Google Drive
+    if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+      driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`);
+    }
+  }).catch(err => {
+    console.error(err);
+    if (typeof toast === 'function') toast('Error al generar el archivo: '+err.message, false);
+    propGenerarHTMLFallback(d);
+  });
+}
+
+function propGenerarHTMLFallback(d) {
+  // Fallback si docx.js no carga — genera HTML descargable
+  const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
+  const saludo = d.nombre.endsWith('a') ? 'Estimada' : 'Estimado';
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Propuesta ${d.nombre}</title>
+  <style>body{font-family:Arial Narrow,Arial;font-size:10pt;margin:2cm;color:#000}
+  h1{font-size:14pt;text-align:center}p{margin:6px 0;line-height:1.5}
+  strong{font-weight:bold}.firma{margin-top:40px}</style></head><body>
+  <h1>Propuesta Prestación de Servicios</h1>
+  <p>${saludo} ${d.nombre}</p><p><strong>Presente</strong></p>
+  <p>De nuestra consideración, junto con saludar presentamos nuestra propuesta de asesoría contable y tributaria.</p>
+  ${d.uf ? `<p><strong>Honorario mensual:</strong> ${d.uf} UF + IVA</p>` : ''}
+  ${d.constitucion ? `<p><strong>Constitución de empresa:</strong> $${d.constitucionMonto.toLocaleString('es-CL')} + IVA</p>` : ''}
+  <p>Saludos cordiales,<br><strong>Javiera Lizama</strong><br>Nexa Enlaces Ltda.</p>
+  <p>${d.ciudad}, ${d.fechaTexto}</p>
+  </body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+  propGuardarHistorial(d);
+  if (typeof toast === 'function') toast('Descargado como HTML (agrega docx.js para .docx)', false);
+  // Upload to Drive
+  if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+    driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`);
+  }
+}
+
+function propGuardarHistorial(d) {
+  if (typeof S === 'undefined') return;
+  if (!S.propuestas) S.propuestas = [];
+  S.propuestas.unshift({
+    id: 'p' + Date.now(),
+    nombre: d.nombre,
+    empresa: d.empresa,
+    fecha: d.fechaRaw,
+    uf: d.uf,
+    servicios: [
+      d.base ? 'Base' : '',
+      d.facturacion ? 'Facturación' : '',
+      d.cartera ? 'Cartera' : '',
+      d.rrhh ? 'RRHH' : '',
+      d.constitucion ? 'SpA' : '',
+      d.proyeccion ? 'Proyección' : '',
+      d.termino ? 'Término' : ''
+    ].filter(Boolean).join(', ')
+  });
+  if (S.propuestas.length > 10) S.propuestas = S.propuestas.slice(0, 10);
+  if (typeof save === 'function') save();
+  propRenderHistorial();
+}
+
+function propRenderHistorial() {
+  const el = document.getElementById('prop-historial');
+  if (!el || typeof S === 'undefined' || !S.propuestas?.length) return;
+  el.innerHTML = S.propuestas.map(p => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div>
+        <div style="font-size:12px;font-weight:800">${p.nombre}${p.empresa ? ' · ' + p.empresa : ''}</div>
+        <div style="font-size:10px;color:var(--muted)">${p.fecha}${p.uf ? ' · ' + p.uf + ' UF/mes' : ''} · ${p.servicios}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+
 function propCapitalizar(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 function propSaludo(nombre) {
-  const n = nombre.trim().toLowerCase();
-  return (PROP_NOMBRES_F.has(n) || n.endsWith('a')) ? 'Estimada' : 'Estimado';
+  const n = (nombre || '').trim().toLowerCase();
+  const fem = ['a','ia','na','ra','la','sa','da','ta','ca'];
+  const ultima = n.slice(-1);
+  if (fem.some(s => n.endsWith(s))) return 'Estimada';
+  return 'Estimado';
 }
 
-function propSyncLabel(id) {
-  const cb = document.getElementById('prop-' + id);
-  const lbl = document.getElementById('lbl-' + id);
-  if (cb && lbl) lbl.style.borderColor = cb.checked ? 'var(--blue)' : 'var(--border)';
-}
-
-function renderProp() {
-  const fd = document.getElementById('prop-fecha');
-  if (fd && !fd.value) fd.value = new Date().toISOString().split('T')[0];
+function propSetFirmante(val){
+  document.getElementById('prop-firmante').value = val;
+  const javi  = document.getElementById('lbl-firmante-javi');
+  const berny = document.getElementById('lbl-firmante-berny');
+  if(javi){ javi.style.borderColor=val==='Javi'?'var(--blue)':'var(--border)'; javi.style.background=val==='Javi'?'var(--blue-light)':'transparent'; }
+  if(berny){ berny.style.borderColor=val==='Berny'?'var(--blue)':'var(--border)'; berny.style.background=val==='Berny'?'var(--blue-light)':'transparent'; }
   propActualizarPreview();
-  propRenderHistorial();
+}
+function propToggle(id) {
+  const cb = document.getElementById('prop-' + id);
+  if (!cb) return;
+  cb.checked = !cb.checked;
+  const lbl = document.getElementById('lbl-' + id);
+  if (lbl) lbl.style.borderColor = cb.checked ? 'var(--blue)' : 'var(--border)';
+  propActualizarPreview();
+}
+
+function propActualizarTermino() {
+  const tipo = document.getElementById('prop-termino-tipo')?.value;
+  const ufInput = document.getElementById('prop-termino-uf');
+  if(ufInput) ufInput.value = tipo === 'complejo' ? '7' : '4';
+  propActualizarPreview();
+}
+
+function propDesdeCliente() {
+  if (typeof S === 'undefined' || !S.clientes?.length) {
+    if (typeof toast === 'function') toast('No hay clientes registrados', false);
+    return;
+  }
+  const opts = S.clientes.map(c => `<option value="${c.id}">${c.nom}${c.alias ? ' (' + c.alias + ')' : ''}</option>`).join('');
+  const sel = `<select id="prop-cl-sel" class="fsel" style="width:100%"><option value="">— Seleccionar —</option>${opts}</select>`;
+
+  // Mini modal inline reutilizando el overlay de la app si existe
+  const html = `<div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center" id="prop-mini-modal">
+    <div style="background:#fff;border-radius:14px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+      <div style="font-size:15px;font-weight:900;margin-bottom:14px">Seleccionar cliente</div>
+      ${sel}
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('prop-mini-modal').remove()">Cancelar</button>
+        <button class="btn btn-blue btn-sm" onclick="propCargarCliente()">Usar este cliente</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function propCargarCliente() {
+  const id = document.getElementById('prop-cl-sel')?.value;
+  if (!id || typeof S === 'undefined') return;
+  const c = S.clientes.find(x => x.id === id);
+  if (!c) return;
+  const nom = c.alias || c.nom.split(' ')[0]; // Usar alias o primer nombre
+  document.getElementById('prop-nombre').value = nom;
+  document.getElementById('prop-empresa').value = c.nom || '';
+  document.getElementById('prop-mini-modal')?.remove();
+  propActualizarPreview();
 }
 
 function propGetDatos() {
-  const nombre     = propCapitalizar(document.getElementById('prop-nombre')?.value?.trim() || '');
-  const empresa    = document.getElementById('prop-empresa')?.value?.trim() || '';
-  const ciudad     = document.getElementById('prop-ciudad')?.value?.trim() || 'Puerto Montt';
-  const fechaRaw   = document.getElementById('prop-fecha')?.value || new Date().toISOString().split('T')[0];
-  const uf         = parseFloat(document.getElementById('prop-uf')?.value) || 0;
-  const revision   = document.getElementById('prop-revision')?.checked || false;
+  const nombre = document.getElementById('prop-nombre')?.value?.trim() || '';
+  const empresa = document.getElementById('prop-empresa')?.value?.trim() || '';
+  const ciudad = document.getElementById('prop-ciudad')?.value?.trim() || 'Puerto Montt';
+  const fechaRaw = document.getElementById('prop-fecha')?.value || new Date().toISOString().split('T')[0];
+  const uf = parseFloat(document.getElementById('prop-uf')?.value) || 0;
+  const revision = document.getElementById('prop-revision')?.checked || false;
 
-  const base        = document.getElementById('prop-base')?.checked || false;
+  // Servicios mensuales
+  const base = document.getElementById('prop-base')?.checked || false;
   const facturacion = document.getElementById('prop-facturacion')?.checked || false;
-  const cartera     = document.getElementById('prop-cartera')?.checked || false;
-  const rrhh        = document.getElementById('prop-rrhh')?.checked || false;
+  const cartera = document.getElementById('prop-cartera')?.checked || false;
+  const rrhh = document.getElementById('prop-rrhh')?.checked || false;
 
-  const constitucion      = document.getElementById('prop-constitucion')?.checked || false;
+  // Servicios únicos
+  const constitucion = document.getElementById('prop-constitucion')?.checked || false;
   const constitucionMonto = parseInt(document.getElementById('prop-constitucion-monto')?.value) || 180000;
-  const proyeccion        = document.getElementById('prop-proyeccion')?.checked || false;
-  const proyeccionUF      = parseFloat(document.getElementById('prop-proyeccion-uf')?.value) || 0.3;
-  const termino           = document.getElementById('prop-termino')?.checked || false;
-  const terminoTipo       = document.getElementById('prop-termino-tipo')?.value || 'simple';
-  const terminoUF = parseFloat(document.getElementById('prop-termino-uf')?.value) || (terminoTipo === 'complejo' ? 7 : 4);
+  const proyeccion = document.getElementById('prop-proyeccion')?.checked || false;
+  const proyeccionUF = parseFloat(document.getElementById('prop-proyeccion-uf')?.value) || 0.3;
+  const termino = document.getElementById('prop-termino')?.checked || false;
+  const terminoTipo = document.getElementById('prop-termino-tipo')?.value || 'simple';
+  const terminoUFInput = parseFloat(document.getElementById('prop-termino-uf')?.value) || (terminoTipo === 'complejo' ? 7 : 4);
+  const terminoUF = terminoUFInput;
 
+  // Formatear fecha en español
   const [y, m, d] = fechaRaw.split('-');
   const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const fechaTexto = `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
-  const firmante  = document.getElementById('prop-firmante')?.value || 'Javi';
 
-  return { nombre, empresa, ciudad, fechaRaw, fechaTexto, firmante, uf, revision,
+  return { nombre, empresa, ciudad, fechaRaw, fechaTexto, uf, revision,
            base, facturacion, cartera, rrhh,
            constitucion, constitucionMonto, proyeccion, proyeccionUF,
            termino, terminoTipo, terminoUF };
@@ -3881,52 +4249,62 @@ function propActualizarPreview() {
   }
 
   const serviciosM = [];
-  if (d.base)        serviciosM.push('Contabilidad + Impuestos mensuales + Renta anual');
+  if (d.base) serviciosM.push('Contabilidad + Impuestos mensuales + Renta anual');
   if (d.facturacion) serviciosM.push('Facturación electrónica');
-  if (d.cartera)     serviciosM.push('Conciliación + Reporte de cartera');
-  if (d.rrhh)        serviciosM.push('RRHH / Remuneraciones');
+  if (d.cartera) serviciosM.push('Conciliación + Reporte de cartera');
+  if (d.rrhh) serviciosM.push('RRHH / Remuneraciones');
+
   const serviciosU = [];
   if (d.constitucion) serviciosU.push(`Constitución SpA — $${d.constitucionMonto.toLocaleString('es-CL')}`);
-  if (d.proyeccion)   serviciosU.push(`Proyección impuestos — ~${d.proyeccionUF} UF`);
-  if (d.termino)      serviciosU.push(`Término de giro ${d.terminoTipo} — ~${d.terminoUF} UF`);
+  if (d.proyeccion) serviciosU.push(`Proyección impuestos — ~${d.proyeccionUF} UF`);
+  if (d.termino) serviciosU.push(`Término de giro ${d.terminoTipo} — ~${d.terminoUF} UF`);
 
   el.innerHTML = `
-    <div style="font-size:12px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
       <div style="background:var(--blue-light);border-radius:8px;padding:10px 12px">
         <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:4px">Cliente</div>
         <div style="font-weight:800">${d.nombre || '—'}${d.empresa ? ' · ' + d.empresa : ''}</div>
         <div style="color:var(--muted);font-size:11px">${d.ciudad} · ${d.fechaTexto}</div>
       </div>
-      ${serviciosM.length ? `<div>
+
+      ${serviciosM.length ? `
+      <div>
         <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Servicios mensuales</div>
-        ${serviciosM.map(s=>`<div style="display:flex;gap:6px;margin-bottom:3px"><span style="color:var(--green)">●</span><span>${s}</span></div>`).join('')}
+        ${serviciosM.map(s => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="color:var(--green);font-size:14px;line-height:1">●</span><span>${s}</span></div>`).join('')}
         <div style="margin-top:8px;padding:8px 10px;background:var(--yellow-light);border-radius:6px;font-weight:800;color:#7a5c00">
           ${d.uf ? d.uf + ' UF/mes + IVA' : '<span style="color:var(--red)">⚠ Ingresar monto</span>'}
           ${d.revision ? '<br><span style="font-size:10px;font-weight:600">📌 Con cláusula de revisión por volumen</span>' : ''}
         </div>
       </div>` : ''}
-      ${serviciosU.length ? `<div>
+
+      ${serviciosU.length ? `
+      <div>
         <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Servicios únicos</div>
-        ${serviciosU.map(s=>`<div style="display:flex;gap:6px;margin-bottom:3px"><span style="color:var(--purple)">●</span><span>${s}</span></div>`).join('')}
+        ${serviciosU.map(s => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="color:var(--purple);font-size:14px;line-height:1">●</span><span>${s}</span></div>`).join('')}
       </div>` : ''}
-    </div>`;
+
+      ${!serviciosM.length && !serviciosU.length ? '<div style="color:var(--muted);font-size:11px">Selecciona al menos un servicio</div>' : ''}
+    </div>
+  `;
 }
 
 function propGenerar() {
   const d = propGetDatos();
-  if (!d.nombre) { if(typeof toast==='function') toast('Ingresa el nombre del contacto', false); return; }
+
+  if (!d.nombre) {
+    if (typeof toast === 'function') toast('Ingresa el nombre del contacto', false);
+    return;
+  }
   if (!d.base && !d.facturacion && !d.cartera && !d.rrhh && !d.constitucion && !d.proyeccion && !d.termino) {
-    if(typeof toast==='function') toast('Selecciona al menos un servicio', false); return;
+    if (typeof toast === 'function') toast('Selecciona al menos un servicio', false);
+    return;
   }
   if ((d.base || d.facturacion || d.cartera || d.rrhh) && !d.uf) {
-    if(typeof toast==='function') toast('Ingresa el honorario mensual en UF', false); return;
+    if (typeof toast === 'function') toast('Ingresa el honorario mensual en UF', false);
+    return;
   }
-  if (typeof docx !== 'undefined') {
-    propGenerarDocx(d);
-  } else {
-    if(typeof toast==='function') toast('docx.js no disponible — agrega el script en el <head>', false);
-    console.error('docx.js no cargó. Agrega: <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js"><\/script> en el <head>');
-  }
+
+  propGenerarDocx(d);
 }
 
 function propGenerarDocx(d) {
@@ -3934,199 +4312,181 @@ function propGenerarDocx(d) {
     if(typeof toast==='function') toast('Cargando librería Word... intenta en 3 segundos', false);
     var s=document.createElement('script');
     s.src='https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js';
-    s.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },500); };
+    s.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },800); };
     s.onerror=function(){
       var s2=document.createElement('script');
       s2.src='https://unpkg.com/docx@7.8.2/build/index.js';
-      s2.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },500); };
-      s2.onerror=function(){ if(typeof toast==='function') toast('No se pudo cargar docx.js — verifica tu conexión',false); };
+      s2.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },800); };
+      s2.onerror=function(){ if(typeof toast==='function') toast('No se pudo cargar docx.js',false); };
       document.head.appendChild(s2);
     };
     document.head.appendChild(s);
     return;
   }
-  const { Document, Packer, Paragraph, TextRun, AlignmentType } = docx;
 
-  // Helpers de estilo
-  const FONT = 'Arial Narrow';
-  const SZ = 20; // 10pt en half-points
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat,
+          Header, Footer, ImageRun, PageNumber, UnderlineType } = docx;
 
-  const r = (txt, opts={}) => new TextRun({ text: txt, font: FONT, size: SZ, ...opts });
-  const rB = (txt) => r(txt, { bold: true });
-  const p0 = (runs, align) => new Paragraph({
-    children: Array.isArray(runs) ? runs : [runs],
-    spacing: { after: 80, before: 0 },
-    ...(align ? { alignment: align } : {})
+  const FONT='Arial', SZ=20;
+  const r  =(txt,opts={})=>new TextRun({text:txt,font:FONT,size:SZ,...opts});
+  const rB =(txt)=>r(txt,{bold:true});
+  const rBU=(txt)=>r(txt,{bold:true,underline:{type:UnderlineType.SINGLE}});
+
+  const p0=(runs,align)=>new Paragraph({
+    children:Array.isArray(runs)?runs:[runs],
+    spacing:{after:120,before:0},
+    alignment:AlignmentType.JUSTIFIED,
+    ...(align?{alignment:align}:{})
   });
-  const pB = (runs, align) => new Paragraph({
-    children: Array.isArray(runs) ? runs : [runs],
-    spacing: { after: 160, before: 120 },
-    ...(align ? { alignment: align } : {})
+  const pB=(runs)=>new Paragraph({
+    children:Array.isArray(runs)?runs:[runs],
+    spacing:{after:120,before:200},
+    alignment:AlignmentType.JUSTIFIED
   });
-  const sep = () => new Paragraph({ children: [r('')], spacing: { after: 80 } });
-  const li = (titulo, texto) => [
-    new Paragraph({
-      children: [rB(titulo)],
-      bullet: { level: 0 },
-      spacing: { after: 60, before: 100 }
-    }),
-    new Paragraph({
-      children: [r(texto)],
-      indent: { left: 720 },
-      spacing: { after: 120 }
-    })
+  const sep=()=>new Paragraph({children:[r('')],spacing:{after:80}});
+  const bullet=(txt)=>new Paragraph({
+    children:[r(txt)],
+    numbering:{reference:'bullets',level:0},
+    spacing:{after:60},
+    alignment:AlignmentType.JUSTIFIED
+  });
+  const li=(titulo,texto)=>[
+    new Paragraph({children:[rB(titulo)],numbering:{reference:'bullets',level:0},spacing:{after:60,before:100},alignment:AlignmentType.JUSTIFIED}),
+    new Paragraph({children:[r(texto)],indent:{left:720},spacing:{after:120},alignment:AlignmentType.JUSTIFIED})
   ];
+  const secTitle=(num,txt)=>new Paragraph({
+    children:num?[rBU(num),r('  '),rBU(txt)]:[rBU(txt)],
+    spacing:{after:120,before:200},
+    alignment:AlignmentType.LEFT
+  });
 
-  // ── Construir secciones de alcances ──────────────────────────
-  const alcances = [];
+  const firmaNombre = d.firmante==='Berny'?'Bernardita Sepúlveda':'Javiera Lizama';
+  const firmaCargo  = d.firmante==='Berny'?'Socia Contabilidad — Nexa Enlaces Ltda.':'Socia Impuestos — Nexa Enlaces Ltda.';
+  const tituloDoc   = d.rrhh?'Propuesta de Asesoría Contable, Tributaria y Gestión de Recursos Humanos'
+                             :'Propuesta de Asesoría Contable y Tributaria Estratégica';
 
-  if (d.base) {
-    alcances.push(...li('Asesoría Administrativa y Contable Permanente:',
-      'Acompañamiento técnico continuo con atención permanente de consultas operativas y normativas, orientación en el orden y respaldo de la información contable, y asesoría frente a situaciones específicas que impacten la contabilidad o los impuestos.'));
-    alcances.push(...li('Contabilidad Mensual:',
-      'Registro contable mensual de las operaciones de la empresa, revisión de consistencia, respaldo y orden de la información contable, y análisis general detectando desviaciones o inconsistencias.'));
-    alcances.push(...li('Impuestos Mensuales:',
-      'Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Determinación de débitos y créditos fiscales con enfoque orientado a evitar errores, multas y diferencias futuras.'));
-    alcances.push(...li('Impuestos Anuales:',
-      'Determinación y declaración de la base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas requeridas por el SII, y asistencia ante revisiones del SII sobre determinaciones realizadas por Nexa Enlaces Ltda.'));
+  // Alcances
+  const alcances=[];
+  if(d.base){
+    alcances.push(...li('Asesoría Administrativa y Contable Permanente:','Acompañamiento técnico continuo con atención permanente de consultas operativas y normativas, orientación en el orden y respaldo de la información contable, y asesoría frente a situaciones específicas que impacten la contabilidad o los impuestos.'));
+    alcances.push(...li('Contabilidad Mensual:','Registro contable mensual de las operaciones de la empresa, revisión de consistencia, respaldo y orden de la información contable, y análisis general detectando desviaciones o inconsistencias.'));
+    alcances.push(...li('Impuestos Mensuales:','Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Determinación de débitos y créditos fiscales con enfoque orientado a evitar errores, multas y diferencias futuras.'));
+    alcances.push(...li('Impuestos Anuales:','Determinación y declaración de la base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas requeridas por el SII, y asistencia ante revisiones del SII sobre determinaciones realizadas por Nexa Enlaces Ltda.'));
   }
+  if(d.facturacion) alcances.push(...li('Facturación Electrónica:','Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente, con registro contable y control de correlatividad.'));
+  if(d.cartera)     alcances.push(...li('Conciliación de Pagos y Reporte de Cartera:','Conciliación mensual de pagos recibidos, verificando la correcta imputación de ingresos a las facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro.'));
+  if(d.rrhh)        alcances.push(...li('Gestión de Recursos Humanos:','Confección y cálculo mensual de remuneraciones, emisión de liquidaciones de sueldo, cálculo de cotizaciones previsionales y de salud, preparación de información para el pago de obligaciones previsionales, y tramitación de licencias médicas informadas por el cliente.'));
+  if(d.constitucion)alcances.push(...li('Constitución de Empresa SpA (Servicio Único):','Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía. Incluye redacción de estatutos, inicio de actividades ante el SII, elección del régimen tributario e inscripción al sistema de facturación electrónica.'));
+  if(d.proyeccion)  alcances.push(...li('Proyección de Impuestos Anuales (Servicio Único):','Estimación anticipada de la carga tributaria del ejercicio vigente, basada en los resultados contables acumulados y las proyecciones de ingresos y gastos hasta el cierre del año.'));
+  if(d.termino)     alcances.push(...li(`Término de Giro ${propCapitalizar(d.terminoTipo)} (Servicio Único):`, 'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias. Incluye preparación de la documentación requerida y tramitación completa del proceso.'));
 
-  if (d.facturacion) {
-    alcances.push(...li('Facturación Electrónica:',
-      'Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente, con registro contable y control de correlatividad.'));
-  }
-
-  if (d.cartera) {
-    alcances.push(...li('Conciliación de Pagos y Reporte de Cartera:',
-      'Conciliación mensual de pagos recibidos, verificando la correcta imputación de ingresos a las facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro, para que la empresa ejecute las acciones de gestión correspondientes.'));
-  }
-
-  if (d.rrhh) {
-    alcances.push(...li('Gestión de Recursos Humanos:',
-      'Confección y cálculo mensual de remuneraciones, emisión de liquidaciones de sueldo, cálculo de cotizaciones previsionales y de salud, preparación de información para el pago de obligaciones previsionales, y tramitación de licencias médicas informadas por el cliente.'));
-  }
-
-  // Servicios únicos en alcances (sin repetir en honorarios)
-  if (d.constitucion) {
-    alcances.push(...li('Constitución de Empresa SpA (Servicio Único):',
-      'Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía, con base legal adecuada a la operación y estructura tributaria del cliente. Incluye: redacción de estatutos conforme al giro definido, inicio de actividades ante el SII con configuración correcta de giro y domicilio tributario, elección fundamentada del régimen tributario más conveniente (14 D°3, 14 D°8 u otro aplicable), e inscripción al sistema de facturación electrónica. Al término del proceso la sociedad queda completamente operativa.'));
-  }
-
-  if (d.proyeccion) {
-    alcances.push(...li('Proyección de Impuestos Anuales (Servicio Único):',
-      'Estimación anticipada de la carga tributaria del ejercicio vigente, basada en los resultados contables acumulados y las proyecciones de ingresos y gastos hasta el cierre del año. Permite al cliente tomar decisiones informadas antes del cierre tributario.'));
-  }
-
-  if (d.termino) {
-    const textoTermino = d.terminoTipo === 'complejo'
-      ? 'Cierre formal de actividades ante el SII para empresas que requieren regularización previa de obligaciones tributarias pendientes. Incluye revisión del estado tributario, coordinación de pagos pendientes y tramitación completa del término de giro.'
-      : 'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias. Incluye preparación de la documentación requerida y tramitación completa del proceso.';
-    alcances.push(...li(`Término de Giro ${d.terminoTipo === 'complejo' ? 'Complejo' : 'Simple'} (Servicio Único):`, textoTermino));
-  }
-
-  // ── Honorarios ────────────────────────────────────────────────
-  const honLineas = [];
-  if (d.base || d.facturacion || d.cartera || d.rrhh) {
-    const partes = [
-      d.base        ? 'contabilidad mensual, impuestos mensuales e impuestos anuales' : '',
-      d.facturacion ? 'emisión de facturas electrónicas' : '',
-      d.cartera     ? 'conciliación de pagos y reporte de cartera' : '',
-      d.rrhh        ? 'gestión de RRHH' : ''
+  // Honorarios
+  const honLineas=[];
+  if(d.base||d.facturacion||d.cartera||d.rrhh){
+    const partes=[
+      d.base?'contabilidad mensual, impuestos mensuales e impuestos anuales':'',
+      d.facturacion?'emisión de facturas electrónicas':'',
+      d.cartera?'conciliación de pagos y reporte de cartera':'',
+      d.rrhh?'gestión de RRHH':''
     ].filter(Boolean);
-    const desc = partes.length > 1
-      ? partes.slice(0,-1).join(', ') + ' y ' + partes[partes.length-1]
-      : partes[0];
-    honLineas.push(p0([rB('Servicio A — '), r(`${desc}: ${d.uf} UF mensuales + IVA.`)]));
+    const desc=partes.length>1?partes.slice(0,-1).join(', ')+' y '+partes[partes.length-1]:partes[0];
+    honLineas.push(p0([rB('Servicio A — '),r(`${desc}: ${d.uf} UF mensuales + IVA.`)]));
+    if(d.rrhh) honLineas.push(p0([rB('RRHH — '),r('Remuneraciones: 0,3 UF + IVA por liquidación de sueldo. Contratos y finiquitos: 0,5 UF + IVA por documento.')]));
   }
-  if (d.constitucion) honLineas.push(p0([rB('Servicio C — '), r(`Constitución de empresa SpA: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único).`)]));
-  if (d.proyeccion)   honLineas.push(p0([rB('Servicio C — '), r(`Proyección de impuestos anuales: ~${d.proyeccionUF} UF + IVA (pago único).`)]));
-  if (d.termino)      honLineas.push(p0([rB('Servicio C — '), r(`Término de giro ${d.terminoTipo}: ~${d.terminoUF} UF + IVA (pago único).`)]));
-
-  if (d.revision) {
-    honLineas.push(sep());
-    honLineas.push(p0([r('El valor del servicio mensual está definido en función del volumen de operaciones actual de la empresa. En caso de que el volumen de facturas emitidas, recibidas u operaciones contables experimente un aumento sostenido, las partes acordarán una revisión del honorario mensual acorde al nuevo nivel de actividad.')]));
-  }
-
+  if(d.constitucion) honLineas.push(p0([rB('Servicio C — '),r(`Constitución de empresa SpA: $${Number(d.constitucionMonto).toLocaleString('es-CL')} + IVA (pago único).`)]));
+  if(d.proyeccion)   honLineas.push(p0([rB('Servicio C — '),r(`Proyección de impuestos anuales: ~${d.proyeccionUF} UF + IVA (pago único).`)]));
+  if(d.termino)      honLineas.push(p0([rB('Servicio C — '),r(`Término de giro ${d.terminoTipo}: ~${d.terminoUF} UF + IVA (pago único).`)]));
   honLineas.push(sep());
   honLineas.push(p0([r('Los servicios de carácter mensual serán facturados dentro de los primeros cinco días de cada mes. Los servicios extraordinarios o no contemplados expresamente en esta propuesta serán cotizados y facturados de manera adicional.')]));
   honLineas.push(sep());
   honLineas.push(p0([r('En caso de mora o retraso en el pago de honorarios, Nexa Enlaces Ltda. podrá suspender temporalmente la prestación de los servicios hasta regularización de los pagos pendientes.')]));
 
-  // ── Ensamblar documento ───────────────────────────────────────
-  const saludo = propSaludo(d.nombre);
+  // Imágenes header/footer
+  const headerImg = b64ToUint8(PROP_HEADER_B64);
+  const emailImg  = b64ToUint8(PROP_EMAIL_B64);
+  const instaImg  = b64ToUint8(PROP_INSTA_B64);
 
-  const children = [
-    // Título
+  const docHeader = new Header({ children:[
+    new Paragraph({ children:[
+      new ImageRun({ data:headerImg, transformation:{width:595,height:80}, type:'jpg',
+        floating:{ horizontalPosition:{offset:0}, verticalPosition:{offset:0}, behindDocument:false,
+          wrap:{ type:'none' }, margins:{top:0,bottom:0,left:0,right:0} }
+      })
+    ], spacing:{after:0} })
+  ]});
+
+  const docFooter = new Footer({ children:[
     new Paragraph({
-      children: [rB('Propuesta Prestación de Servicios')],
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 240, before: 0 }
-    }),
+      children:[
+        new ImageRun({data:emailImg,transformation:{width:22,height:17},type:'jpg'}),
+        r('  contacto@nexaen.cl',{size:16}),
+        new TextRun({text:'\t',size:16}),
+        new ImageRun({data:instaImg,transformation:{width:22,height:25},type:'jpg'}),
+        r('  @nexa.enlaces',{size:16}),
+        new TextRun({text:'\t',size:16}),
+        r('pág. ',{size:16}),
+        new TextRun({children:[PageNumber.CURRENT],size:16})
+      ],
+      tabStops:[{type:'right',position:8500}],
+      spacing:{before:200,after:0}
+    })
+  ]});
 
-    // Encabezado
-    p0([r(`${saludo} ${d.nombre}`)]),
-    sep(),
+  const children=[
+    p0([r(`${propSaludo(d.nombre)} ${d.nombre}`)]),
     p0([rB('Presente')]),
     sep(),
-
-    // Intro
     p0([r('De nuestra consideración:')]),
     sep(),
-    p0([r('Junto con saludar, y de acuerdo con lo conversado, tenemos el agrado de presentar nuestra '), rB('Propuesta de Asesoría Contable y Tributaria Estratégica'), r(', diseñada para empresas que requieren más que cumplimiento, y buscan control, orden y respaldo técnico permanente en su gestión financiera y tributaria.')]),
+    p0([r('Junto con saludar, y de acuerdo con lo conversado, tenemos el agrado de presentar nuestra '),rB(tituloDoc),r(', diseñada para empresas que requieren más que cumplimiento, y buscan control, orden y respaldo técnico permanente en su gestión financiera y tributaria.')]),
     sep(),
     p0([r('En Nexa Enlaces entendemos que una contabilidad bien llevada no solo permite cumplir con el Servicio de Impuestos Internos, sino que es una herramienta clave para la toma de decisiones, la prevención de riesgos y la continuidad del negocio.')]),
     sep(),
-
-    // Propuesta
-    p0([rB('Propuesta:')]),
+    p0([r('Por ello, nuestro enfoque no es reactivo, sino preventivo, estratégico y cercano.')]),
     sep(),
+    secTitle('I.','Propuesta:'),
     p0([r('Queremos presentarles nuestra propuesta de servicios y asesorías contables, diseñada para ayudarles a abordar estos desafíos y mejorar la gestión de su contabilidad y tributación.')]),
     sep(),
-
-    // Objetivo
-    pB([rB('Objetivo:')]),
-    p0([r('El objetivo de esta asesoría es '), rB('acompañar de manera permanente y especializada'), r(' la gestión contable y tributaria de la empresa, asegurando:')]),
-    new Paragraph({ children: [r('Cumplimiento normativo oportuno y correcto')], bullet: { level: 0 }, spacing: { after: 60 } }),
-    new Paragraph({ children: [r('Información contable ordenada, consistente y confiable')], bullet: { level: 0 }, spacing: { after: 60 } }),
-    new Paragraph({ children: [r('Reducción de riesgos tributarios y contingencias futuras')], bullet: { level: 0 }, spacing: { after: 60 } }),
-    new Paragraph({ children: [r('Acompañamiento técnico continuo para la toma de decisiones')], bullet: { level: 0 }, spacing: { after: 120 } }),
+    secTitle(null,'Objetivo:'),
+    p0([r('El objetivo de esta asesoría es '),rB('acompañar de manera permanente y especializada'),r(' la gestión contable y tributaria de la empresa, asegurando:')]),
+    bullet('Cumplimiento normativo oportuno y correcto'),
+    bullet('Información contable ordenada, consistente y confiable'),
+    bullet('Reducción de riesgos tributarios y contingencias futuras'),
+    bullet('Acompañamiento técnico continuo para la toma de decisiones'),
     sep(),
-    p0([r('Este servicio está orientado a empresas que valoran la tranquilidad operativa, la anticipación de problemas y el respaldo profesional constante.')]),
+    p0([r('Este servicio está orientado a empresas que valoran la tranquilidad operativa, la anticipación de problemas y el respaldo profesional constante. Con un enfoque diferenciador por:')]),
+    bullet('Asesoría permanente y directa, no limitada a fechas de cierre'),
+    bullet('Visión integral contable – tributaria - administrativa'),
+    bullet('Enfoque preventivo frente a fiscalizaciones y revisiones del SII'),
+    bullet('Acompañamiento en la correcta implementación de normativa vigente'),
+    bullet('Relación de trabajo cercana, clara y estratégica'),
     sep(),
-
-    // Alcances
-    pB([rB('Alcances de los Servicios:')]),
+    p0([r('Nuestro rol no es solo registrar información, sino ayudar a la empresa a entenderla, ordenarla y utilizarla correctamente.')]),
+    sep(),
+    secTitle(null,'Alcances de los Servicios:'),
     ...alcances,
     sep(),
-
-    // Responsabilidades
-    pB([rB('Responsabilidades del Cliente:')]),
+    secTitle(null,'Responsabilidades del Cliente:'),
     p0([r('Para una correcta ejecución del servicio, será responsabilidad del cliente:')]),
-    new Paragraph({ children: [r('Proporcionar la documentación contable y tributaria de forma oportuna, completa y ordenada.')], bullet: { level: 0 }, spacing: { after: 60 } }),
-    new Paragraph({ children: [r('Informar de manera inmediata cualquier hecho relevante que pueda afectar la contabilidad o situación tributaria de la empresa.')], bullet: { level: 0 }, spacing: { after: 60 } }),
-    new Paragraph({ children: [r('Realizar oportunamente el pago de impuestos, multas, intereses y demás obligaciones legales, una vez informados.')], bullet: { level: 0 }, spacing: { after: 60 } }),
-    ...(d.cartera ? [new Paragraph({ children: [r('Confirmar los pagos recibidos dentro del plazo acordado para mantener el reporte de cartera actualizado.')], bullet: { level: 0 }, spacing: { after: 60 } })] : []),
+    bullet('Proporcionar la documentación contable y tributaria de forma oportuna, completa y ordenada.'),
+    bullet('Informar de manera inmediata cualquier hecho relevante que pueda afectar la contabilidad o situación tributaria de la empresa.'),
+    bullet('Realizar oportunamente el pago de impuestos, multas, intereses y demás obligaciones legales, una vez informados.'),
+    ...(d.cartera?[bullet('Confirmar los pagos recibidos dentro del plazo acordado para mantener el reporte de cartera actualizado.')]:[]),
     sep(),
-
-    // Profesionales
-    pB([rB('Profesionales a cargo:')]),
+    secTitle(null,'Profesionales a cargo:'),
     p0([r('La responsabilidad del desarrollo del trabajo y atención personal será de los socios de la firma:')]),
     sep(),
-    p0([rB('Javiera Lizama'), r('\t\tSocia Impuestos')]),
-    p0([rB('Bernardita Sepúlveda'), r('\tSocia Contabilidad')]),
-    p0([rB('Suemy Pardo Labra'), r('\tAsistente Contable')]),
+    p0([rB('Javiera Lizama'),r('\t\tSocia Impuestos')]),
+    p0([rB('Bernardita Sepúlveda'),r('\tSocia Contabilidad')]),
+    p0([rB('Suemy Pardo Labra'),r('\tAsistente Contable')]),
     sep(),
-    p0([r('El correo para canalizar la información y de contacto oficial será '), rB('contacto@nexaen.cl')]),
+    p0([r('El correo para canalizar la información y de contacto oficial será '),rB('contacto@nexaen.cl')]),
     sep(),
-
-    // Honorarios
-    pB([rB('Honorarios:')]),
+    secTitle(null,'Honorarios:'),
     p0([r('Los honorarios asociados a esta asesoría son los siguientes:')]),
     sep(),
     ...honLineas,
     sep(),
-
-    // Cierre
     p0([r('Cualquier duda con respecto a esta propuesta, pueden contactarnos con el fin de precisar o analizar más profundamente cualquier asunto descrito.')]),
     sep(),
     p0([r('Una vez aceptada la propuesta, se procederá a coordinar la ejecución del plan de trabajo y los plazos a cumplir para ambas partes.')]),
@@ -4135,122 +4495,56 @@ function propGenerarDocx(d) {
     sep(),
     p0([r('Saludos cordiales,')]),
     sep(),
-    p0([rB(d.firmante === 'Berny' ? 'Bernardita Sepúlveda' : 'Javiera Lizama')]),
-    p0([r(d.firmante === 'Berny' ? 'Socia Contabilidad — Nexa Enlaces Ltda.' : 'Socia Impuestos — Nexa Enlaces Ltda.')]),
+    p0([r(firmaNombre)]),
+    p0([rB('Nexa Enlaces Ltda.')]),
     sep(),
+    new Paragraph({children:[r('_'.repeat(110))],spacing:{after:60,before:240}}),
     p0([r(`${d.ciudad}, ${d.fechaTexto}`)]),
     sep(),
-
-    // Línea de aceptación
-    new Paragraph({ children: [r('_'.repeat(88))], spacing: { after: 120, before: 240 } }),
     p0([r('Aceptación de servicios:')]),
     sep(),
-    p0([r('Expresamos nuestro entendimiento y acuerdo con los servicios y los términos establecidos en esta propuesta.')]),
-    sep(),
-    p0([r('Firma:\t_____________________\t\tNombre y cargo:\t_______________________')])
+    p0([r('Expresamos nuestro entendimiento y acuerdo con los servicios y los términos establecidos en esta propuesta, en cuanto a la propuesta de prestación de servicios contables y tributarios.')]),
+    sep(),sep(),
+    new Paragraph({children:[
+      r('Firma'),r('\t:\t'),r('_'.repeat(20)),r('\t\t\t'),
+      r('Nombre y cargo'),r('\t:\t'),r('_'.repeat(22))
+    ],spacing:{after:0}})
   ];
 
   const doc_obj = new Document({
-    numbering: {
-      config: [{
-        reference: 'bullets',
-        levels: [{
-          level: 0,
-          format: 'bullet',
-          text: '•',
-          alignment: AlignmentType.LEFT,
-          style: { paragraph: { indent: { left: 720, hanging: 360 } } }
-        }]
-      }]
-    },
-    sections: [{
-      properties: {
-        page: {
-          size: { width: 11906, height: 16838 },
-          margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 }
-        }
-      },
+    numbering:{config:[{reference:'bullets',levels:[{
+      level:0,format:LevelFormat.BULLET,text:'\u2022',alignment:AlignmentType.LEFT,
+      style:{paragraph:{indent:{left:720,hanging:360}}}
+    }]}]},
+    sections:[{
+      headers:{default:docHeader},
+      footers:{default:docFooter},
+      properties:{page:{
+        size:{width:11906,height:16838},
+        margin:{top:1560,right:1700,bottom:1135,left:1700,header:720,footer:567}
+      }},
       children
     }]
   });
 
-  Packer.toBlob(doc_obj).then(blob => {
-    const nombreArchivo = (d.empresa || d.nombre).replace(/\s+/g, '_');
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Propuesta_Nexa_${nombreArchivo}_${d.fechaRaw}.docx`;
-    a.click();
+  Packer.toBlob(doc_obj).then(async blob => {
+    const nombre=(d.empresa||d.nombre).replace(/\s+/g,'_');
+    const filename=`Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`;
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=filename; a.click();
     URL.revokeObjectURL(url);
     propGuardarHistorial(d);
-    if (typeof toast === 'function') toast(`Propuesta para ${d.nombre} descargada ✓`);
+    if(typeof toast==='function') toast(`Propuesta para ${d.nombre} descargada ✓`);
     if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
-      driveUploadDocx(blob, `Propuesta_Nexa_${(d.empresa||d.nombre).replace(/\s+/g,'_')}_${d.fechaRaw}.docx`);
+      driveUploadDocx(blob, filename);
     }
-  }).catch(err => {
-    console.error('Error generando docx:', err);
-    if (typeof toast === 'function') toast('Error al generar el archivo — revisa la consola', false);
+  }).catch(err=>{
+    console.error('docx error:',err);
+    if(typeof toast==='function') toast('Error al generar .docx: '+err.message, false);
   });
 }
 
-function propDesdeCliente() {
-  if (typeof S === 'undefined' || !S.clientes?.length) {
-    if (typeof toast === 'function') toast('No hay clientes registrados', false);
-    return;
-  }
-  const opts = S.clientes.map(c => `<option value="${c.id}">${c.nom}${c.alias ? ' (' + c.alias + ')' : ''}</option>`).join('');
-  document.body.insertAdjacentHTML('beforeend', `
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center" id="prop-mini-modal">
-      <div style="background:#fff;border-radius:14px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-        <div style="font-size:15px;font-weight:900;margin-bottom:14px">Seleccionar cliente</div>
-        <select id="prop-cl-sel" class="fsel" style="width:100%"><option value="">— Seleccionar —</option>${opts}</select>
-        <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('prop-mini-modal').remove()">Cancelar</button>
-          <button class="btn btn-blue btn-sm" onclick="propCargarCliente()">Usar</button>
-        </div>
-      </div>
-    </div>`);
-}
-
-function propCargarCliente() {
-  const id = document.getElementById('prop-cl-sel')?.value;
-  if (!id || typeof S === 'undefined') return;
-  const c = S.clientes.find(x => x.id === id);
-  if (!c) return;
-  const nombre = c.alias || c.nom.split(' ')[0];
-  document.getElementById('prop-nombre').value = propCapitalizar(nombre);
-  document.getElementById('prop-empresa').value = c.nom || '';
-  document.getElementById('prop-mini-modal')?.remove();
-  propActualizarPreview();
-}
-
-function propGuardarHistorial(d) {
-  if (typeof S === 'undefined') return;
-  if (!S.propuestas) S.propuestas = [];
-  S.propuestas.unshift({
-    id: 'p' + Date.now(),
-    nombre: d.nombre,
-    empresa: d.empresa,
-    fecha: d.fechaRaw,
-    uf: d.uf,
-    servicios: [d.base?'Base':'',d.facturacion?'Fact':'',d.cartera?'Cartera':'',d.rrhh?'RRHH':'',d.constitucion?'SpA':'',d.proyeccion?'Proy':'',d.termino?'TG':''].filter(Boolean).join(' · ')
-  });
-  if (S.propuestas.length > 10) S.propuestas = S.propuestas.slice(0, 10);
-  if (typeof save === 'function') save();
-  propRenderHistorial();
-}
-
-function propRenderHistorial() {
-  const el = document.getElementById('prop-historial');
-  if (!el || typeof S === 'undefined' || !S.propuestas?.length) return;
-  el.innerHTML = S.propuestas.map(p => `
-    <div style="padding:8px 0;border-bottom:1px solid var(--border2)">
-      <div style="font-size:12px;font-weight:800">${p.nombre}${p.empresa ? ' · ' + p.empresa : ''}</div>
-      <div style="font-size:10px;color:var(--muted)">${p.fecha}${p.uf ? ' · ' + p.uf + ' UF/mes' : ''} · ${p.servicios}</div>
-    </div>`).join('');
-}
-
-// ─── FIN MÓDULO PROPUESTAS v2 ──────────────────────────────────────────────
 
 // ══ INIT ══
 load();
@@ -4258,10 +4552,4 @@ renderDash();
 initGS();
 </script>
 </body>
-</html
-function propActualizarTermino(){
-  const tipo=document.getElementById('prop-termino-tipo')?.value;
-  const uf=document.getElementById('prop-termino-uf');
-  if(uf) uf.value=tipo==='complejo'?'7':'4';
-  propActualizarPreview();
-}>
+</html>
