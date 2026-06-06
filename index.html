@@ -4349,20 +4349,113 @@ function propGenerarDocx(d) {
 
   // ── Alcances ──
   let alcancesXml='';
-  if(d.base){
-    alcancesXml+=li('Asesoría Administrativa y Contable Permanente:','Acompañamiento técnico continuo con atención permanente de consultas operativas y normativas, orientación en el orden y respaldo de la información contable, y asesoría frente a situaciones específicas que impacten la contabilidad o los impuestos.');
-    alcancesXml+=li('Contabilidad Mensual:','Registro contable mensual de las operaciones de la empresa, revisión de consistencia, respaldo y orden de la información contable, y análisis general detectando desviaciones o inconsistencias.');
-    alcancesXml+=li('Impuestos Mensuales:','Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Determinación de débitos y créditos fiscales con enfoque orientado a evitar errores, multas y diferencias futuras.');
-    alcancesXml+=li('Impuestos Anuales:','Determinación y declaración de la base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas requeridas por el SII, y asistencia ante revisiones del SII sobre determinaciones realizadas por Nexa Enlaces Ltda.');
-  }
-  if(d.facturacion) alcancesXml+=li('Facturación Electrónica:','Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente, con registro contable y control de correlatividad.');
-  if(d.cartera)     alcancesXml+=li('Conciliación de Pagos y Reporte de Cartera:','Conciliación mensual de pagos recibidos, verificando la correcta imputación de ingresos a las facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro.');
-  if(d.rrhh)        alcancesXml+=li('Gestión de Recursos Humanos:','Confección y cálculo mensual de remuneraciones, emisión de liquidaciones de sueldo, cálculo de cotizaciones previsionales y de salud, preparación de información para el pago de obligaciones previsionales, y tramitación de licencias médicas informadas por el cliente.');
-  if(d.constitucion)alcancesXml+=li('Constitución de Empresa SpA (Servicio Único):','Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía. Incluye redacción de estatutos, inicio de actividades ante el SII, elección del régimen tributario e inscripción al sistema de facturación electrónica.');
-  if(d.proyeccion)  alcancesXml+=li('Proyección de Impuestos Anuales (Servicio Único):','Estimación anticipada de la carga tributaria del ejercicio vigente, basada en los resultados contables acumulados y las proyecciones de ingresos y gastos hasta el cierre del año.');
-  if(d.termino)     alcancesXml+=li(`Término de Giro ${propCapitalizar(d.terminoTipo)} (Servicio Único):`,'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias. Incluye preparación de la documentación requerida y tramitación completa del proceso.');
+  // Intro
+  alcancesXml+=p(run('Los servicios incluidos en esta propuesta se detallan de la siguiente manera:'));
+  alcancesXml+=sep();
 
-  // ── Honorarios ──
+  let svcNum=0;
+  const svc=(titulo,intro,bullets,cierre)=>{
+    svcNum++;
+    let xml='';
+    xml+=p([run(`${svcNum}) `,{bold:true}),run(titulo,{bold:true,underline:true})],{justify:false,before:200,after:80});
+    xml+=p(run(intro));
+    bullets.forEach(b=>xml+=bullet(b));
+    if(cierre) xml+=p(run(cierre));
+    xml+=sep();
+    return xml;
+  };
+
+  if(d.base){
+    alcancesXml+=svc(
+      'Asesoría Administrativa y Contable Permanente:',
+      'Acompañamiento técnico continuo en materias administrativas y contables, que incluye:',
+      ['Atención permanente de consultas operativas y normativas',
+       'Apoyo en la correcta gestión administrativa de la empresa',
+       'Orientación en el orden y respaldo de la información contable',
+       'Asesoría frente a situaciones específicas que impacten la contabilidad o los impuestos'],
+      'Este servicio permite a la empresa no tomar decisiones contables a ciegas, contando siempre con respaldo profesional.'
+    );
+    alcancesXml+=svc(
+      'Contabilidad Mensual:',
+      'Prestación del servicio de contabilidad mensual, que comprende:',
+      ['Registro contable mensual de las operaciones de la empresa',
+       ...(d.facturacion?['Emisión y registro de facturación electrónica, según corresponda']:[]),
+       ...(d.cartera?['Conciliación mensual de pagos recibidos, verificando la correcta imputación de ingresos a las facturas emitidas',
+                      'Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro, para que la empresa ejecute las acciones de gestión correspondientes']:[]),
+       'Revisión de consistencia, respaldo y orden de la información contable',
+       'Análisis general de la información registrada, detectando desviaciones o inconsistencias'],
+      'Este proceso busca que la contabilidad sea una base confiable, no solo un requisito formal.'
+    );
+    alcancesXml+=svc(
+      'Impuestos Mensuales:',
+      'Gestión tributaria mensual completa, la cual incluye:',
+      ['Preparación y cálculo de impuestos mensuales de IVA, PPM, retenciones de impuestos, entre otros (Formulario 29, formulario 50 y PPM)',
+       'Determinación de débitos y créditos fiscales',
+       'Revisión de impuestos aplicables según la operación de la empresa',
+       'Presentación oportuna de las declaraciones correspondientes'],
+      null
+    );
+    alcancesXml+=p([run('Con un enfoque orientado a '),run('evitar errores, multas y diferencias futuras.',{bold:true})]);
+    alcancesXml+=sep();
+    alcancesXml+=svc(
+      'Impuestos Anuales:',
+      'Gestión tributaria anual completa, la cual incluye:',
+      ['Determinación y declaración de la base imponible afecta a Impuesto de Primera Categoría, en base al régimen tributario de la sociedad.',
+       'Confección de declaraciones juradas requeridas por el SII.',
+       'Asistir a cualquier revisión de impuestos que realice el SII (debidamente facultado), sobre determinaciones realizadas por Nexa Enlaces Ltda'],
+      null
+    );
+    alcancesXml+=p(run('Será de cargo del cliente las gestiones de pagos de facturas de proveedores, personal y similares, y la digitación de los cheques emitidos en caso de aplicar.'));
+    alcancesXml+=sep();
+  }
+  if(d.rrhh){
+    alcancesXml+=svc(
+      'Gestión de Recursos Humanos:',
+      'Prestación del servicio de remuneraciones, que comprende:',
+      ['Confección y cálculo mensual de remuneraciones',
+       'Emisión de liquidaciones de sueldo',
+       'Tramitación de licencias médicas',
+       'Preparación de información de pago de cotizaciones',
+       'Contrato de trabajos (por cada contrato solicitado): 0,5 UF',
+       'Finiquito de trabajos (por cada contrato solicitado): 0,5 UF'],
+      null
+    );
+  }
+  if(d.constitucion){
+    alcancesXml+=svc(
+      'Constitución de Empresa SpA (Servicio Único):',
+      'Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía, que incluye:',
+      ['Redacción de estatutos conforme al giro definido',
+       'Inicio de actividades ante el SII con configuración correcta de giro y domicilio tributario',
+       'Elección fundamentada del régimen tributario más conveniente',
+       'Inscripción al sistema de facturación electrónica'],
+      'Al término del proceso la sociedad queda completamente operativa.'
+    );
+  }
+  if(d.proyeccion){
+    alcancesXml+=svc(
+      'Proyección de Impuestos Anuales (Servicio Único):',
+      'Estimación anticipada de la carga tributaria del ejercicio vigente, que comprende:',
+      ['Análisis de resultados contables acumulados',
+       'Proyección de ingresos y gastos hasta el cierre del año',
+       'Estimación de impuesto a pagar o saldo a favor',
+       'Recomendaciones para optimizar la carga tributaria antes del cierre'],
+      'Permite al cliente tomar decisiones informadas antes del cierre tributario.'
+    );
+  }
+  if(d.termino){
+    alcancesXml+=svc(
+      `Término de Giro ${propCapitalizar(d.terminoTipo)} (Servicio Único):`,
+      'Cierre formal de actividades ante el SII, que incluye:',
+      ['Revisión del cumplimiento tributario previo al cierre',
+       'Preparación de la documentación requerida por el SII',
+       'Tramitación completa del proceso de término de giro',
+       'Acompañamiento hasta la obtención del certificado de término'],
+      null
+    );
+  }
+
+  // ── Honorarios ──  // ── Honorarios ──
   let honXml='';
   if(d.base||d.facturacion||d.cartera||d.rrhh){
     const partes=[
@@ -4411,25 +4504,33 @@ function propGenerarDocx(d) {
   xml+=secTitle(null,'Alcances de los Servicios:');
   xml+=alcancesXml;
   xml+=sep();
-  xml+=secTitle(null,'Responsabilidades del Cliente:');
+  svcNum++;
+  xml+=p([run(`${svcNum}) `,{bold:true}),run('Responsabilidades del Cliente:',{bold:true,underline:true})],{justify:false,before:200,after:80});
+  xml+=sep();
   xml+=p(run('Para una correcta ejecución del servicio, será responsabilidad del cliente:'));
-  ['Proporcionar la documentación contable y tributaria de forma oportuna, completa y ordenada.',
-   'Informar de manera inmediata cualquier hecho relevante que pueda afectar la contabilidad o situación tributaria de la empresa.',
-   'Realizar oportunamente el pago de impuestos, multas, intereses y demás obligaciones legales, una vez informados.',
-   ...(d.cartera?['Confirmar los pagos recibidos dentro del plazo acordado para mantener el reporte de cartera actualizado.']:[])
+  xml+=sep();
+  [
+    'Proporcionar la documentación contable y tributaria de forma oportuna, completa y ordenada.',
+    'Informar de manera inmediata cualquier hecho relevante que pueda afectar la contabilidad, impuestos, obligaciones o situación tributaria de la empresa, incluyendo modificaciones societarias, inicio de nuevas actividades, cambios de domicilio, fiscalizaciones, demandas, multas, créditos, inversiones u otros actos relevantes.',
+    'Realizar oportunamente el pago de impuestos, multas, intereses y demás obligaciones legales, una vez informados.',
+    'Cobro a clientes y efectuar pago a Proveedores.',
+    'El cliente reconoce que la correcta prestación del servicio depende directamente de la entrega oportuna y veraz de la información requerida. En consecuencia, Nexa Enlaces Ltda no será responsable por multas, sanciones, intereses, diferencias tributarias, contingencias laborales ni perjuicios derivados de información incompleta, errónea, falsa, fuera de plazo o no proporcionada por el cliente.',
+    'Nexa Enlaces Ltda tampoco será responsable por retrasos o incumplimientos ocasionados por falta de colaboración del cliente, demora en aprobaciones, falta de fondos para pagos, bloqueos de claves, caídas de plataformas gubernamentales o situaciones ajenas a su control.'
   ].forEach(b=>xml+=bullet(b));
   xml+=sep();
-  xml+=secTitle(null,'Profesionales a cargo:');
-  xml+=p(run('La responsabilidad del desarrollo del trabajo y atención personal será de los socios de la firma:'));
+  xml+=p([run('II. ',{bold:true}),run('Profesionales a cargo:',{bold:true,underline:true})],{justify:false,before:200,after:80});
+  xml+=p(run('La responsabilidad del desarrollo del trabajo y atención personal de la empresa y sus ejecutivos será de los socios de la firma, quienes actuarán con la colaboración de profesionales pertenecientes a la firma Nexa Enlaces Ltda, entre las personas que atenderán sus consultas y desarrollarán los servicios indicados anteriormente, son:'));
   xml+=sep();
-  xml+=p([run('Javiera Lizama',{bold:true}),run('\t\tSocia Impuestos')]);
-  xml+=p([run('Bernardita Sepúlveda',{bold:true}),run('\tSocia Contabilidad')]);
-  xml+=p([run('Suemy Pardo Labra',{bold:true}),run('\tAsistente Contable')]);
+  xml+=p([run('Javiera Lizama'),run('\t\t\tSocia Impuestos')],{justify:false});
+  xml+=p([run('Bernardita Sepúlveda'),run('\t\tSocia Contabilidad')],{justify:false});
+  xml+=p([run('Suemy Pardo Labra'),run('\t\t\tAsistente Contable')],{justify:false});
   xml+=sep();
   xml+=p([run('El correo para canalizar la información y de contacto oficial será '),run('contacto@nexaen.cl',{bold:true})]);
   xml+=sep();
-  xml+=secTitle(null,'Honorarios:');
-  xml+=p(run('Los honorarios asociados a esta asesoría son los siguientes:'));
+  xml+=p([run('III. ',{bold:true}),run('Honorarios:',{bold:true,underline:true})],{justify:false,before:200,after:80});
+  xml+=p(run('Proponemos los siguientes honorarios para los servicios contratados:'));
+  xml+=sep();
+  xml+=p(run('Proponemos los siguientes honorarios para los servicios contratados:'));
   xml+=sep();
   xml+=honXml;
   xml+=sep();
