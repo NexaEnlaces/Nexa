@@ -1562,8 +1562,8 @@ function renderDash(){
   });
   if(tareasXAprobar>0)alerts.push(`<div class="alert" style="background:#f5e8fd;border:1px solid var(--purple);color:#7020b0">🔍 <strong>${tareasXAprobar} tarea(s) ejecutadas pendientes de aprobación</strong> en el mes actual — <a href="#" onclick="go('control');document.getElementById('cm-tarea-filter').value='pendientes';renderCM();return false;" style="color:#7020b0;font-weight:800">Ver en Control Mensual →</a></div>`);
   // Update nb-cm badge with pending approvals too
-  const nb=document.getElementById('nb-cm');
-  if(nb&&tareasXAprobar>0){nb.style.display='inline';nb.style.background='var(--purple)';nb.textContent=tareasXAprobar;}
+  const nb2=document.getElementById('nb-cm');
+  if(nb2&&tareasXAprobar>0){nb2.style.display='inline';nb2.style.background='var(--purple)';nb2.textContent=tareasXAprobar;}
   document.getElementById('dash-alert').innerHTML=alerts.length>0?alerts.join(''):(fs.length>0?'<div class="alert a-ok">✓ Cobranza al día — sin facturas vencidas ni por vencer</div>':'');
   if(fs.length===0){document.getElementById('bar-chart').innerHTML='<div style="color:var(--muted);font-size:12px;padding:20px;text-align:center">Agrega tu primera factura</div>';drawDonut('donut','pie-leg',[]);document.getElementById('dash-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Sin facturas aún</td></tr>';return;}
   const months=['6m','5m','4m','3m','2m','Este mes'];
@@ -3579,8 +3579,8 @@ function renderCM(){
                   const hl=!done2&&tareaFiltro==='pendientes';
                   return `<td>
                     <div style="display:flex;flex-direction:column;gap:2px">
-                      <span class="cm-task-chip ${done2?'cm-chip-done':pendA2?'':'hl?'cm-chip-hl':'cm-chip-pend'}"
-                        style="${pendA2?'background:#f5e8fd;color:#7020b0;border-color:var(--purple)':''}"
+                      <span class="cm-task-chip ${done2?'cm-chip-done':pendA2?'cm-chip-hl':'cm-chip-pend'}"
+                        style="${pendA2?'background:#f5e8fd;color:#7020b0;border-color:var(--purple)':hl?'border-color:var(--yellow);background:var(--yellow-light)':''}"
                         onclick="cmSetEjecutado('${c.id}',${_cmAnio},${_cmMes},'${tid}',${!ejec2})">
                         ${ejec2?'✓':t.icon} Ejec
                       </span>
