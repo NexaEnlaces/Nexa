@@ -6,6 +6,7 @@
 <title>Nexa · Sistema de Gestión</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://unpkg.com/docx@9.6.1/build/index.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -417,6 +418,16 @@ textarea.finput{resize:vertical;min-height:68px}
     <span class="nav-badge" id="nb-renta" style="display:none;background:var(--yellow)">0</span>
   </div>
   <div class="nav-sec">⚙️ Configuraciones</div>
+  <div class="nav-item" onclick="go('propuestas')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+  Propuestas
+</div>
   <div class="nav-item" onclick="go('email')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Envío de Emails
   </div>
@@ -841,6 +852,201 @@ textarea.finput{resize:vertical;min-height:68px}
   <div class="cm-grid" id="cm-grid"></div>
 </div>
 
+<div id="view-propuestas" class="view">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Generador de <span>Propuestas</span></div>
+      <div class="ph-sub">Completa los datos y descarga el .docx listo para enviar</div>
+      <div id="prop-drive-status" style="font-size:10px;font-family:var(--font2);margin-top:4px;color:var(--muted)"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+
+    <!-- COLUMNA IZQUIERDA: Formulario -->
+    <div>
+
+      <!-- Datos del cliente -->
+      <div class="card">
+        <div class="card-h">
+          <div>
+            <div class="card-t">📋 Datos del cliente</div>
+            <div class="card-sub">Información de la propuesta</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="propDesdeCliente()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Buscar cliente
+          </button>
+        </div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Nombre contacto *</label>
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-nombre" placeholder="Ej: Solange">
+            </div>
+            <div>
+              <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Empresa</label>
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-empresa" placeholder="Ej: NewVita">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Ciudad</label>
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-ciudad" value="Puerto Montt">
+            </div>
+            <div>
+              <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Fecha</label>
+              <input class="srch" type="date" style="width:100%;border-radius:8px" id="prop-fecha">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Servicios mensuales -->
+      <div class="card">
+        <div class="card-h">
+          <div>
+            <div class="card-t">📅 Servicios mensuales</div>
+            <div class="card-sub">Se incluyen en el cobro mensual</div>
+          </div>
+        </div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-base" onclick="propToggle('base')">
+            <input type="checkbox" id="prop-base" checked style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+            <div>
+              <div style="font-size:12px;font-weight:800">Contabilidad mensual + Impuestos mensuales + Impuestos anuales</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Plan base — incluido en todos los planes</div>
+            </div>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-facturacion" onclick="propToggle('facturacion')">
+            <input type="checkbox" id="prop-facturacion" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+            <div>
+              <div style="font-size:12px;font-weight:800">Facturación electrónica</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Emisión de facturas de venta en representación del cliente</div>
+            </div>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-cartera" onclick="propToggle('cartera')">
+            <input type="checkbox" id="prop-cartera" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+            <div>
+              <div style="font-size:12px;font-weight:800">Conciliación de pagos + Reporte de cartera</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Conciliación mensual e informe de clientes con saldos pendientes</div>
+            </div>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-rrhh" onclick="propToggle('rrhh')">
+            <input type="checkbox" id="prop-rrhh" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+            <div>
+              <div style="font-size:12px;font-weight:800">Gestión de RRHH / Remuneraciones</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Liquidaciones, cotizaciones previsionales y licencias médicas</div>
+            </div>
+          </label>
+
+          <div style="border-top:1px solid var(--border2);padding-top:12px;margin-top:4px">
+            <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Honorario mensual (UF) *</label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input class="srch" type="number" step="0.1" min="0" style="width:100px;border-radius:8px" id="prop-uf" placeholder="Ej: 3">
+              <span style="font-size:11px;color:var(--muted)">UF mensuales + IVA</span>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--blue-light);border-radius:8px;border:1px solid var(--blue-mid)">
+            <input type="checkbox" id="prop-revision" style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0">
+            <label for="prop-revision" style="font-size:11px;font-weight:700;color:var(--blue);cursor:pointer">Incluir cláusula de revisión por volumen</label>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Servicios únicos -->
+      <div class="card">
+        <div class="card-h">
+          <div>
+            <div class="card-t">⚡ Servicios únicos</div>
+            <div class="card-sub">Cobro independiente, pago por única vez</div>
+          </div>
+        </div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-constitucion" onclick="propToggle('constitucion')">
+            <input type="checkbox" id="prop-constitucion" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:800">Constitución de empresa SpA</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Vía portal Empresa en un Día — sociedad 100% operativa</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+                <span style="font-size:10px;font-weight:700;color:var(--muted)">Monto ($):</span>
+                <input class="srch" type="number" style="width:110px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-constitucion-monto" value="180000" onclick="event.stopPropagation()">
+              </div>
+            </div>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-proyeccion" onclick="propToggle('proyeccion')">
+            <input type="checkbox" id="prop-proyeccion" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:800">Proyección de impuestos anuales</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Estimación anticipada de carga tributaria del ejercicio</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+                <span style="font-size:10px;font-weight:700;color:var(--muted)">UF:</span>
+                <input class="srch" type="number" step="0.1" style="width:80px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-proyeccion-uf" value="0.3" onclick="event.stopPropagation()">
+              </div>
+            </div>
+          </label>
+
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-termino" onclick="propToggle('termino')">
+            <input type="checkbox" id="prop-termino" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:800">Término de giro</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Cierre formal de actividades ante el SII</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px" onclick="event.stopPropagation()">
+                <span style="font-size:10px;font-weight:700;color:var(--muted)">Tipo:</span>
+                <select class="fsel" style="font-size:11px;padding:3px 8px;border-radius:6px" id="prop-termino-tipo" onchange="propActualizarTermino()">
+                  <option value="simple">Simple (~0.5 UF)</option>
+                  <option value="complejo">Complejo (~0.8 UF)</option>
+                </select>
+              </div>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: Preview y acciones -->
+    <div style="position:sticky;top:20px">
+      <div class="card">
+        <div class="card-h">
+          <div>
+            <div class="card-t">👁 Vista previa</div>
+            <div class="card-sub">Resumen de la propuesta</div>
+          </div>
+          <button class="btn btn-blue" onclick="propGenerar()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Generar .docx
+          </button>
+        </div>
+        <div style="padding:16px" id="prop-preview">
+          <div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">Completa el formulario para ver la vista previa</div>
+        </div>
+      </div>
+
+      <!-- Historial -->
+      <div class="card">
+        <div class="card-h">
+          <div class="card-t">🗂 Propuestas generadas</div>
+          <div class="card-sub">Últimas 10</div>
+        </div>
+        <div style="padding:12px" id="prop-historial">
+          <div style="color:var(--muted);font-size:11px;text-align:center;padding:10px 0">Sin propuestas generadas aún</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="view-gsheets" class="view">
   <div class="ph">
     <div><div class="ph-title">Google <span>Sheets</span></div><div class="ph-sub">Sincronización en tiempo real con tu socia</div></div>
@@ -1254,7 +1460,7 @@ textarea.finput{resize:vertical;min-height:68px}
 // STATE — inicia vacío
 // ══════════════════════════════════════════════
 const AVC=[{bg:'#e8eeff',c:'#003ad0'},{bg:'#f5e8fd',c:'#7020b0'},{bg:'#edfad0',c:'#2d6a00'},{bg:'#fff8d6',c:'#8a6200'}];
-let S={facturas:[],clientes:[],notas:[],sii:[],emails:[],ejs:{pk:'',sid:'',tid:'',from:''},gsConfig:{clientId:'',sheetId:''},cmChecks:{},cmTareas:{},encargos:[],rentaClientes:[],creds:{},folioN:1,notaN:1,lastSync:null};
+let S={facturas:[],clientes:[],notas:[],sii:[],emails:[],ejs:{pk:'',sid:'',tid:'',from:''},gsConfig:{clientId:'',sheetId:''},cmChecks:{},cmTareas:{},encargos:[],rentaClientes:[],creds:{},propuestas:[],folioN:1,notaN:1,lastSync:null};
 function load(){
   const r=localStorage.getItem('nexa_v5');
   if(r){
@@ -1328,7 +1534,7 @@ function normRUT(r){
 }
 function renderAll(){renderDash();renderF();renderKB();renderCL();renderNV();renderSII();renderInf();renderCM();renderCU();renderRenta();}
 // ══ NAV ══
-function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));const el=document.getElementById('view-'+v);if(el)el.classList.add('active');document.querySelectorAll('.nav-item').forEach(x=>{if(x.getAttribute('onclick')?.includes("'"+v+"'"))x.classList.add('active');});({dashboard:renderDash,facturas:renderF,kanban:renderKB,clientes:renderCL,notas:renderNV,sii:renderSII,email:renderEmail,informes:renderInf,control:renderCM,unicos:renderCU,renta:renderRenta,credenciales:()=>{renderCred();credCheckAccess();},gsheets:()=>{loadGSConfig();if(gsIsSignedIn())gsOnSignedIn();}})[v]?.();}
+function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));const el=document.getElementById('view-'+v);if(el)el.classList.add('active');document.querySelectorAll('.nav-item').forEach(x=>{if(x.getAttribute('onclick')?.includes("'"+v+"'"))x.classList.add('active');});({dashboard:renderDash,facturas:renderF,kanban:renderKB,clientes:renderCL,notas:renderNV,sii:renderSII,email:renderEmail,informes:renderInf,control:renderCM,unicos:renderCU,renta:renderRenta,credenciales:()=>{renderCred();credCheckAccess();},propuestas:renderProp,gsheets:()=>{loadGSConfig();if(gsIsSignedIn())gsOnSignedIn();}})[v]?.();}
 // ══ DASHBOARD ══
 function renderDash(){
   const fs=S.facturas,
@@ -1346,6 +1552,18 @@ function renderDash(){
   const alerts=[];
   if(vencs.length>0)alerts.push(`<div class="alert a-warn">⚠️ <strong>${vencs.length} factura(s) vencida(s):</strong> ${vencs.map(f=>f.folio+' — '+cl(f.cid).nom).join(' · ')}</div>`);
   if(porVencer.length>0)alerts.push(`<div class="alert a-info">⏰ <strong>${porVencer.length} factura(s) por vencer esta semana:</strong> ${porVencer.map(f=>f.folio+' — '+cl(f.cid).nom).join(' · ')}</div>`);
+  // Tareas pendientes de aprobación este mes
+  const hoy=new Date(),mesActual=hoy.getMonth(),anioActual=hoy.getFullYear();
+  let tareasXAprobar=0;
+  S.clientes.filter(c=>c.tipo!=='Único'&&c.estado!=='Inactivo').forEach(c=>{
+    cmGetTareas(c.id).filter(t=>!t.soloSueldo||c.tieneSueldo).forEach(t=>{
+      if(cmGetEjecutado(c.id,anioActual,mesActual,t.id)&&!cmGetAprobado(c.id,anioActual,mesActual,t.id)) tareasXAprobar++;
+    });
+  });
+  if(tareasXAprobar>0)alerts.push(`<div class="alert" style="background:#f5e8fd;border:1px solid var(--purple);color:#7020b0">🔍 <strong>${tareasXAprobar} tarea(s) ejecutadas pendientes de aprobación</strong> en el mes actual — <a href="#" onclick="go('control');document.getElementById('cm-tarea-filter').value='pendientes';renderCM();return false;" style="color:#7020b0;font-weight:800">Ver en Control Mensual →</a></div>`);
+  // Update nb-cm badge with pending approvals too
+  const nb=document.getElementById('nb-cm');
+  if(nb&&tareasXAprobar>0){nb.style.display='inline';nb.style.background='var(--purple)';nb.textContent=tareasXAprobar;}
   document.getElementById('dash-alert').innerHTML=alerts.length>0?alerts.join(''):(fs.length>0?'<div class="alert a-ok">✓ Cobranza al día — sin facturas vencidas ni por vencer</div>':'');
   if(fs.length===0){document.getElementById('bar-chart').innerHTML='<div style="color:var(--muted);font-size:12px;padding:20px;text-align:center">Agrega tu primera factura</div>';drawDonut('donut','pie-leg',[]);document.getElementById('dash-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Sin facturas aún</td></tr>';return;}
   const months=['6m','5m','4m','3m','2m','Este mes'];
@@ -1829,7 +2047,7 @@ const GS = {
   tokenExpiry: null,
   clientId: '',
   sheetId: '',
-  SCOPES: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send',
+  SCOPES: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/drive.file',
   SHEETS: ['Clientes','Facturas','Notas','SII','Emails','Config'],
 };
 
@@ -1999,10 +2217,15 @@ async function gsUploadAll(){
       gsWriteSheet('SII',      S.sii,      GS_HEADERS.SII),
       gsWriteSheet('Emails',   S.emails||[], GS_HEADERS.Emails),
       gsWriteSheet('Config', [
-        {key:'folioN',  value:String(S.folioN)},
-        {key:'notaN',   value:String(S.notaN)},
-        {key:'lastSync',value:new Date().toISOString()},
-        {key:'version', value:'nexa-v5'},
+        {key:'folioN',       value:String(S.folioN)},
+        {key:'notaN',        value:String(S.notaN)},
+        {key:'lastSync',     value:new Date().toISOString()},
+        {key:'version',      value:'nexa-v5'},
+        {key:'cmTareas',     value:JSON.stringify(S.cmTareas||{})},
+        {key:'cmChecks',     value:JSON.stringify(S.cmChecks||{})},
+        {key:'encargos',     value:JSON.stringify(S.encargos||[])},
+        {key:'rentaClientes',value:JSON.stringify(S.rentaClientes||[])},
+        {key:'propuestas',   value:JSON.stringify(S.propuestas||[])},
       ], GS_HEADERS.Config),
     ];
     await Promise.all(ops);
@@ -2062,6 +2285,13 @@ async function gsLoadAll(){
     S.emails   = emails.filter(e=>e.id);
     S.folioN   = Number(cfgMap.folioN)||S.folioN||1;
     S.notaN    = Number(cfgMap.notaN)||S.notaN||1;
+    // Restore JSON-encoded config fields
+    const parseJ = (k,def)=>{ try{ return cfgMap[k]?JSON.parse(cfgMap[k]):def; }catch(e){ return def; } };
+    S.cmTareas      = parseJ('cmTareas', {});
+    S.cmChecks      = parseJ('cmChecks', {});
+    S.encargos      = parseJ('encargos', []);
+    S.rentaClientes = parseJ('rentaClientes', []);
+    S.propuestas    = parseJ('propuestas',    []);
     S.lastSync = new Date().toLocaleString('es-CL');
     save();
     renderAll();
@@ -2073,6 +2303,80 @@ async function gsLoadAll(){
     toast('Datos sincronizados desde Google Sheets');
   } catch(e){
     gsShowStatus('sync','Error al cargar: '+e.message,'err');
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════
+// GOOGLE DRIVE — subir propuestas
+// ══════════════════════════════════════════════════════════
+const DRIVE_FOLDER_NAME = 'Propuestas APP';
+let _driveFolderId = null; // cached folder ID
+
+async function driveGetOrCreateFolder(){
+  if(_driveFolderId) return _driveFolderId;
+  // Search for existing folder
+  const q = encodeURIComponent(`name='${DRIVE_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`,{
+    headers:{'Authorization':'Bearer '+GS.token}
+  });
+  const data = await res.json();
+  if(data.files && data.files.length > 0){
+    _driveFolderId = data.files[0].id;
+    return _driveFolderId;
+  }
+  // Create folder
+  const create = await fetch('https://www.googleapis.com/drive/v3/files',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+GS.token,'Content-Type':'application/json'},
+    body: JSON.stringify({name:DRIVE_FOLDER_NAME, mimeType:'application/vnd.google-apps.folder'})
+  });
+  const folder = await create.json();
+  _driveFolderId = folder.id;
+  return _driveFolderId;
+}
+
+async function driveUploadDocx(blob, filename){
+  if(!gsIsSignedIn()){
+    toast('Conecta con Google para guardar en Drive',false);
+    return null;
+  }
+  try{
+    const folderId = await driveGetOrCreateFolder();
+    // Multipart upload
+    const boundary = 'nexa_boundary_'+Date.now();
+    const metadata = JSON.stringify({name:filename, parents:[folderId],
+      mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    // Build multipart body
+    const metaBytes = new TextEncoder().encode(
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n\r\n`
+    );
+    const endBytes = new TextEncoder().encode(`\r\n--${boundary}--`);
+    const fileBytes = new Uint8Array(await blob.arrayBuffer());
+    // Combine
+    const body = new Uint8Array(metaBytes.length + fileBytes.length + endBytes.length);
+    body.set(metaBytes, 0);
+    body.set(fileBytes, metaBytes.length);
+    body.set(endBytes, metaBytes.length + fileBytes.length);
+    const uploadRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+      method:'POST',
+      headers:{
+        'Authorization':'Bearer '+GS.token,
+        'Content-Type':`multipart/related; boundary=${boundary}`
+      },
+      body: body
+    });
+    const uploaded = await uploadRes.json();
+    if(uploaded.id){
+      toast('✅ Guardado en Drive: '+filename);
+      return uploaded.id;
+    } else {
+      toast('Error al guardar en Drive: '+(uploaded.error?.message||'desconocido'),false);
+      return null;
+    }
+  } catch(e){
+    toast('Error Drive: '+e.message,false);
+    return null;
   }
 }
 
@@ -3066,12 +3370,12 @@ function saveAbono(){
 
 // DEFAULT tasks — used when a client has no custom tasks defined
 const CM_TASKS_DEFAULT = [
-  {id:'sueldos',   lbl:'Proc. Sueldos',   icon:'💰', soloSueldo:true},
-  {id:'previred',  lbl:'Carga Previred',   icon:'📤', soloSueldo:true},
-  {id:'mailSueldo',lbl:'Mail Sueldo',      icon:'✉️', soloSueldo:true},
-  {id:'mailPrev',  lbl:'Mail Previred',    icon:'📧', soloSueldo:true},
-  {id:'f29',       lbl:'F.29',             icon:'📋', soloSueldo:false},
-  {id:'mailF29',   lbl:'Mail F.29',        icon:'📨', soloSueldo:false},
+  {id:'sueldos',   lbl:'Proc. Sueldos',   icon:'💰', soloSueldo:true,  ejecuta:'Berny', aprueba:'Javi'},
+  {id:'previred',  lbl:'Carga Previred',   icon:'📤', soloSueldo:true,  ejecuta:'Berny', aprueba:'Javi'},
+  {id:'mailSueldo',lbl:'Mail Sueldo',      icon:'✉️', soloSueldo:true,  ejecuta:'Berny', aprueba:'Javi'},
+  {id:'mailPrev',  lbl:'Mail Previred',    icon:'📧', soloSueldo:true,  ejecuta:'Berny', aprueba:'Javi'},
+  {id:'f29',       lbl:'F.29',             icon:'📋', soloSueldo:false, ejecuta:'Berny', aprueba:'Javi'},
+  {id:'mailF29',   lbl:'Mail F.29',        icon:'📨', soloSueldo:false, ejecuta:'Berny', aprueba:'Javi'},
 ];
 function cmGetTareas(cid){
   if(!S.cmTareas) S.cmTareas={};
@@ -3090,20 +3394,50 @@ function cmKey(cid, anio, mes, taskId){
   return `cm_${cid}_${anio}_${mes}_${taskId}`;
 }
 
-function cmGetCheck(cid, anio, mes, taskId){
-  if(!S.cmChecks) S.cmChecks={};
-  return S.cmChecks[cmKey(cid,anio,mes,taskId)]||false;
+function cmGetCheck(cid,anio,mes,taskId){
+  if(!S.cmChecks)S.cmChecks={};
+  const v=S.cmChecks[cmKey(cid,anio,mes,taskId)];
+  if(typeof v==='object'&&v!==null)return v.ejecutado&&v.aprobado;
+  return v||false;
 }
-
-function cmSetCheck(cid, anio, mes, taskId, val){
-  if(!S.cmChecks) S.cmChecks={};
-  S.cmChecks[cmKey(cid,anio,mes,taskId)]=val;
-  save();
-  renderCM();
+function cmGetEjecutado(cid,anio,mes,taskId){
+  if(!S.cmChecks)S.cmChecks={};
+  const v=S.cmChecks[cmKey(cid,anio,mes,taskId)];
+  if(typeof v==='object'&&v!==null)return v.ejecutado||false;
+  return v||false;
 }
-
-function cmToggle(cid, anio, mes, taskId){
-  const cur = cmGetCheck(cid,anio,mes,taskId);
+function cmGetAprobado(cid,anio,mes,taskId){
+  if(!S.cmChecks)S.cmChecks={};
+  const v=S.cmChecks[cmKey(cid,anio,mes,taskId)];
+  if(typeof v==='object'&&v!==null)return v.aprobado||false;
+  return false;
+}
+function cmSetEjecutado(cid,anio,mes,taskId,val){
+  if(!S.cmChecks)S.cmChecks={};
+  const k=cmKey(cid,anio,mes,taskId);
+  const cur=S.cmChecks[k];
+  const obj=(typeof cur==='object'&&cur!==null)?{...cur}:{ejecutado:false,aprobado:false};
+  obj.ejecutado=val;
+  if(!val)obj.aprobado=false;
+  S.cmChecks[k]=obj;
+  save();renderCM();
+}
+function cmSetAprobado(cid,anio,mes,taskId,val){
+  if(!S.cmChecks)S.cmChecks={};
+  const k=cmKey(cid,anio,mes,taskId);
+  const cur=S.cmChecks[k];
+  const obj=(typeof cur==='object'&&cur!==null)?{...cur}:{ejecutado:false,aprobado:false};
+  obj.aprobado=val;
+  S.cmChecks[k]=obj;
+  save();renderCM();
+}
+function cmSetCheck(cid,anio,mes,taskId,val){
+  if(!S.cmChecks)S.cmChecks={};
+  S.cmChecks[cmKey(cid,anio,mes,taskId)]={ejecutado:val,aprobado:val};
+  save();renderCM();
+}
+function cmToggle(cid,anio,mes,taskId){
+  const cur=cmGetCheck(cid,anio,mes,taskId);
   cmSetCheck(cid,anio,mes,taskId,!cur);
 }
 
@@ -3238,13 +3572,24 @@ function renderCM(){
                   if(!t||(!c.tieneSueldo&&t.soloSueldo)){
                     return `<td><span style="color:var(--muted);font-size:11px">—</span></td>`;
                   }
-                  const checked=cmGetCheck(c.id,_cmAnio,_cmMes,tid);
-                  const hl=!checked&&tareaFiltro==='pendientes';
+                  const ejec2=cmGetEjecutado(c.id,_cmAnio,_cmMes,tid);
+                  const apro2=cmGetAprobado(c.id,_cmAnio,_cmMes,tid);
+                  const done2=ejec2&&apro2;
+                  const pendA2=ejec2&&!apro2;
+                  const hl=!done2&&tareaFiltro==='pendientes';
                   return `<td>
-                    <span class="cm-task-chip ${checked?'cm-chip-done':hl?'cm-chip-hl':'cm-chip-pend'}"
-                      onclick="cmToggle('${c.id}',${_cmAnio},${_cmMes},'${tid}')">
-                      ${checked?'✓ '+t.lbl:t.icon+' '+t.lbl}
-                    </span>
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                      <span class="cm-task-chip ${done2?'cm-chip-done':pendA2?'':'hl?'cm-chip-hl':'cm-chip-pend'}"
+                        style="${pendA2?'background:#f5e8fd;color:#7020b0;border-color:var(--purple)':''}"
+                        onclick="cmSetEjecutado('${c.id}',${_cmAnio},${_cmMes},'${tid}',${!ejec2})">
+                        ${ejec2?'✓':t.icon} Ejec
+                      </span>
+                      <span class="cm-task-chip ${apro2?'cm-chip-done':'cm-chip-pend'}"
+                        style="${!ejec2?'opacity:.4;pointer-events:none':''}"
+                        onclick="cmSetAprobado('${c.id}',${_cmAnio},${_cmMes},'${tid}',${!apro2})">
+                        ${apro2?'✓':'○'} Apro
+                      </span>
+                    </div>
                   </td>`;
                 }).join('')}
               </tr>`;
@@ -3262,6 +3607,7 @@ function renderCM(){
     const ini = c.nom.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
     const allTasks=cmGetTareas(c.id); const tasks = allTasks.filter(t=>!t.soloSueldo||c.tieneSueldo);
     const done = tasks.filter(t=>cmGetCheck(c.id,_cmAnio,_cmMes,t.id)).length;
+    const pendAproCount = tasks.filter(t=>cmGetEjecutado(c.id,_cmAnio,_cmMes,t.id)&&!cmGetAprobado(c.id,_cmAnio,_cmMes,t.id)).length;
     const pctC = tasks.length>0?Math.round(done/tasks.length*100):100;
     return `<div class="cm-card">
       <div class="cm-card-head">
@@ -3270,23 +3616,41 @@ function renderCM(){
           <div class="cm-client-name">${c.nom}</div>
           <div class="cm-client-sub">${c.aCargo||'—'} · ${c.tipo||'Mensual'} ${c.tieneSueldo?'· '+( c.nLiq||'?')+' liq.':''}</div>
         </div>
-        <div style="margin-left:auto;font-size:11px;font-weight:800;color:${pctC===100?'#2d6a00':pctC>50?'var(--blue)':'var(--muted)'}">${pctC}%</div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+          ${pendAproCount>0?`<span style="font-size:9px;background:var(--purple);color:#fff;border-radius:20px;padding:2px 7px;font-weight:800">${pendAproCount} por aprobar</span>`:''}
+          <span style="font-size:11px;font-weight:800;color:${pctC===100?'#2d6a00':pctC>50?'var(--blue)':'var(--muted)'}">${pctC}%</span>
+        </div>
       </div>
       <div class="cm-progress-bar"><div class="cm-progress-fill" style="width:${pctC}%"></div></div>
       <div class="cm-tasks">
         ${tasks.map(t=>{
-          const checked = cmGetCheck(c.id,_cmAnio,_cmMes,t.id);
-          const hl=!checked&&tareaFiltro==='pendientes';
-          return `<div class="cm-task-row${checked?' done':''}"
-            onclick="cmToggle('${c.id}',${_cmAnio},${_cmMes},'${t.id}')"
-            style="${hl?'border-color:var(--yellow);background:var(--yellow-light);':''}">
-            <div class="cm-task-lbl">
-              <div class="cm-check">${checked?'✓':''}</div>
-              ${t.icon} ${t.lbl}
+          const ejec = cmGetEjecutado(c.id,_cmAnio,_cmMes,t.id);
+          const apro = cmGetAprobado(c.id,_cmAnio,_cmMes,t.id);
+          const checked = ejec && apro;
+          const pendApro = ejec && !apro;
+          const hl = !checked && tareaFiltro==='pendientes';
+          const bColor = checked?'var(--green)':pendApro?'var(--purple)':hl?'var(--yellow)':'var(--border2)';
+          const bgCol  = checked?'var(--green-light)':pendApro?'#f5e8fd':hl?'var(--yellow-light)':'var(--bg)';
+          return `<div class="cm-task-row${checked?' done':''}" style="border-color:${bColor};background:${bgCol}">
+            <div style="display:flex;align-items:flex-start;gap:8px;flex:1">
+              <div class="cm-check" style="${checked?'background:var(--green);border-color:var(--green);color:#fff':pendApro?'background:var(--purple);border-color:var(--purple);color:#fff':''}">${checked||pendApro?'✓':''}</div>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:700">${t.icon} ${t.lbl}</div>
+                <div style="font-size:9px;color:var(--muted);font-family:var(--font2);margin-top:2px">
+                  ${t.ejecuta?'<span style="color:var(--blue)">▶ '+t.ejecuta+'</span>':''} ${t.aprueba?'<span style="color:var(--purple)">✓ '+t.aprueba+'</span>':''}
+                </div>
+              </div>
             </div>
-            ${checked
-              ?'<span style="font-size:10px;color:#2d6a00;font-weight:700">✓ Listo</span>'
-              :`<span style="font-size:10px;font-weight:${hl?'800':'400'};color:${hl?'#8a6200':'var(--muted)'}">${hl?'⚠ Pendiente':'Pendiente'}</span>`}
+            <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">
+              <button onclick="event.stopPropagation();cmSetEjecutado('${c.id}',${_cmAnio},${_cmMes},'${t.id}',${!ejec})"
+                style="font-size:9px;padding:2px 8px;border-radius:10px;border:1.5px solid ${ejec?'var(--blue)':'var(--border2)'};background:${ejec?'var(--blue)':'transparent'};color:${ejec?'#fff':'var(--muted)'};cursor:pointer;font-weight:700;white-space:nowrap">
+                ${ejec?'✓ Ejecutado':'▶ Ejecutar'}
+              </button>
+              <button onclick="event.stopPropagation();cmSetAprobado('${c.id}',${_cmAnio},${_cmMes},'${t.id}',${!apro})"
+                style="font-size:9px;padding:2px 8px;border-radius:10px;border:1.5px solid ${apro?'var(--purple)':'var(--border2)'};background:${apro?'var(--purple)':'transparent'};color:${apro?'#fff':'var(--muted)'};cursor:pointer;font-weight:700;white-space:nowrap;${!ejec?'opacity:.4;pointer-events:none':''}">
+                ${apro?'✓ Aprobado':'○ Aprobar'}
+              </button>
+            </div>
           </div>`;
         }).join('')}
         ${tasks.length===0?'<div style="text-align:center;color:var(--muted);font-size:11px;padding:10px">Sin tareas configuradas</div>':''}
@@ -3320,6 +3684,7 @@ function cmExportExcel(){
     const allTasks=cmGetTareas(c.id); const tasks = allTasks.filter(t=>!t.soloSueldo||c.tieneSueldo);
     const vals = CM_TASKS.map(t=>cmGetCheck(c.id,_cmAnio,_cmMes,t.id)?'✓':'');
     const done = tasks.filter(t=>cmGetCheck(c.id,_cmAnio,_cmMes,t.id)).length;
+    const pendAproCount = tasks.filter(t=>cmGetEjecutado(c.id,_cmAnio,_cmMes,t.id)&&!cmGetAprobado(c.id,_cmAnio,_cmMes,t.id)).length;
     const pct = tasks.length>0?Math.round(done/tasks.length*100)+'%':'100%';
     rows.push([c.nom,c.rut,c.aCargo||'',c.tipo||'',c.tieneSueldo?'Sí':'No',c.nLiq||'',...vals,pct]);
   });
@@ -3344,14 +3709,35 @@ function openCMTareasModal(cid){
 }
 function renderCMTareasModal(){
   document.getElementById('cm-tareas-list').innerHTML = _cmTareasEditing.map((t,i)=>`
-    <div style="display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px 12px">
-      <span style="font-size:16px">${t.icon||'📋'}</span>
-      <input class="finput" style="flex:1" value="${t.lbl}" placeholder="Nombre de la tarea" oninput="_cmTareasEditing[${i}].lbl=this.value">
-      <input class="finput" style="width:50px" value="${t.icon||'📋'}" placeholder="🔧" oninput="_cmTareasEditing[${i}].icon=this.value">
-      <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--font2);color:var(--muted);white-space:nowrap;cursor:pointer">
-        <input type="checkbox" ${t.soloSueldo?'checked':''} onchange="_cmTareasEditing[${i}].soloSueldo=this.checked"> Solo si sueldo
-      </label>
-      <button class="del-item" onclick="_cmTareasEditing.splice(${i},1);renderCMTareasModal()">✕</button>
+    <div style="background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:4px">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <input class="finput" style="width:44px;text-align:center" value="${t.icon||'📋'}" oninput="_cmTareasEditing[${i}].icon=this.value">
+        <input class="finput" style="flex:1" value="${t.lbl}" placeholder="Nombre de la tarea" oninput="_cmTareasEditing[${i}].lbl=this.value">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-family:var(--font2);color:var(--muted);white-space:nowrap;cursor:pointer">
+          <input type="checkbox" ${t.soloSueldo?'checked':''} onchange="_cmTareasEditing[${i}].soloSueldo=this.checked"> Solo sueldo
+        </label>
+        <button class="del-item" onclick="_cmTareasEditing.splice(${i},1);renderCMTareasModal()">✕</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1">
+          <div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Ejecuta</div>
+          <select class="finput" style="font-size:11px;padding:4px 8px" onchange="_cmTareasEditing[${i}].ejecuta=this.value">
+            <option value="">— Sin asignar —</option>
+            <option value="Berny" ${(t.ejecuta||'')==='Berny'?'selected':''}>Berny</option>
+            <option value="Javi" ${(t.ejecuta||'')==='Javi'?'selected':''}>Javi</option>
+            <option value="Nexa" ${(t.ejecuta||'')==='Nexa'?'selected':''}>Nexa</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Aprueba</div>
+          <select class="finput" style="font-size:11px;padding:4px 8px" onchange="_cmTareasEditing[${i}].aprueba=this.value">
+            <option value="">— Sin asignar —</option>
+            <option value="Berny" ${(t.aprueba||'')==='Berny'?'selected':''}>Berny</option>
+            <option value="Javi" ${(t.aprueba||'')==='Javi'?'selected':''}>Javi</option>
+            <option value="Nexa" ${(t.aprueba||'')==='Nexa'?'selected':''}>Nexa</option>
+          </select>
+        </div>
+      </div>
     </div>`).join('')||'<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px">Sin tareas — agrega una abajo</div>';
 }
 function cmAddTarea(){
@@ -3391,6 +3777,504 @@ function cloneNV(id){
   renderNV();
   toast('Nota clonada: '+nuevoCod);
 }
+
+
+// ══ PROPUESTAS ══
+function renderProp() {
+  propActualizarPreview();
+  propRenderHistorial();
+  // Poner fecha de hoy por defecto
+  const fd = document.getElementById('prop-fecha');
+  if (fd && !fd.value) fd.value = new Date().toISOString().split('T')[0];
+  // Drive status
+  const ds = document.getElementById('prop-drive-status');
+  if(ds){
+    if(typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+      ds.innerHTML = '☁️ Las propuestas se guardarán automáticamente en Google Drive → carpeta <strong>"Propuestas APP"</strong>';
+      ds.style.color = '#2d6a00';
+    } else {
+      ds.innerHTML = '⚠️ Conecta con Google (Configuraciones → Google Sheets) para guardar automáticamente en Drive';
+      ds.style.color = '#8a6200';
+    }
+  }
+}
+
+function propToggle(id) {
+  const cb = document.getElementById('prop-' + id);
+  if (!cb) return;
+  cb.checked = !cb.checked;
+  const lbl = document.getElementById('lbl-' + id);
+  if (lbl) lbl.style.borderColor = cb.checked ? 'var(--blue)' : 'var(--border)';
+  propActualizarPreview();
+}
+
+function propActualizarTermino() {
+  const tipo = document.getElementById('prop-termino-tipo')?.value;
+  propActualizarPreview();
+}
+
+function propDesdeCliente() {
+  if (typeof S === 'undefined' || !S.clientes?.length) {
+    if (typeof toast === 'function') toast('No hay clientes registrados', false);
+    return;
+  }
+  const opts = S.clientes.map(c => `<option value="${c.id}">${c.nom}${c.alias ? ' (' + c.alias + ')' : ''}</option>`).join('');
+  const sel = `<select id="prop-cl-sel" class="fsel" style="width:100%"><option value="">— Seleccionar —</option>${opts}</select>`;
+
+  // Mini modal inline reutilizando el overlay de la app si existe
+  const html = `<div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center" id="prop-mini-modal">
+    <div style="background:#fff;border-radius:14px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+      <div style="font-size:15px;font-weight:900;margin-bottom:14px">Seleccionar cliente</div>
+      ${sel}
+      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('prop-mini-modal').remove()">Cancelar</button>
+        <button class="btn btn-blue btn-sm" onclick="propCargarCliente()">Usar este cliente</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function propCargarCliente() {
+  const id = document.getElementById('prop-cl-sel')?.value;
+  if (!id || typeof S === 'undefined') return;
+  const c = S.clientes.find(x => x.id === id);
+  if (!c) return;
+  const nom = c.alias || c.nom.split(' ')[0]; // Usar alias o primer nombre
+  document.getElementById('prop-nombre').value = nom;
+  document.getElementById('prop-empresa').value = c.nom || '';
+  document.getElementById('prop-mini-modal')?.remove();
+  propActualizarPreview();
+}
+
+function propGetDatos() {
+  const nombre = document.getElementById('prop-nombre')?.value?.trim() || '';
+  const empresa = document.getElementById('prop-empresa')?.value?.trim() || '';
+  const ciudad = document.getElementById('prop-ciudad')?.value?.trim() || 'Puerto Montt';
+  const fechaRaw = document.getElementById('prop-fecha')?.value || new Date().toISOString().split('T')[0];
+  const uf = parseFloat(document.getElementById('prop-uf')?.value) || 0;
+  const revision = document.getElementById('prop-revision')?.checked || false;
+
+  // Servicios mensuales
+  const base = document.getElementById('prop-base')?.checked || false;
+  const facturacion = document.getElementById('prop-facturacion')?.checked || false;
+  const cartera = document.getElementById('prop-cartera')?.checked || false;
+  const rrhh = document.getElementById('prop-rrhh')?.checked || false;
+
+  // Servicios únicos
+  const constitucion = document.getElementById('prop-constitucion')?.checked || false;
+  const constitucionMonto = parseInt(document.getElementById('prop-constitucion-monto')?.value) || 180000;
+  const proyeccion = document.getElementById('prop-proyeccion')?.checked || false;
+  const proyeccionUF = parseFloat(document.getElementById('prop-proyeccion-uf')?.value) || 0.3;
+  const termino = document.getElementById('prop-termino')?.checked || false;
+  const terminoTipo = document.getElementById('prop-termino-tipo')?.value || 'simple';
+  const terminoUF = terminoTipo === 'complejo' ? 0.8 : 0.5;
+
+  // Formatear fecha en español
+  const [y, m, d] = fechaRaw.split('-');
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaTexto = `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
+
+  return { nombre, empresa, ciudad, fechaRaw, fechaTexto, uf, revision,
+           base, facturacion, cartera, rrhh,
+           constitucion, constitucionMonto, proyeccion, proyeccionUF,
+           termino, terminoTipo, terminoUF };
+}
+
+function propActualizarPreview() {
+  const d = propGetDatos();
+  const el = document.getElementById('prop-preview');
+  if (!el) return;
+
+  if (!d.nombre && !d.empresa) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px 0">Completa el formulario para ver la vista previa</div>';
+    return;
+  }
+
+  const serviciosM = [];
+  if (d.base) serviciosM.push('Contabilidad + Impuestos mensuales + Renta anual');
+  if (d.facturacion) serviciosM.push('Facturación electrónica');
+  if (d.cartera) serviciosM.push('Conciliación + Reporte de cartera');
+  if (d.rrhh) serviciosM.push('RRHH / Remuneraciones');
+
+  const serviciosU = [];
+  if (d.constitucion) serviciosU.push(`Constitución SpA — $${d.constitucionMonto.toLocaleString('es-CL')}`);
+  if (d.proyeccion) serviciosU.push(`Proyección impuestos — ~${d.proyeccionUF} UF`);
+  if (d.termino) serviciosU.push(`Término de giro ${d.terminoTipo} — ~${d.terminoUF} UF`);
+
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+      <div style="background:var(--blue-light);border-radius:8px;padding:10px 12px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:4px">Cliente</div>
+        <div style="font-weight:800">${d.nombre || '—'}${d.empresa ? ' · ' + d.empresa : ''}</div>
+        <div style="color:var(--muted);font-size:11px">${d.ciudad} · ${d.fechaTexto}</div>
+      </div>
+
+      ${serviciosM.length ? `
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Servicios mensuales</div>
+        ${serviciosM.map(s => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="color:var(--green);font-size:14px;line-height:1">●</span><span>${s}</span></div>`).join('')}
+        <div style="margin-top:8px;padding:8px 10px;background:var(--yellow-light);border-radius:6px;font-weight:800;color:#7a5c00">
+          ${d.uf ? d.uf + ' UF/mes + IVA' : '<span style="color:var(--red)">⚠ Ingresar monto</span>'}
+          ${d.revision ? '<br><span style="font-size:10px;font-weight:600">📌 Con cláusula de revisión por volumen</span>' : ''}
+        </div>
+      </div>` : ''}
+
+      ${serviciosU.length ? `
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Servicios únicos</div>
+        ${serviciosU.map(s => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="color:var(--purple);font-size:14px;line-height:1">●</span><span>${s}</span></div>`).join('')}
+      </div>` : ''}
+
+      ${!serviciosM.length && !serviciosU.length ? '<div style="color:var(--muted);font-size:11px">Selecciona al menos un servicio</div>' : ''}
+    </div>
+  `;
+}
+
+function propGenerar() {
+  const d = propGetDatos();
+
+  if (!d.nombre) {
+    if (typeof toast === 'function') toast('Ingresa el nombre del contacto', false);
+    return;
+  }
+  if (!d.base && !d.facturacion && !d.cartera && !d.rrhh && !d.constitucion && !d.proyeccion && !d.termino) {
+    if (typeof toast === 'function') toast('Selecciona al menos un servicio', false);
+    return;
+  }
+  if ((d.base || d.facturacion || d.cartera || d.rrhh) && !d.uf) {
+    if (typeof toast === 'function') toast('Ingresa el honorario mensual en UF', false);
+    return;
+  }
+
+  propGenerarDocx(d);
+}
+
+function propGenerarDocx(d) {
+  // Generar el texto completo de la propuesta como HTML string
+  // luego crear el .docx usando la API fetch a Anthropic
+  // Si docx.js no está disponible, generar HTML descargable como fallback
+
+  if (typeof docx !== 'undefined') {
+    propGenerarConDocxJS(d);
+  } else {
+    propGenerarHTMLFallback(d);
+  }
+}
+
+function propGenerarConDocxJS(d) {
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, BorderStyle, UnderlineType } = docx;
+
+  const estiloNormal = { font: 'Arial Narrow', size: 20 };
+  const negrita = (txt) => new TextRun({ text: txt, bold: true, ...estiloNormal });
+  const normal = (txt) => new TextRun({ text: txt, ...estiloNormal });
+  const p = (children, opts = {}) => new Paragraph({ children: Array.isArray(children) ? children : [children], ...opts });
+  const bullet = (txt) => new Paragraph({ bullet: { level: 0 }, children: [normal(txt)], style: 'Sinespaciado' });
+  const sep = () => p([normal('')]);
+
+  const serviciosMensuales = [];
+  if (d.base) {
+    serviciosMensuales.push(
+      p([negrita('Asesoría Administrativa y Contable Permanente:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Acompañamiento técnico continuo en materias administrativas y contables, con atención permanente de consultas, orientación en el orden y respaldo de la información contable.')]),
+      sep(),
+      p([negrita('Contabilidad Mensual:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Registro contable mensual, revisión de consistencia y análisis general de la información registrada.')]),
+      sep(),
+      p([negrita('Impuestos Mensuales:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Enfoque orientado a evitar errores, multas y diferencias futuras.')]),
+      sep(),
+      p([negrita('Impuestos Anuales:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Determinación de base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas y asistencia ante revisiones del SII.')]),
+      sep()
+    );
+  }
+
+  if (d.facturacion) {
+    serviciosMensuales.push(
+      p([negrita('Facturación Electrónica:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente.')]),
+      sep()
+    );
+  }
+
+  if (d.cartera) {
+    serviciosMensuales.push(
+      p([negrita('Conciliación de Pagos y Reporte de Cartera:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Conciliación mensual de pagos recibidos e imputación a facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro para que la empresa ejecute las acciones de gestión correspondientes.')]),
+      sep()
+    );
+  }
+
+  if (d.rrhh) {
+    serviciosMensuales.push(
+      p([negrita('Gestión de Recursos Humanos:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Confección de liquidaciones de sueldo, cálculo de cotizaciones previsionales, preparación de información para pago de remuneraciones y tramitación de licencias médicas informadas por el cliente.')]),
+      sep()
+    );
+  }
+
+  const serviciosUnicos = [];
+  if (d.constitucion) {
+    serviciosUnicos.push(
+      p([negrita('Constitución de Empresa SpA (Servicio Único):')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía, con base legal adecuada a la estructura tributaria del cliente. Incluye: redacción de estatutos, inicio de actividades ante el SII, elección del régimen tributario más conveniente, e inscripción al sistema de facturación electrónica. La sociedad queda completamente operativa al término del proceso.')]),
+      p([negrita(`Valor: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  if (d.proyeccion) {
+    serviciosUnicos.push(
+      p([negrita('Proyección de Impuestos Anuales (Servicio Único):')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Estimación anticipada de la carga tributaria del ejercicio vigente, permitiendo al cliente tomar decisiones informadas antes del cierre del año tributario.')]),
+      p([negrita(`Valor: ~${d.proyeccionUF} UF + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  if (d.termino) {
+    const terminoDesc = d.terminoTipo === 'complejo'
+      ? 'Cierre formal de actividades ante el SII en casos que requieren regularización previa de obligaciones tributarias pendientes.'
+      : 'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias.';
+    serviciosUnicos.push(
+      p([negrita(`Término de Giro ${d.terminoTipo === 'complejo' ? 'Complejo' : 'Simple'} (Servicio Único):`)], { bullet: { level: 0 } }),
+      sep(),
+      p([normal(terminoDesc)]),
+      p([negrita(`Valor: ~${d.terminoUF} UF + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  const honorariosLineas = [];
+  if (d.base || d.facturacion || d.cartera || d.rrhh) {
+    const desc = [
+      d.base ? 'contabilidad mensual, impuestos mensuales e impuestos anuales' : '',
+      d.facturacion ? 'emisión de facturas' : '',
+      d.cartera ? 'conciliación de pagos y reporte de cartera' : '',
+      d.rrhh ? 'gestión de RRHH' : ''
+    ].filter(Boolean).join(', ');
+    honorariosLineas.push(p([normal(`Servicio mensual (${desc}): ${d.uf} UF mensuales + IVA.`)]));
+  }
+  if (d.constitucion) honorariosLineas.push(p([normal(`Constitución de empresa: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único).`)]));
+  if (d.proyeccion) honorariosLineas.push(p([normal(`Proyección de impuestos anuales: ~${d.proyeccionUF} UF + IVA (pago único).`)]));
+  if (d.termino) honorariosLineas.push(p([normal(`Término de giro ${d.terminoTipo}: ~${d.terminoUF} UF + IVA (pago único).`)]));
+
+  if (d.revision) {
+    honorariosLineas.push(
+      sep(),
+      p([normal('El valor del servicio mensual está definido en función del volumen de operaciones actual de la empresa. En caso de que el volumen de facturas emitidas, recibidas u operaciones contables experimente un aumento sostenido, las partes acordarán una revisión del honorario mensual acorde al nuevo nivel de actividad.')])
+    );
+  }
+
+  honorariosLineas.push(
+    sep(),
+    p([normal('Los servicios de carácter mensual serán facturados dentro de los primeros cinco días de cada mes. Los servicios extraordinarios o no contemplados serán cotizados y facturados de manera adicional.')]),
+    sep(),
+    p([normal('En caso de mora o retraso en el pago de honorarios, Nexa Enlaces Ltda. podrá suspender temporalmente la prestación de los servicios hasta la regularización de los pagos pendientes.')])
+  );
+
+  const saludo = d.nombre.endsWith('a') || ['Solange','Marcela','Javiera','Carolina','Francisca','Valentina','Daniela','Camila','Andrea','Patricia','Sandra','Mónica','Claudia','Alejandra','Nicole','Bárbara','Paola','Lorena','Verónica','Susana','Isabel','Teresa','Ana','María','Gabriela','Natalia','Beatriz','Rosa','Elena','Laura','Sara','Alicia','Emma','Sofía','Lucía','Mía','Carla','Karla'].includes(d.nombre) ? 'Estimada' : 'Estimado';
+
+  const children = [
+    p([negrita('Propuesta Prestación de Servicios')], { alignment: AlignmentType.CENTER }),
+    sep(),
+    p([normal(`${saludo} ${d.nombre}`)]),
+    sep(),
+    p([negrita('Presente')]),
+    sep(),
+    p([normal(`De nuestra consideración:\n\nJunto con saludar, y de acuerdo con lo conversado, tenemos el agrado de presentar nuestra Propuesta de Asesoría Contable y Tributaria Estratégica, diseñada para empresas que requieren más que cumplimiento, y buscan control, orden y respaldo técnico permanente en su gestión financiera y tributaria.`)]),
+    sep(),
+    p([normal('En Nexa Enlaces entendemos que una contabilidad bien llevada no solo permite cumplir con el Servicio de Impuestos Internos, sino que es una herramienta clave para la toma de decisiones, la prevención de riesgos y la continuidad del negocio.')]),
+    sep(),
+    p([negrita('Objetivo:')]),
+    sep(),
+    p([normal('El objetivo de esta asesoría es acompañar de manera permanente y especializada la gestión contable y tributaria, asegurando: cumplimiento normativo oportuno, información contable confiable, reducción de riesgos tributarios y acompañamiento técnico continuo para la toma de decisiones.')]),
+    sep(),
+    p([negrita('Alcances de los Servicios:')]),
+    sep(),
+    ...serviciosMensuales,
+    ...(serviciosUnicos.length ? [
+      p([negrita('Responsabilidades del Cliente:')]),
+      sep(),
+      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria de la empresa; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados; y confirmar los pagos recibidos dentro del plazo definido para mantener el reporte de cartera actualizado.')]),
+      sep(),
+      p([negrita('Profesionales a cargo:')]),
+      sep(),
+      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
+      sep(),
+      p([normal(`El correo de contacto oficial es: contacto@nexaen.cl`)]),
+      sep(),
+      p([negrita('Honorarios:')]),
+      sep(),
+      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
+      sep(),
+      ...honorariosLineas,
+      sep(),
+      ...serviciosUnicos
+    ] : [
+      p([negrita('Responsabilidades del Cliente:')]),
+      sep(),
+      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados.')]),
+      sep(),
+      p([negrita('Profesionales a cargo:')]),
+      sep(),
+      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
+      sep(),
+      p([normal('El correo de contacto oficial es: contacto@nexaen.cl')]),
+      sep(),
+      p([negrita('Honorarios:')]),
+      sep(),
+      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
+      sep(),
+      ...honorariosLineas
+    ]),
+    sep(),
+    p([normal('Cualquier duda con respecto a esta propuesta, pueden contactarnos para precisar cualquier asunto descrito. Una vez aceptada la propuesta, se coordinará el plan de trabajo y los plazos para ambas partes.')]),
+    sep(),
+    p([normal('Sólo si están de acuerdo con los términos, favor enviarla debidamente firmada o confirmar la aceptación por correo electrónico.')]),
+    sep(),
+    p([normal('Saludos cordiales,')]),
+    sep(),
+    p([negrita('Javiera Lizama')]),
+    p([normal('Nexa Enlaces Ltda.')]),
+    sep(),
+    p([normal(`${d.ciudad}, ${d.fechaTexto}`)]),
+    sep(),
+    p([normal('─'.repeat(80))]),
+    sep(),
+    p([normal('Aceptación de servicios:')]),
+    sep(),
+    p([normal('Expresamos nuestro entendimiento y acuerdo con los servicios y términos establecidos en esta propuesta.')]),
+    sep(),
+    p([normal('Firma:\t_____________________\t\tNombre y cargo:\t_______________________')])
+  ];
+
+  const doc_obj = new Document({
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838 },
+          margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 }
+        }
+      },
+      children
+    }]
+  });
+
+  Packer.toBlob(doc_obj).then(blob => {
+    const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    // Guardar en historial
+    propGuardarHistorial(d);
+    if (typeof toast === 'function') toast(`Propuesta para ${d.nombre} descargada`);
+  }).catch(err => {
+    console.error(err);
+    if (typeof toast === 'function') toast('Error al generar el archivo', false);
+  });
+}
+
+function propGenerarHTMLFallback(d) {
+  // Fallback si docx.js no carga — genera HTML descargable
+  const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
+  const saludo = d.nombre.endsWith('a') ? 'Estimada' : 'Estimado';
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Propuesta ${d.nombre}</title>
+  <style>body{font-family:Arial Narrow,Arial;font-size:10pt;margin:2cm;color:#000}
+  h1{font-size:14pt;text-align:center}p{margin:6px 0;line-height:1.5}
+  strong{font-weight:bold}.firma{margin-top:40px}</style></head><body>
+  <h1>Propuesta Prestación de Servicios</h1>
+  <p>${saludo} ${d.nombre}</p><p><strong>Presente</strong></p>
+  <p>De nuestra consideración, junto con saludar presentamos nuestra propuesta de asesoría contable y tributaria.</p>
+  ${d.uf ? `<p><strong>Honorario mensual:</strong> ${d.uf} UF + IVA</p>` : ''}
+  ${d.constitucion ? `<p><strong>Constitución de empresa:</strong> $${d.constitucionMonto.toLocaleString('es-CL')} + IVA</p>` : ''}
+  <p>Saludos cordiales,<br><strong>Javiera Lizama</strong><br>Nexa Enlaces Ltda.</p>
+  <p>${d.ciudad}, ${d.fechaTexto}</p>
+  </body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+  propGuardarHistorial(d);
+  if (typeof toast === 'function') toast('Descargado como HTML (agrega docx.js para .docx)', false);
+  // Upload to Drive
+  if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+    driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`);
+  }
+}
+
+function propGuardarHistorial(d) {
+  if (typeof S === 'undefined') return;
+  if (!S.propuestas) S.propuestas = [];
+  S.propuestas.unshift({
+    id: 'p' + Date.now(),
+    nombre: d.nombre,
+    empresa: d.empresa,
+    fecha: d.fechaRaw,
+    uf: d.uf,
+    servicios: [
+      d.base ? 'Base' : '',
+      d.facturacion ? 'Facturación' : '',
+      d.cartera ? 'Cartera' : '',
+      d.rrhh ? 'RRHH' : '',
+      d.constitucion ? 'SpA' : '',
+      d.proyeccion ? 'Proyección' : '',
+      d.termino ? 'Término' : ''
+    ].filter(Boolean).join(', ')
+  });
+  if (S.propuestas.length > 10) S.propuestas = S.propuestas.slice(0, 10);
+  if (typeof save === 'function') save();
+  propRenderHistorial();
+}
+
+function propRenderHistorial() {
+  const el = document.getElementById('prop-historial');
+  if (!el || typeof S === 'undefined' || !S.propuestas?.length) return;
+  el.innerHTML = S.propuestas.map(p => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div>
+        <div style="font-size:12px;font-weight:800">${p.nombre}${p.empresa ? ' · ' + p.empresa : ''}</div>
+        <div style="font-size:10px;color:var(--muted)">${p.fecha}${p.uf ? ' · ' + p.uf + ' UF/mes' : ''} · ${p.servicios}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Actualizar preview en tiempo real al cambiar inputs
+document.addEventListener('input', function(e) {
+  if (e.target.id && e.target.id.startsWith('prop-')) {
+    propActualizarPreview();
+  }
+});
+document.addEventListener('change', function(e) {
+  if (e.target.id && e.target.id.startsWith('prop-')) {
+    propActualizarPreview();
+    const lbl = document.getElementById('lbl-' + e.target.id.replace('prop-', '').replace('-monto','').replace('-uf','').replace('-tipo',''));
+    if (lbl && e.target.type === 'checkbox') {
+      lbl.style.borderColor = e.target.checked ? 'var(--blue)' : 'var(--border)';
+    }
+  }
+});
+
+// ─── FIN MÓDULO PROPUESTAS ─────────────────────────────────────────────────
 
 // ══ INIT ══
 load();
