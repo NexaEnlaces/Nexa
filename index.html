@@ -4403,14 +4403,13 @@ function propGenerarDocx(d) {
   });
 
   // Header band: 595.5 x 80.3 pt at (0,0) = (0,0) EMU
-  const headerPara  = floatImg(headerImg,  'jpg', 596, 80,  0, 0,       false);
+  const headerPara  = floatImg(headerImg,  'jpg', 612, 80,  0, 0, false);
   // Footer band p1: 595.5 x 48 pt at (0, 794.2pt) = (0, 10086943 EMU)
-  const footer1Para = floatImg(footer1Img, 'jpg', 596, 48,  0, 10086943, false);
+  const footer1Para = floatImg(footer1Img, 'jpg', 612, 48,  0, 8728075, false);
   // Footer band p2+: same position
-  const footer2Para = floatImg(footer2Img, 'jpg', 596, 48,  0, 10086943, false);
+  const footer2Para = floatImg(footer2Img, 'jpg', 612, 48,  0, 8728075, false);
   // Watermark: 425 x 425 pt centered (page=595pt, so x=(595-425)/2=85pt = 1079750 EMU, y centered ~185pt = 2349750 EMU)
-  const watermarkP1 = floatImg(watermarkImg,'png',425,425, 1079750, 2349750, true);
-  const watermarkP2 = floatImg(watermarkImg,'png',425,425, 1079750, 2349750, true);
+
 
   // ── Page number footer ──
   const docFooter = new Footer({ children:[
@@ -4425,14 +4424,29 @@ function propGenerarDocx(d) {
   ]});
 
   // ── First page header (empty — image is in body) ──
-  const docHeader = new Header({ children: [new Paragraph({ children: [] })] });
+  const docHeader = new Header({ children: [
+    new Paragraph({
+      children: [new ImageRun({
+        data: watermarkImg, type: 'png',
+        transformation: { width: 425, height: 425 },
+        floating: {
+          horizontalPosition: { relative: 'page', offset: 1187450 },
+          verticalPosition:   { relative: 'page', offset: 2330450 },
+          behindDocument: true,
+          wrap: { type: 'none' },
+          allowOverlap: true,
+          margins: { top: 0, bottom: 0, left: 0, right: 0 }
+        }
+      })],
+      spacing: { after: 0, before: 0 }
+    })
+  ]});
 
   // ── Document body ──
   const children=[
-    // Page 1 floating images (header band + footer band p1 + watermark)
+    // Page 1 floating images
     headerPara,
     footer1Para,
-    watermarkP1,
 
     // Content
     p0([r(`${propSaludo(d.nombre)} ${d.nombre}`)]),
@@ -4522,7 +4536,7 @@ function propGenerarDocx(d) {
       headers: { default: docHeader },
       footers: { default: docFooter },
       properties:{page:{
-        size:{width:11906,height:16838},
+        size:{width:12240,height:15840},
         margin:{top:1560,right:1700,bottom:1135,left:1700,header:720,footer:720}
       }},
       children
