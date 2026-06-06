@@ -8,12 +8,24 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js" crossorigin="anonymous"></script>
 <script>
-// Fallback: if docx didn't load from jsdelivr, try unpkg
-if(typeof docx === 'undefined'){
-  var s = document.createElement('script');
-  s.src = 'https://unpkg.com/docx@9.6.1/build/index.js';
-  document.head.appendChild(s);
-}
+// Ensure docx loads — try multiple CDNs
+(function(){
+  function tryLoad(src){
+    var s=document.createElement('script');
+    s.src=src;
+    document.head.appendChild(s);
+  }
+  window.addEventListener('load', function(){
+    if(typeof docx==='undefined'){
+      tryLoad('https://unpkg.com/docx@9.6.1/build/index.js');
+      setTimeout(function(){
+        if(typeof docx==='undefined'){
+          tryLoad('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js');
+        }
+      }, 2000);
+    }
+  });
+})();
 </script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -912,13 +924,7 @@ textarea.finput{resize:vertical;min-height:68px}
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Ciudad</label>
               <input class="srch" style="width:100%;border-radius:8px" id="prop-ciudad" value="Puerto Montt" oninput="propActualizarPreview()">
             </div>
-            <div>
-              <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Firmante</label>
-              <select class="srch" id="prop-firmante" style="width:100%;border-radius:8px;padding:6px 10px" onchange="propActualizarPreview()">
-                <option value="Javi">Javiera Lizama — Socia Impuestos</option>
-                <option value="Berny">Bernardita Sepúlveda — Socia Contabilidad</option>
-              </select>
-            </div>
+            
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Fecha</label>
               <input class="srch" type="date" style="width:100%;border-radius:8px" id="prop-fecha" onchange="propActualizarPreview()">
@@ -3922,6 +3928,21 @@ function propGenerar() {
 }
 
 function propGenerarDocx(d) {
+  if(typeof docx === 'undefined'){
+    if(typeof toast==='function') toast('Cargando librería Word... intenta en 3 segundos', false);
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js';
+    s.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },500); };
+    s.onerror=function(){
+      var s2=document.createElement('script');
+      s2.src='https://unpkg.com/docx@9.6.1/build/index.js';
+      s2.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },500); };
+      s2.onerror=function(){ if(typeof toast==='function') toast('No se pudo cargar docx.js — verifica tu conexión',false); };
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s);
+    return;
+  }
   const { Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat } = docx;
 
   // Helpers de estilo
