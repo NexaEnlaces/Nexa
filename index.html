@@ -6,12 +6,12 @@
 <title>Nexa · Sistema de Gestión</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js" crossorigin="anonymous"></script>
 <script>
 // Fallback: if docx didn't load from jsdelivr, try unpkg
 if(typeof docx === 'undefined'){
   var s = document.createElement('script');
-  s.src = 'https://unpkg.com/docx@7.8.2/build/index.js';
+  s.src = 'https://unpkg.com/docx@9.6.1/build/index.js';
   document.head.appendChild(s);
 }
 </script>
@@ -865,23 +865,18 @@ textarea.finput{resize:vertical;min-height:68px}
     <div>
       <div class="ph-title">Generador de <span>Propuestas</span></div>
       <div class="ph-sub">Completa los datos y descarga el .docx listo para enviar</div>
-      <div id="prop-docx-status" style="font-size:10px;font-family:var(--font2);margin-top:2px"></div>
-      <div id="prop-drive-status" style="font-size:10px;font-family:var(--font2);margin-top:4px;color:var(--muted)"></div>
     </div>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
 
-    <!-- COLUMNA IZQUIERDA: Formulario -->
+    <!-- COLUMNA IZQUIERDA -->
     <div>
 
       <!-- Datos del cliente -->
       <div class="card">
         <div class="card-h">
-          <div>
-            <div class="card-t">📋 Datos del cliente</div>
-            <div class="card-sub">Información de la propuesta</div>
-          </div>
+          <div><div class="card-t">📋 Datos del cliente</div></div>
           <button class="btn btn-ghost btn-sm" onclick="propDesdeCliente()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             Buscar cliente
@@ -891,21 +886,28 @@ textarea.finput{resize:vertical;min-height:68px}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Nombre contacto *</label>
-              <input class="srch" style="width:100%;border-radius:8px" id="prop-nombre" placeholder="Ej: Solange">
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-nombre" placeholder="Ej: Solange" oninput="propActualizarPreview()">
             </div>
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Empresa</label>
-              <input class="srch" style="width:100%;border-radius:8px" id="prop-empresa" placeholder="Ej: NewVita">
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-empresa" placeholder="Ej: NewVita" oninput="propActualizarPreview()">
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Ciudad</label>
-              <input class="srch" style="width:100%;border-radius:8px" id="prop-ciudad" value="Puerto Montt">
+              <input class="srch" style="width:100%;border-radius:8px" id="prop-ciudad" value="Puerto Montt" oninput="propActualizarPreview()">
+            </div>
+            <div>
+              <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Firmante</label>
+              <select class="srch" id="prop-firmante" style="width:100%;border-radius:8px;padding:6px 10px" onchange="propActualizarPreview()">
+                <option value="Javi">Javiera Lizama — Socia Impuestos</option>
+                <option value="Berny">Bernardita Sepúlveda — Socia Contabilidad</option>
+              </select>
             </div>
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Fecha</label>
-              <input class="srch" type="date" style="width:100%;border-radius:8px" id="prop-fecha">
+              <input class="srch" type="date" style="width:100%;border-radius:8px" id="prop-fecha" onchange="propActualizarPreview()">
             </div>
           </div>
         </div>
@@ -914,39 +916,36 @@ textarea.finput{resize:vertical;min-height:68px}
       <!-- Servicios mensuales -->
       <div class="card">
         <div class="card-h">
-          <div>
-            <div class="card-t">📅 Servicios mensuales</div>
-            <div class="card-sub">Se incluyen en el cobro mensual</div>
-          </div>
+          <div><div class="card-t">📅 Servicios mensuales</div><div class="card-sub">Incluidos en el cobro mensual</div></div>
         </div>
         <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-base" onclick="propToggle('base')">
-            <input type="checkbox" id="prop-base" checked style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--blue);border-radius:8px" id="lbl-base">
+            <input type="checkbox" id="prop-base" checked onchange="propSyncLabel('base');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
-              <div style="font-size:12px;font-weight:800">Contabilidad mensual + Impuestos mensuales + Impuestos anuales</div>
+              <div style="font-size:12px;font-weight:800">Contabilidad + Impuestos mensuales + Renta anual</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Plan base — incluido en todos los planes</div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-facturacion" onclick="propToggle('facturacion')">
-            <input type="checkbox" id="prop-facturacion" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-facturacion">
+            <input type="checkbox" id="prop-facturacion" onchange="propSyncLabel('facturacion');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
               <div style="font-size:12px;font-weight:800">Facturación electrónica</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Emisión de facturas de venta en representación del cliente</div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-cartera" onclick="propToggle('cartera')">
-            <input type="checkbox" id="prop-cartera" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-cartera">
+            <input type="checkbox" id="prop-cartera" onchange="propSyncLabel('cartera');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
               <div style="font-size:12px;font-weight:800">Conciliación de pagos + Reporte de cartera</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Conciliación mensual e informe de clientes con saldos pendientes</div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-rrhh" onclick="propToggle('rrhh')">
-            <input type="checkbox" id="prop-rrhh" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-rrhh">
+            <input type="checkbox" id="prop-rrhh" onchange="propSyncLabel('rrhh');propActualizarPreview()" style="margin-top:2px;accent-color:var(--blue);width:15px;height:15px;flex-shrink:0">
             <div>
               <div style="font-size:12px;font-weight:800">Gestión de RRHH / Remuneraciones</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Liquidaciones, cotizaciones previsionales y licencias médicas</div>
@@ -956,13 +955,13 @@ textarea.finput{resize:vertical;min-height:68px}
           <div style="border-top:1px solid var(--border2);padding-top:12px;margin-top:4px">
             <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Honorario mensual (UF) *</label>
             <div style="display:flex;align-items:center;gap:8px">
-              <input class="srch" type="number" step="0.1" min="0" style="width:100px;border-radius:8px" id="prop-uf" placeholder="Ej: 3">
+              <input class="srch" type="number" step="0.1" min="0" style="width:100px;border-radius:8px" id="prop-uf" placeholder="Ej: 3" oninput="propActualizarPreview()">
               <span style="font-size:11px;color:var(--muted)">UF mensuales + IVA</span>
             </div>
           </div>
 
           <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--blue-light);border-radius:8px;border:1px solid var(--blue-mid)">
-            <input type="checkbox" id="prop-revision" style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0">
+            <input type="checkbox" id="prop-revision" onchange="propActualizarPreview()" style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0">
             <label for="prop-revision" style="font-size:11px;font-weight:700;color:var(--blue);cursor:pointer">Incluir cláusula de revisión por volumen</label>
           </div>
 
@@ -972,50 +971,45 @@ textarea.finput{resize:vertical;min-height:68px}
       <!-- Servicios únicos -->
       <div class="card">
         <div class="card-h">
-          <div>
-            <div class="card-t">⚡ Servicios únicos</div>
-            <div class="card-sub">Cobro independiente, pago por única vez</div>
-          </div>
+          <div><div class="card-t">⚡ Servicios únicos</div><div class="card-sub">Cobro independiente, pago por única vez</div></div>
         </div>
         <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-constitucion" onclick="propToggle('constitucion')">
-            <input type="checkbox" id="prop-constitucion" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-constitucion">
+            <input type="checkbox" id="prop-constitucion" onchange="propSyncLabel('constitucion');propActualizarPreview()" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
             <div style="flex:1">
               <div style="font-size:12px;font-weight:800">Constitución de empresa SpA</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:2px">Vía portal Empresa en un Día — sociedad 100% operativa</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Sociedad 100% operativa desde el día uno</div>
               <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">Monto ($):</span>
-                <input class="srch" type="number" style="width:110px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-constitucion-monto" value="180000" onclick="event.stopPropagation()">
+                <input class="srch" type="number" style="width:110px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-constitucion-monto" value="180000" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
               </div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-proyeccion" onclick="propToggle('proyeccion')">
-            <input type="checkbox" id="prop-proyeccion" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-proyeccion">
+            <input type="checkbox" id="prop-proyeccion" onchange="propSyncLabel('proyeccion');propActualizarPreview()" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
             <div style="flex:1">
               <div style="font-size:12px;font-weight:800">Proyección de impuestos anuales</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Estimación anticipada de carga tributaria del ejercicio</div>
               <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">UF:</span>
-                <input class="srch" type="number" step="0.1" style="width:80px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-proyeccion-uf" value="0.3" onclick="event.stopPropagation()">
+                <input class="srch" type="number" step="0.1" style="width:80px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-proyeccion-uf" value="0.3" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
               </div>
             </div>
           </label>
 
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px;transition:.15s" id="lbl-termino" onclick="propToggle('termino')">
-            <input type="checkbox" id="prop-termino" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px;border:1.5px solid var(--border);border-radius:8px" id="lbl-termino">
+            <input type="checkbox" id="prop-termino" onchange="propSyncLabel('termino');propActualizarPreview()" style="margin-top:2px;accent-color:var(--purple);width:15px;height:15px;flex-shrink:0">
             <div style="flex:1">
               <div style="font-size:12px;font-weight:800">Término de giro</div>
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Cierre formal de actividades ante el SII</div>
               <div style="display:flex;align-items:center;gap:8px;margin-top:6px" onclick="event.stopPropagation()">
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">Tipo:</span>
-                <select class="fsel" style="font-size:11px;padding:3px 8px;border-radius:6px" id="prop-termino-tipo" onchange="propActualizarTermino()">
-                  <option value="simple">Simple</option>
-                  <option value="complejo">Complejo</option>
+                <select class="fsel" style="font-size:11px;padding:3px 8px;border-radius:6px" id="prop-termino-tipo" onchange="propActualizarPreview()">
+                  <option value="simple">Simple (~0.5 UF)</option>
+                  <option value="complejo">Complejo (~0.8 UF)</option>
                 </select>
-                <span style="font-size:10px;font-weight:700;color:var(--muted)">UF:</span>
-                <input class="srch" type="number" step="0.1" style="width:70px;border-radius:6px;padding:4px 8px;font-size:11px" id="prop-termino-uf" value="4" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
               </div>
             </div>
           </label>
@@ -1029,10 +1023,7 @@ textarea.finput{resize:vertical;min-height:68px}
     <div style="position:sticky;top:20px">
       <div class="card">
         <div class="card-h">
-          <div>
-            <div class="card-t">👁 Vista previa</div>
-            <div class="card-sub">Resumen de la propuesta</div>
-          </div>
+          <div><div class="card-t">👁 Vista previa</div></div>
           <button class="btn btn-blue" onclick="propGenerar()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Generar .docx
@@ -1043,11 +1034,9 @@ textarea.finput{resize:vertical;min-height:68px}
         </div>
       </div>
 
-      <!-- Historial -->
       <div class="card">
         <div class="card-h">
-          <div class="card-t">🗂 Propuestas generadas</div>
-          <div class="card-sub">Últimas 10</div>
+          <div class="card-t">🗂 Últimas propuestas</div>
         </div>
         <div style="padding:12px" id="prop-historial">
           <div style="color:var(--muted);font-size:11px;text-align:center;padding:10px 0">Sin propuestas generadas aún</div>
@@ -1057,6 +1046,11 @@ textarea.finput{resize:vertical;min-height:68px}
 
   </div>
 </div>
+
+
+<!-- ============================================================
+     [PASO 4] JAVASCRIPT
+     ============================================================ -->
 
 <div id="view-gsheets" class="view">
   <div class="ph">
@@ -3791,116 +3785,56 @@ function cloneNV(id){
 
 
 // ══ PROPUESTAS ══
+function propCapitalizar(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function propSaludo(nombre) {
+  const n = nombre.trim().toLowerCase();
+  return (PROP_NOMBRES_F.has(n) || n.endsWith('a')) ? 'Estimada' : 'Estimado';
+}
+
+function propSyncLabel(id) {
+  const cb = document.getElementById('prop-' + id);
+  const lbl = document.getElementById('lbl-' + id);
+  if (cb && lbl) lbl.style.borderColor = cb.checked ? 'var(--blue)' : 'var(--border)';
+}
+
 function renderProp() {
-  propActualizarPreview();
-  propRenderHistorial();
-  // Poner fecha de hoy por defecto
   const fd = document.getElementById('prop-fecha');
   if (fd && !fd.value) fd.value = new Date().toISOString().split('T')[0];
-  // docx status
-  const docxEl = document.getElementById('prop-docx-status');
-  if(docxEl){
-    if(typeof docx !== 'undefined'){
-      docxEl.innerHTML = '📄 docx.js cargado — se generará archivo Word (.docx)';
-      docxEl.style.color = '#2d6a00';
-    } else {
-      docxEl.innerHTML = '⚠️ docx.js no cargado — se generará HTML. Recarga la página o verifica tu conexión.';
-      docxEl.style.color = 'var(--red)';
-    }
-  }
-  // Drive status
-  const ds = document.getElementById('prop-drive-status');
-  if(ds){
-    if(typeof gsIsSignedIn==='function' && gsIsSignedIn()){
-      ds.innerHTML = '☁️ Las propuestas se guardarán automáticamente en Google Drive → carpeta <strong>"Propuestas APP"</strong>';
-      ds.style.color = '#2d6a00';
-    } else {
-      ds.innerHTML = '⚠️ Conecta con Google (Configuraciones → Google Sheets) para guardar automáticamente en Drive';
-      ds.style.color = '#8a6200';
-    }
-  }
-}
-
-function propToggle(id) {
-  const cb = document.getElementById('prop-' + id);
-  if (!cb) return;
-  cb.checked = !cb.checked;
-  const lbl = document.getElementById('lbl-' + id);
-  if (lbl) lbl.style.borderColor = cb.checked ? 'var(--blue)' : 'var(--border)';
   propActualizarPreview();
-}
-
-function propActualizarTermino() {
-  const tipo = document.getElementById('prop-termino-tipo')?.value;
-  const ufInput = document.getElementById('prop-termino-uf');
-  if(ufInput) ufInput.value = tipo === 'complejo' ? '7' : '4';
-  propActualizarPreview();
-}
-
-function propDesdeCliente() {
-  if (typeof S === 'undefined' || !S.clientes?.length) {
-    if (typeof toast === 'function') toast('No hay clientes registrados', false);
-    return;
-  }
-  const opts = S.clientes.map(c => `<option value="${c.id}">${c.nom}${c.alias ? ' (' + c.alias + ')' : ''}</option>`).join('');
-  const sel = `<select id="prop-cl-sel" class="fsel" style="width:100%"><option value="">— Seleccionar —</option>${opts}</select>`;
-
-  // Mini modal inline reutilizando el overlay de la app si existe
-  const html = `<div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center" id="prop-mini-modal">
-    <div style="background:#fff;border-radius:14px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-      <div style="font-size:15px;font-weight:900;margin-bottom:14px">Seleccionar cliente</div>
-      ${sel}
-      <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('prop-mini-modal').remove()">Cancelar</button>
-        <button class="btn btn-blue btn-sm" onclick="propCargarCliente()">Usar este cliente</button>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', html);
-}
-
-function propCargarCliente() {
-  const id = document.getElementById('prop-cl-sel')?.value;
-  if (!id || typeof S === 'undefined') return;
-  const c = S.clientes.find(x => x.id === id);
-  if (!c) return;
-  const nom = c.alias || c.nom.split(' ')[0]; // Usar alias o primer nombre
-  document.getElementById('prop-nombre').value = nom;
-  document.getElementById('prop-empresa').value = c.nom || '';
-  document.getElementById('prop-mini-modal')?.remove();
-  propActualizarPreview();
+  propRenderHistorial();
 }
 
 function propGetDatos() {
-  const nombre = document.getElementById('prop-nombre')?.value?.trim() || '';
-  const empresa = document.getElementById('prop-empresa')?.value?.trim() || '';
-  const ciudad = document.getElementById('prop-ciudad')?.value?.trim() || 'Puerto Montt';
-  const fechaRaw = document.getElementById('prop-fecha')?.value || new Date().toISOString().split('T')[0];
-  const uf = parseFloat(document.getElementById('prop-uf')?.value) || 0;
-  const revision = document.getElementById('prop-revision')?.checked || false;
+  const nombre     = propCapitalizar(document.getElementById('prop-nombre')?.value?.trim() || '');
+  const empresa    = document.getElementById('prop-empresa')?.value?.trim() || '';
+  const ciudad     = document.getElementById('prop-ciudad')?.value?.trim() || 'Puerto Montt';
+  const fechaRaw   = document.getElementById('prop-fecha')?.value || new Date().toISOString().split('T')[0];
+  const uf         = parseFloat(document.getElementById('prop-uf')?.value) || 0;
+  const revision   = document.getElementById('prop-revision')?.checked || false;
 
-  // Servicios mensuales
-  const base = document.getElementById('prop-base')?.checked || false;
+  const base        = document.getElementById('prop-base')?.checked || false;
   const facturacion = document.getElementById('prop-facturacion')?.checked || false;
-  const cartera = document.getElementById('prop-cartera')?.checked || false;
-  const rrhh = document.getElementById('prop-rrhh')?.checked || false;
+  const cartera     = document.getElementById('prop-cartera')?.checked || false;
+  const rrhh        = document.getElementById('prop-rrhh')?.checked || false;
 
-  // Servicios únicos
-  const constitucion = document.getElementById('prop-constitucion')?.checked || false;
+  const constitucion      = document.getElementById('prop-constitucion')?.checked || false;
   const constitucionMonto = parseInt(document.getElementById('prop-constitucion-monto')?.value) || 180000;
-  const proyeccion = document.getElementById('prop-proyeccion')?.checked || false;
-  const proyeccionUF = parseFloat(document.getElementById('prop-proyeccion-uf')?.value) || 0.3;
-  const termino = document.getElementById('prop-termino')?.checked || false;
-  const terminoTipo = document.getElementById('prop-termino-tipo')?.value || 'simple';
-  const terminoUFInput = parseFloat(document.getElementById('prop-termino-uf')?.value) || (terminoTipo === 'complejo' ? 7 : 4);
-  const terminoUF = terminoUFInput;
+  const proyeccion        = document.getElementById('prop-proyeccion')?.checked || false;
+  const proyeccionUF      = parseFloat(document.getElementById('prop-proyeccion-uf')?.value) || 0.3;
+  const termino           = document.getElementById('prop-termino')?.checked || false;
+  const terminoTipo       = document.getElementById('prop-termino-tipo')?.value || 'simple';
+  const terminoUF         = terminoTipo === 'complejo' ? 7 : 4;
 
-  // Formatear fecha en español
   const [y, m, d] = fechaRaw.split('-');
   const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const fechaTexto = `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
+  const firmante  = document.getElementById('prop-firmante')?.value || 'Javi';
 
-  return { nombre, empresa, ciudad, fechaRaw, fechaTexto, uf, revision,
+  return { nombre, empresa, ciudad, fechaRaw, fechaTexto, firmante, uf, revision,
            base, facturacion, cartera, rrhh,
            constitucion, constitucionMonto, proyeccion, proyeccionUF,
            termino, terminoTipo, terminoUF };
@@ -3917,277 +3851,273 @@ function propActualizarPreview() {
   }
 
   const serviciosM = [];
-  if (d.base) serviciosM.push('Contabilidad + Impuestos mensuales + Renta anual');
+  if (d.base)        serviciosM.push('Contabilidad + Impuestos mensuales + Renta anual');
   if (d.facturacion) serviciosM.push('Facturación electrónica');
-  if (d.cartera) serviciosM.push('Conciliación + Reporte de cartera');
-  if (d.rrhh) serviciosM.push('RRHH / Remuneraciones');
-
+  if (d.cartera)     serviciosM.push('Conciliación + Reporte de cartera');
+  if (d.rrhh)        serviciosM.push('RRHH / Remuneraciones');
   const serviciosU = [];
   if (d.constitucion) serviciosU.push(`Constitución SpA — $${d.constitucionMonto.toLocaleString('es-CL')}`);
-  if (d.proyeccion) serviciosU.push(`Proyección impuestos — ~${d.proyeccionUF} UF`);
-  if (d.termino) serviciosU.push(`Término de giro ${d.terminoTipo} — ~${d.terminoUF} UF`);
+  if (d.proyeccion)   serviciosU.push(`Proyección impuestos — ~${d.proyeccionUF} UF`);
+  if (d.termino)      serviciosU.push(`Término de giro ${d.terminoTipo} — ~${d.terminoUF} UF`);
 
   el.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:10px;font-size:12px">
+    <div style="font-size:12px;display:flex;flex-direction:column;gap:10px">
       <div style="background:var(--blue-light);border-radius:8px;padding:10px 12px">
         <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:4px">Cliente</div>
         <div style="font-weight:800">${d.nombre || '—'}${d.empresa ? ' · ' + d.empresa : ''}</div>
         <div style="color:var(--muted);font-size:11px">${d.ciudad} · ${d.fechaTexto}</div>
       </div>
-
-      ${serviciosM.length ? `
-      <div>
+      ${serviciosM.length ? `<div>
         <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Servicios mensuales</div>
-        ${serviciosM.map(s => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="color:var(--green);font-size:14px;line-height:1">●</span><span>${s}</span></div>`).join('')}
+        ${serviciosM.map(s=>`<div style="display:flex;gap:6px;margin-bottom:3px"><span style="color:var(--green)">●</span><span>${s}</span></div>`).join('')}
         <div style="margin-top:8px;padding:8px 10px;background:var(--yellow-light);border-radius:6px;font-weight:800;color:#7a5c00">
           ${d.uf ? d.uf + ' UF/mes + IVA' : '<span style="color:var(--red)">⚠ Ingresar monto</span>'}
           ${d.revision ? '<br><span style="font-size:10px;font-weight:600">📌 Con cláusula de revisión por volumen</span>' : ''}
         </div>
       </div>` : ''}
-
-      ${serviciosU.length ? `
-      <div>
+      ${serviciosU.length ? `<div>
         <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Servicios únicos</div>
-        ${serviciosU.map(s => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="color:var(--purple);font-size:14px;line-height:1">●</span><span>${s}</span></div>`).join('')}
+        ${serviciosU.map(s=>`<div style="display:flex;gap:6px;margin-bottom:3px"><span style="color:var(--purple)">●</span><span>${s}</span></div>`).join('')}
       </div>` : ''}
-
-      ${!serviciosM.length && !serviciosU.length ? '<div style="color:var(--muted);font-size:11px">Selecciona al menos un servicio</div>' : ''}
-    </div>
-  `;
+    </div>`;
 }
 
 function propGenerar() {
   const d = propGetDatos();
-
-  if (!d.nombre) {
-    if (typeof toast === 'function') toast('Ingresa el nombre del contacto', false);
-    return;
-  }
+  if (!d.nombre) { if(typeof toast==='function') toast('Ingresa el nombre del contacto', false); return; }
   if (!d.base && !d.facturacion && !d.cartera && !d.rrhh && !d.constitucion && !d.proyeccion && !d.termino) {
-    if (typeof toast === 'function') toast('Selecciona al menos un servicio', false);
-    return;
+    if(typeof toast==='function') toast('Selecciona al menos un servicio', false); return;
   }
   if ((d.base || d.facturacion || d.cartera || d.rrhh) && !d.uf) {
-    if (typeof toast === 'function') toast('Ingresa el honorario mensual en UF', false);
-    return;
+    if(typeof toast==='function') toast('Ingresa el honorario mensual en UF', false); return;
   }
-
-  propGenerarDocx(d);
+  if (typeof docx !== 'undefined') {
+    propGenerarDocx(d);
+  } else {
+    if(typeof toast==='function') toast('docx.js no disponible — agrega el script en el <head>', false);
+    console.error('docx.js no cargó. Agrega: <script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js"><\/script> en el <head>');
+  }
 }
 
 function propGenerarDocx(d) {
-  if (typeof docx !== 'undefined') {
-    try {
-      propGenerarConDocxJS(d);
-    } catch(e) {
-      console.error('docx error:', e);
-      if(typeof toast==='function') toast('Error generando .docx: '+e.message+' — usando fallback', false);
-      propGenerarHTMLFallback(d);
-    }
-  } else {
-    if(typeof toast==='function') toast('Librería docx no cargada — generando HTML. Verifica tu conexión.', false);
-    propGenerarHTMLFallback(d);
-  }
-}
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat } = docx;
 
-function propGenerarConDocxJS(d) {
-  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, BorderStyle, UnderlineType } = docx;
+  // Helpers de estilo
+  const FONT = 'Arial Narrow';
+  const SZ = 20; // 10pt en half-points
 
-  const estiloNormal = { font: 'Arial Narrow', size: 20 };
-  const negrita = (txt) => new TextRun({ text: txt, bold: true, ...estiloNormal });
-  const normal = (txt) => new TextRun({ text: txt, ...estiloNormal });
-  const p = (children, opts = {}) => new Paragraph({ children: Array.isArray(children) ? children : [children], ...opts });
-  const bullet = (txt) => new Paragraph({ bullet: { level: 0 }, children: [normal(txt)], style: 'Sinespaciado' });
-  const sep = () => p([normal('')]);
+  const r = (txt, opts={}) => new TextRun({ text: txt, font: FONT, size: SZ, ...opts });
+  const rB = (txt) => r(txt, { bold: true });
+  const p0 = (runs, align) => new Paragraph({
+    children: Array.isArray(runs) ? runs : [runs],
+    spacing: { after: 80, before: 0 },
+    ...(align ? { alignment: align } : {})
+  });
+  const pB = (runs, align) => new Paragraph({
+    children: Array.isArray(runs) ? runs : [runs],
+    spacing: { after: 160, before: 120 },
+    ...(align ? { alignment: align } : {})
+  });
+  const sep = () => new Paragraph({ children: [r('')], spacing: { after: 80 } });
+  const li = (titulo, texto) => [
+    new Paragraph({
+      children: [rB(titulo)],
+      bullet: { level: 0 },
+      spacing: { after: 60, before: 100 }
+    }),
+    new Paragraph({
+      children: [r(texto)],
+      indent: { left: 720 },
+      spacing: { after: 120 }
+    })
+  ];
 
-  const serviciosMensuales = [];
+  // ── Construir secciones de alcances ──────────────────────────
+  const alcances = [];
+
   if (d.base) {
-    serviciosMensuales.push(
-      p([negrita('Asesoría Administrativa y Contable Permanente:')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Acompañamiento técnico continuo en materias administrativas y contables, con atención permanente de consultas, orientación en el orden y respaldo de la información contable.')]),
-      sep(),
-      p([negrita('Contabilidad Mensual:')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Registro contable mensual, revisión de consistencia y análisis general de la información registrada.')]),
-      sep(),
-      p([negrita('Impuestos Mensuales:')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Enfoque orientado a evitar errores, multas y diferencias futuras.')]),
-      sep(),
-      p([negrita('Impuestos Anuales:')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Determinación de base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas y asistencia ante revisiones del SII.')]),
-      sep()
-    );
+    alcances.push(...li('Asesoría Administrativa y Contable Permanente:',
+      'Acompañamiento técnico continuo con atención permanente de consultas operativas y normativas, orientación en el orden y respaldo de la información contable, y asesoría frente a situaciones específicas que impacten la contabilidad o los impuestos.'));
+    alcances.push(...li('Contabilidad Mensual:',
+      'Registro contable mensual de las operaciones de la empresa, revisión de consistencia, respaldo y orden de la información contable, y análisis general detectando desviaciones o inconsistencias.'));
+    alcances.push(...li('Impuestos Mensuales:',
+      'Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Determinación de débitos y créditos fiscales con enfoque orientado a evitar errores, multas y diferencias futuras.'));
+    alcances.push(...li('Impuestos Anuales:',
+      'Determinación y declaración de la base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas requeridas por el SII, y asistencia ante revisiones del SII sobre determinaciones realizadas por Nexa Enlaces Ltda.'));
   }
 
   if (d.facturacion) {
-    serviciosMensuales.push(
-      p([negrita('Facturación Electrónica:')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente.')]),
-      sep()
-    );
+    alcances.push(...li('Facturación Electrónica:',
+      'Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente, con registro contable y control de correlatividad.'));
   }
 
   if (d.cartera) {
-    serviciosMensuales.push(
-      p([negrita('Conciliación de Pagos y Reporte de Cartera:')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Conciliación mensual de pagos recibidos e imputación a facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro para que la empresa ejecute las acciones de gestión correspondientes.')]),
-      sep()
-    );
+    alcances.push(...li('Conciliación de Pagos y Reporte de Cartera:',
+      'Conciliación mensual de pagos recibidos, verificando la correcta imputación de ingresos a las facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro, para que la empresa ejecute las acciones de gestión correspondientes.'));
   }
 
   if (d.rrhh) {
-    serviciosMensuales.push(
-      p([negrita('Gestión de Recursos Humanos:')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Confección de liquidaciones de sueldo, cálculo de cotizaciones previsionales, preparación de información para pago de remuneraciones y tramitación de licencias médicas informadas por el cliente.')]),
-      sep()
-    );
+    alcances.push(...li('Gestión de Recursos Humanos:',
+      'Confección y cálculo mensual de remuneraciones, emisión de liquidaciones de sueldo, cálculo de cotizaciones previsionales y de salud, preparación de información para el pago de obligaciones previsionales, y tramitación de licencias médicas informadas por el cliente.'));
   }
 
-  const serviciosUnicos = [];
+  // Servicios únicos en alcances (sin repetir en honorarios)
   if (d.constitucion) {
-    serviciosUnicos.push(
-      p([negrita('Constitución de Empresa SpA (Servicio Único):')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía, con base legal adecuada a la estructura tributaria del cliente. Incluye: redacción de estatutos, inicio de actividades ante el SII, elección del régimen tributario más conveniente, e inscripción al sistema de facturación electrónica. La sociedad queda completamente operativa al término del proceso.')]),
-      p([negrita(`Valor: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único)`)]),
-      sep()
-    );
+    alcances.push(...li('Constitución de Empresa SpA (Servicio Único):',
+      'Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía, con base legal adecuada a la operación y estructura tributaria del cliente. Incluye: redacción de estatutos conforme al giro definido, inicio de actividades ante el SII con configuración correcta de giro y domicilio tributario, elección fundamentada del régimen tributario más conveniente (14 D°3, 14 D°8 u otro aplicable), e inscripción al sistema de facturación electrónica. Al término del proceso la sociedad queda completamente operativa.'));
   }
 
   if (d.proyeccion) {
-    serviciosUnicos.push(
-      p([negrita('Proyección de Impuestos Anuales (Servicio Único):')], { bullet: { level: 0 } }),
-      sep(),
-      p([normal('Estimación anticipada de la carga tributaria del ejercicio vigente, permitiendo al cliente tomar decisiones informadas antes del cierre del año tributario.')]),
-      p([negrita(`Valor: ~${d.proyeccionUF} UF + IVA (pago único)`)]),
-      sep()
-    );
+    alcances.push(...li('Proyección de Impuestos Anuales (Servicio Único):',
+      'Estimación anticipada de la carga tributaria del ejercicio vigente, basada en los resultados contables acumulados y las proyecciones de ingresos y gastos hasta el cierre del año. Permite al cliente tomar decisiones informadas antes del cierre tributario.'));
   }
 
   if (d.termino) {
-    const terminoDesc = d.terminoTipo === 'complejo'
-      ? 'Cierre formal de actividades ante el SII en casos que requieren regularización previa de obligaciones tributarias pendientes.'
-      : 'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias.';
-    serviciosUnicos.push(
-      p([negrita(`Término de Giro ${d.terminoTipo === 'complejo' ? 'Complejo' : 'Simple'} (Servicio Único):`)], { bullet: { level: 0 } }),
-      sep(),
-      p([normal(terminoDesc)]),
-      p([negrita(`Valor: ~${d.terminoUF} UF + IVA (pago único)`)]),
-      sep()
-    );
+    const textoTermino = d.terminoTipo === 'complejo'
+      ? 'Cierre formal de actividades ante el SII para empresas que requieren regularización previa de obligaciones tributarias pendientes. Incluye revisión del estado tributario, coordinación de pagos pendientes y tramitación completa del término de giro.'
+      : 'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias. Incluye preparación de la documentación requerida y tramitación completa del proceso.';
+    alcances.push(...li(`Término de Giro ${d.terminoTipo === 'complejo' ? 'Complejo' : 'Simple'} (Servicio Único):`, textoTermino));
   }
 
-  const honorariosLineas = [];
+  // ── Honorarios ────────────────────────────────────────────────
+  const honLineas = [];
   if (d.base || d.facturacion || d.cartera || d.rrhh) {
-    const desc = [
-      d.base ? 'contabilidad mensual, impuestos mensuales e impuestos anuales' : '',
-      d.facturacion ? 'emisión de facturas' : '',
-      d.cartera ? 'conciliación de pagos y reporte de cartera' : '',
-      d.rrhh ? 'gestión de RRHH' : ''
-    ].filter(Boolean).join(', ');
-    honorariosLineas.push(p([normal(`Servicio mensual (${desc}): ${d.uf} UF mensuales + IVA.`)]));
+    const partes = [
+      d.base        ? 'contabilidad mensual, impuestos mensuales e impuestos anuales' : '',
+      d.facturacion ? 'emisión de facturas electrónicas' : '',
+      d.cartera     ? 'conciliación de pagos y reporte de cartera' : '',
+      d.rrhh        ? 'gestión de RRHH' : ''
+    ].filter(Boolean);
+    const desc = partes.length > 1
+      ? partes.slice(0,-1).join(', ') + ' y ' + partes[partes.length-1]
+      : partes[0];
+    honLineas.push(p0([rB('Servicio A — '), r(`${desc}: ${d.uf} UF mensuales + IVA.`)]));
   }
-  if (d.constitucion) honorariosLineas.push(p([normal(`Constitución de empresa: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único).`)]));
-  if (d.proyeccion) honorariosLineas.push(p([normal(`Proyección de impuestos anuales: ~${d.proyeccionUF} UF + IVA (pago único).`)]));
-  if (d.termino) honorariosLineas.push(p([normal(`Término de giro ${d.terminoTipo}: ~${d.terminoUF} UF + IVA (pago único).`)]));
+  if (d.constitucion) honLineas.push(p0([rB('Servicio C — '), r(`Constitución de empresa SpA: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único).`)]));
+  if (d.proyeccion)   honLineas.push(p0([rB('Servicio C — '), r(`Proyección de impuestos anuales: ~${d.proyeccionUF} UF + IVA (pago único).`)]));
+  if (d.termino)      honLineas.push(p0([rB('Servicio C — '), r(`Término de giro ${d.terminoTipo}: ~${d.terminoUF} UF + IVA (pago único).`)]));
 
   if (d.revision) {
-    honorariosLineas.push(
-      sep(),
-      p([normal('El valor del servicio mensual está definido en función del volumen de operaciones actual de la empresa. En caso de que el volumen de facturas emitidas, recibidas u operaciones contables experimente un aumento sostenido, las partes acordarán una revisión del honorario mensual acorde al nuevo nivel de actividad.')])
-    );
+    honLineas.push(sep());
+    honLineas.push(p0([r('El valor del servicio mensual está definido en función del volumen de operaciones actual de la empresa. En caso de que el volumen de facturas emitidas, recibidas u operaciones contables experimente un aumento sostenido, las partes acordarán una revisión del honorario mensual acorde al nuevo nivel de actividad.')]));
   }
 
-  honorariosLineas.push(
-    sep(),
-    p([normal('Los servicios de carácter mensual serán facturados dentro de los primeros cinco días de cada mes. Los servicios extraordinarios o no contemplados serán cotizados y facturados de manera adicional.')]),
-    sep(),
-    p([normal('En caso de mora o retraso en el pago de honorarios, Nexa Enlaces Ltda. podrá suspender temporalmente la prestación de los servicios hasta la regularización de los pagos pendientes.')])
-  );
+  honLineas.push(sep());
+  honLineas.push(p0([r('Los servicios de carácter mensual serán facturados dentro de los primeros cinco días de cada mes. Los servicios extraordinarios o no contemplados expresamente en esta propuesta serán cotizados y facturados de manera adicional.')]));
+  honLineas.push(sep());
+  honLineas.push(p0([r('En caso de mora o retraso en el pago de honorarios, Nexa Enlaces Ltda. podrá suspender temporalmente la prestación de los servicios hasta regularización de los pagos pendientes.')]));
 
-  const saludo = d.nombre.endsWith('a') || ['Solange','Marcela','Javiera','Carolina','Francisca','Valentina','Daniela','Camila','Andrea','Patricia','Sandra','Mónica','Claudia','Alejandra','Nicole','Bárbara','Paola','Lorena','Verónica','Susana','Isabel','Teresa','Ana','María','Gabriela','Natalia','Beatriz','Rosa','Elena','Laura','Sara','Alicia','Emma','Sofía','Lucía','Mía','Carla','Karla'].includes(d.nombre) ? 'Estimada' : 'Estimado';
+  // ── Ensamblar documento ───────────────────────────────────────
+  const saludo = propSaludo(d.nombre);
 
   const children = [
-    p([negrita('Propuesta Prestación de Servicios')], { alignment: AlignmentType.CENTER }),
+    // Título
+    new Paragraph({
+      children: [rB('Propuesta Prestación de Servicios')],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 240, before: 0 }
+    }),
+
+    // Encabezado
+    p0([r(`${saludo} ${d.nombre}`)]),
     sep(),
-    p([normal(`${saludo} ${d.nombre}`)]),
+    p0([rB('Presente')]),
     sep(),
-    p([negrita('Presente')]),
+
+    // Intro
+    p0([r('De nuestra consideración:')]),
     sep(),
-    p([normal(`De nuestra consideración:\n\nJunto con saludar, y de acuerdo con lo conversado, tenemos el agrado de presentar nuestra Propuesta de Asesoría Contable y Tributaria Estratégica, diseñada para empresas que requieren más que cumplimiento, y buscan control, orden y respaldo técnico permanente en su gestión financiera y tributaria.`)]),
+    p0([r('Junto con saludar, y de acuerdo con lo conversado, tenemos el agrado de presentar nuestra '), rB('Propuesta de Asesoría Contable y Tributaria Estratégica'), r(', diseñada para empresas que requieren más que cumplimiento, y buscan control, orden y respaldo técnico permanente en su gestión financiera y tributaria.')]),
     sep(),
-    p([normal('En Nexa Enlaces entendemos que una contabilidad bien llevada no solo permite cumplir con el Servicio de Impuestos Internos, sino que es una herramienta clave para la toma de decisiones, la prevención de riesgos y la continuidad del negocio.')]),
+    p0([r('En Nexa Enlaces entendemos que una contabilidad bien llevada no solo permite cumplir con el Servicio de Impuestos Internos, sino que es una herramienta clave para la toma de decisiones, la prevención de riesgos y la continuidad del negocio.')]),
     sep(),
-    p([negrita('Objetivo:')]),
+
+    // Propuesta
+    p0([rB('Propuesta:')]),
     sep(),
-    p([normal('El objetivo de esta asesoría es acompañar de manera permanente y especializada la gestión contable y tributaria, asegurando: cumplimiento normativo oportuno, información contable confiable, reducción de riesgos tributarios y acompañamiento técnico continuo para la toma de decisiones.')]),
+    p0([r('Queremos presentarles nuestra propuesta de servicios y asesorías contables, diseñada para ayudarles a abordar estos desafíos y mejorar la gestión de su contabilidad y tributación.')]),
     sep(),
-    p([negrita('Alcances de los Servicios:')]),
+
+    // Objetivo
+    pB([rB('Objetivo:')]),
+    p0([r('El objetivo de esta asesoría es '), rB('acompañar de manera permanente y especializada'), r(' la gestión contable y tributaria de la empresa, asegurando:')]),
+    new Paragraph({ children: [r('Cumplimiento normativo oportuno y correcto')], bullet: { level: 0 }, spacing: { after: 60 } }),
+    new Paragraph({ children: [r('Información contable ordenada, consistente y confiable')], bullet: { level: 0 }, spacing: { after: 60 } }),
+    new Paragraph({ children: [r('Reducción de riesgos tributarios y contingencias futuras')], bullet: { level: 0 }, spacing: { after: 60 } }),
+    new Paragraph({ children: [r('Acompañamiento técnico continuo para la toma de decisiones')], bullet: { level: 0 }, spacing: { after: 120 } }),
     sep(),
-    ...serviciosMensuales,
-    ...(serviciosUnicos.length ? [
-      p([negrita('Responsabilidades del Cliente:')]),
-      sep(),
-      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria de la empresa; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados; y confirmar los pagos recibidos dentro del plazo definido para mantener el reporte de cartera actualizado.')]),
-      sep(),
-      p([negrita('Profesionales a cargo:')]),
-      sep(),
-      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
-      sep(),
-      p([normal(`El correo de contacto oficial es: contacto@nexaen.cl`)]),
-      sep(),
-      p([negrita('Honorarios:')]),
-      sep(),
-      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
-      sep(),
-      ...honorariosLineas,
-      sep(),
-      ...serviciosUnicos
-    ] : [
-      p([negrita('Responsabilidades del Cliente:')]),
-      sep(),
-      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados.')]),
-      sep(),
-      p([negrita('Profesionales a cargo:')]),
-      sep(),
-      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
-      sep(),
-      p([normal('El correo de contacto oficial es: contacto@nexaen.cl')]),
-      sep(),
-      p([negrita('Honorarios:')]),
-      sep(),
-      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
-      sep(),
-      ...honorariosLineas
-    ]),
+    p0([r('Este servicio está orientado a empresas que valoran la tranquilidad operativa, la anticipación de problemas y el respaldo profesional constante.')]),
     sep(),
-    p([normal('Cualquier duda con respecto a esta propuesta, pueden contactarnos para precisar cualquier asunto descrito. Una vez aceptada la propuesta, se coordinará el plan de trabajo y los plazos para ambas partes.')]),
+
+    // Alcances
+    pB([rB('Alcances de los Servicios:')]),
+    ...alcances,
     sep(),
-    p([normal('Sólo si están de acuerdo con los términos, favor enviarla debidamente firmada o confirmar la aceptación por correo electrónico.')]),
+
+    // Responsabilidades
+    pB([rB('Responsabilidades del Cliente:')]),
+    p0([r('Para una correcta ejecución del servicio, será responsabilidad del cliente:')]),
+    new Paragraph({ children: [r('Proporcionar la documentación contable y tributaria de forma oportuna, completa y ordenada.')], bullet: { level: 0 }, spacing: { after: 60 } }),
+    new Paragraph({ children: [r('Informar de manera inmediata cualquier hecho relevante que pueda afectar la contabilidad o situación tributaria de la empresa.')], bullet: { level: 0 }, spacing: { after: 60 } }),
+    new Paragraph({ children: [r('Realizar oportunamente el pago de impuestos, multas, intereses y demás obligaciones legales, una vez informados.')], bullet: { level: 0 }, spacing: { after: 60 } }),
+    ...(d.cartera ? [new Paragraph({ children: [r('Confirmar los pagos recibidos dentro del plazo acordado para mantener el reporte de cartera actualizado.')], bullet: { level: 0 }, spacing: { after: 60 } })] : []),
     sep(),
-    p([normal('Saludos cordiales,')]),
+
+    // Profesionales
+    pB([rB('Profesionales a cargo:')]),
+    p0([r('La responsabilidad del desarrollo del trabajo y atención personal será de los socios de la firma:')]),
     sep(),
-    p([negrita('Javiera Lizama')]),
-    p([normal('Nexa Enlaces Ltda.')]),
+    p0([rB('Javiera Lizama'), r('\t\tSocia Impuestos')]),
+    p0([rB('Bernardita Sepúlveda'), r('\tSocia Contabilidad')]),
+    p0([rB('Suemy Pardo Labra'), r('\tAsistente Contable')]),
     sep(),
-    p([normal(`${d.ciudad}, ${d.fechaTexto}`)]),
+    p0([r('El correo para canalizar la información y de contacto oficial será '), rB('contacto@nexaen.cl')]),
     sep(),
-    p([normal('─'.repeat(80))]),
+
+    // Honorarios
+    pB([rB('Honorarios:')]),
+    p0([r('Los honorarios asociados a esta asesoría son los siguientes:')]),
     sep(),
-    p([normal('Aceptación de servicios:')]),
+    ...honLineas,
     sep(),
-    p([normal('Expresamos nuestro entendimiento y acuerdo con los servicios y términos establecidos en esta propuesta.')]),
+
+    // Cierre
+    p0([r('Cualquier duda con respecto a esta propuesta, pueden contactarnos con el fin de precisar o analizar más profundamente cualquier asunto descrito.')]),
     sep(),
-    p([normal('Firma:\t_____________________\t\tNombre y cargo:\t_______________________')])
+    p0([r('Una vez aceptada la propuesta, se procederá a coordinar la ejecución del plan de trabajo y los plazos a cumplir para ambas partes.')]),
+    sep(),
+    p0([r('Sólo si ustedes están de acuerdo con los términos de esta propuesta, favor enviarla debidamente firmada o enviarnos un correo electrónico confirmando la aceptación.')]),
+    sep(),
+    p0([r('Saludos cordiales,')]),
+    sep(),
+    p0([rB(d.firmante === 'Berny' ? 'Bernardita Sepúlveda' : 'Javiera Lizama')]),
+    p0([r(d.firmante === 'Berny' ? 'Socia Contabilidad — Nexa Enlaces Ltda.' : 'Socia Impuestos — Nexa Enlaces Ltda.')]),
+    sep(),
+    p0([r(`${d.ciudad}, ${d.fechaTexto}`)]),
+    sep(),
+
+    // Línea de aceptación
+    new Paragraph({ children: [r('_'.repeat(88))], spacing: { after: 120, before: 240 } }),
+    p0([r('Aceptación de servicios:')]),
+    sep(),
+    p0([r('Expresamos nuestro entendimiento y acuerdo con los servicios y los términos establecidos en esta propuesta.')]),
+    sep(),
+    p0([r('Firma:\t_____________________\t\tNombre y cargo:\t_______________________')])
   ];
 
   const doc_obj = new Document({
+    numbering: {
+      config: [{
+        reference: 'bullets',
+        levels: [{
+          level: 0,
+          format: 'bullet',
+          text: '•',
+          alignment: AlignmentType.LEFT,
+          style: { paragraph: { indent: { left: 720, hanging: 360 } } }
+        }]
+      }]
+    },
     sections: [{
       properties: {
         page: {
@@ -4200,58 +4130,53 @@ function propGenerarConDocxJS(d) {
   });
 
   Packer.toBlob(doc_obj).then(blob => {
-    const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
+    const nombreArchivo = (d.empresa || d.nombre).replace(/\s+/g, '_');
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`;
+    a.download = `Propuesta_Nexa_${nombreArchivo}_${d.fechaRaw}.docx`;
     a.click();
     URL.revokeObjectURL(url);
-
-    // Guardar en historial
     propGuardarHistorial(d);
-    if (typeof toast === 'function') toast(`Propuesta para ${d.nombre} descargada`);
-    // Subir copia a Google Drive
+    if (typeof toast === 'function') toast(`Propuesta para ${d.nombre} descargada ✓`);
     if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
-      driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`);
+      driveUploadDocx(blob, `Propuesta_Nexa_${(d.empresa||d.nombre).replace(/\s+/g,'_')}_${d.fechaRaw}.docx`);
     }
   }).catch(err => {
-    console.error(err);
-    if (typeof toast === 'function') toast('Error al generar el archivo: '+err.message, false);
-    propGenerarHTMLFallback(d);
+    console.error('Error generando docx:', err);
+    if (typeof toast === 'function') toast('Error al generar el archivo — revisa la consola', false);
   });
 }
 
-function propGenerarHTMLFallback(d) {
-  // Fallback si docx.js no carga — genera HTML descargable
-  const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
-  const saludo = d.nombre.endsWith('a') ? 'Estimada' : 'Estimado';
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Propuesta ${d.nombre}</title>
-  <style>body{font-family:Arial Narrow,Arial;font-size:10pt;margin:2cm;color:#000}
-  h1{font-size:14pt;text-align:center}p{margin:6px 0;line-height:1.5}
-  strong{font-weight:bold}.firma{margin-top:40px}</style></head><body>
-  <h1>Propuesta Prestación de Servicios</h1>
-  <p>${saludo} ${d.nombre}</p><p><strong>Presente</strong></p>
-  <p>De nuestra consideración, junto con saludar presentamos nuestra propuesta de asesoría contable y tributaria.</p>
-  ${d.uf ? `<p><strong>Honorario mensual:</strong> ${d.uf} UF + IVA</p>` : ''}
-  ${d.constitucion ? `<p><strong>Constitución de empresa:</strong> $${d.constitucionMonto.toLocaleString('es-CL')} + IVA</p>` : ''}
-  <p>Saludos cordiales,<br><strong>Javiera Lizama</strong><br>Nexa Enlaces Ltda.</p>
-  <p>${d.ciudad}, ${d.fechaTexto}</p>
-  </body></html>`;
-
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`;
-  a.click();
-  URL.revokeObjectURL(url);
-  propGuardarHistorial(d);
-  if (typeof toast === 'function') toast('Descargado como HTML (agrega docx.js para .docx)', false);
-  // Upload to Drive
-  if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
-    driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`);
+function propDesdeCliente() {
+  if (typeof S === 'undefined' || !S.clientes?.length) {
+    if (typeof toast === 'function') toast('No hay clientes registrados', false);
+    return;
   }
+  const opts = S.clientes.map(c => `<option value="${c.id}">${c.nom}${c.alias ? ' (' + c.alias + ')' : ''}</option>`).join('');
+  document.body.insertAdjacentHTML('beforeend', `
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center" id="prop-mini-modal">
+      <div style="background:#fff;border-radius:14px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+        <div style="font-size:15px;font-weight:900;margin-bottom:14px">Seleccionar cliente</div>
+        <select id="prop-cl-sel" class="fsel" style="width:100%"><option value="">— Seleccionar —</option>${opts}</select>
+        <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('prop-mini-modal').remove()">Cancelar</button>
+          <button class="btn btn-blue btn-sm" onclick="propCargarCliente()">Usar</button>
+        </div>
+      </div>
+    </div>`);
+}
+
+function propCargarCliente() {
+  const id = document.getElementById('prop-cl-sel')?.value;
+  if (!id || typeof S === 'undefined') return;
+  const c = S.clientes.find(x => x.id === id);
+  if (!c) return;
+  const nombre = c.alias || c.nom.split(' ')[0];
+  document.getElementById('prop-nombre').value = propCapitalizar(nombre);
+  document.getElementById('prop-empresa').value = c.nom || '';
+  document.getElementById('prop-mini-modal')?.remove();
+  propActualizarPreview();
 }
 
 function propGuardarHistorial(d) {
@@ -4263,15 +4188,7 @@ function propGuardarHistorial(d) {
     empresa: d.empresa,
     fecha: d.fechaRaw,
     uf: d.uf,
-    servicios: [
-      d.base ? 'Base' : '',
-      d.facturacion ? 'Facturación' : '',
-      d.cartera ? 'Cartera' : '',
-      d.rrhh ? 'RRHH' : '',
-      d.constitucion ? 'SpA' : '',
-      d.proyeccion ? 'Proyección' : '',
-      d.termino ? 'Término' : ''
-    ].filter(Boolean).join(', ')
+    servicios: [d.base?'Base':'',d.facturacion?'Fact':'',d.cartera?'Cartera':'',d.rrhh?'RRHH':'',d.constitucion?'SpA':'',d.proyeccion?'Proy':'',d.termino?'TG':''].filter(Boolean).join(' · ')
   });
   if (S.propuestas.length > 10) S.propuestas = S.propuestas.slice(0, 10);
   if (typeof save === 'function') save();
@@ -4282,32 +4199,13 @@ function propRenderHistorial() {
   const el = document.getElementById('prop-historial');
   if (!el || typeof S === 'undefined' || !S.propuestas?.length) return;
   el.innerHTML = S.propuestas.map(p => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2)">
-      <div>
-        <div style="font-size:12px;font-weight:800">${p.nombre}${p.empresa ? ' · ' + p.empresa : ''}</div>
-        <div style="font-size:10px;color:var(--muted)">${p.fecha}${p.uf ? ' · ' + p.uf + ' UF/mes' : ''} · ${p.servicios}</div>
-      </div>
-    </div>
-  `).join('');
+    <div style="padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div style="font-size:12px;font-weight:800">${p.nombre}${p.empresa ? ' · ' + p.empresa : ''}</div>
+      <div style="font-size:10px;color:var(--muted)">${p.fecha}${p.uf ? ' · ' + p.uf + ' UF/mes' : ''} · ${p.servicios}</div>
+    </div>`).join('');
 }
 
-// Actualizar preview en tiempo real al cambiar inputs
-document.addEventListener('input', function(e) {
-  if (e.target.id && e.target.id.startsWith('prop-')) {
-    propActualizarPreview();
-  }
-});
-document.addEventListener('change', function(e) {
-  if (e.target.id && e.target.id.startsWith('prop-')) {
-    propActualizarPreview();
-    const lbl = document.getElementById('lbl-' + e.target.id.replace('prop-', '').replace('-monto','').replace('-uf','').replace('-tipo',''));
-    if (lbl && e.target.type === 'checkbox') {
-      lbl.style.borderColor = e.target.checked ? 'var(--blue)' : 'var(--border)';
-    }
-  }
-});
-
-// ─── FIN MÓDULO PROPUESTAS ─────────────────────────────────────────────────
+// ─── FIN MÓDULO PROPUESTAS v2 ──────────────────────────────────────────────
 
 // ══ INIT ══
 load();
