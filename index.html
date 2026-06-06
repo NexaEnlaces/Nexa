@@ -893,6 +893,20 @@ textarea.finput{resize:vertical;min-height:68px}
               <input class="srch" style="width:100%;border-radius:8px" id="prop-empresa" placeholder="Ej: NewVita" oninput="propActualizarPreview()">
             </div>
           </div>
+          <div style="margin-top:10px;margin-bottom:4px">
+            <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px">✍️ Firmante</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div id="lbl-firmante-javi" onclick="propSetFirmante('Javi')" style="cursor:pointer;padding:10px 14px;border:1.5px solid var(--blue);background:var(--blue-light);border-radius:8px;transition:.15s">
+                <div style="font-size:11px;font-weight:800;color:var(--blue)">Javiera Lizama</div>
+                <div style="font-size:10px;color:var(--muted)">Socia Impuestos</div>
+              </div>
+              <div id="lbl-firmante-berny" onclick="propSetFirmante('Berny')" style="cursor:pointer;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;transition:.15s">
+                <div style="font-size:11px;font-weight:800">Bernardita Sepúlveda</div>
+                <div style="font-size:10px;color:var(--muted)">Socia Contabilidad</div>
+              </div>
+            </div>
+            <input type="hidden" id="prop-firmante" value="Javi">
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
               <label style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px">Ciudad</label>
@@ -1007,8 +1021,8 @@ textarea.finput{resize:vertical;min-height:68px}
               <div style="display:flex;align-items:center;gap:8px;margin-top:6px" onclick="event.stopPropagation()">
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">Tipo:</span>
                 <select class="fsel" style="font-size:11px;padding:3px 8px;border-radius:6px" id="prop-termino-tipo" onchange="propActualizarPreview()">
-                  <option value="simple">Simple (~0.5 UF)</option>
-                  <option value="complejo">Complejo (~0.8 UF)</option>
+                  <option value="simple">Simple (4 UF)</option>
+                  <option value="complejo">Complejo (7 UF)</option>
                 </select>
               </div>
             </div>
@@ -3785,6 +3799,14 @@ function cloneNV(id){
 
 
 // ══ PROPUESTAS ══
+function propSetFirmante(val){
+  document.getElementById('prop-firmante').value = val;
+  const javi=document.getElementById('lbl-firmante-javi');
+  const berny=document.getElementById('lbl-firmante-berny');
+  if(javi){javi.style.borderColor=val==='Javi'?'var(--blue)':'var(--border)';javi.style.background=val==='Javi'?'var(--blue-light)':'transparent';}
+  if(berny){berny.style.borderColor=val==='Berny'?'var(--blue)':'var(--border)';berny.style.background=val==='Berny'?'var(--blue-light)':'transparent';}
+  propActualizarPreview();
+}
 function propCapitalizar(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
