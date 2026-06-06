@@ -6,7 +6,7 @@
 <title>Nexa · Sistema de Gestión</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js" crossorigin="anonymous"></script>
 <script>
 // Ensure docx loads — try multiple CDNs
 (function(){
@@ -17,7 +17,7 @@
   }
   window.addEventListener('load', function(){
     if(typeof docx==='undefined'){
-      tryLoad('https://unpkg.com/docx@9.6.1/build/index.js');
+      tryLoad('https://unpkg.com/docx@7.8.2/build/index.js');
       setTimeout(function(){
         if(typeof docx==='undefined'){
           tryLoad('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js');
@@ -1026,10 +1026,12 @@ textarea.finput{resize:vertical;min-height:68px}
               <div style="font-size:11px;color:var(--muted);margin-top:2px">Cierre formal de actividades ante el SII</div>
               <div style="display:flex;align-items:center;gap:8px;margin-top:6px" onclick="event.stopPropagation()">
                 <span style="font-size:10px;font-weight:700;color:var(--muted)">Tipo:</span>
-                <select class="fsel" style="font-size:11px;padding:3px 8px;border-radius:6px" id="prop-termino-tipo" onchange="propActualizarPreview()">
-                  <option value="simple">Simple (4 UF)</option>
-                  <option value="complejo">Complejo (7 UF)</option>
+                <select class="fsel" style="font-size:11px;padding:3px 8px;border-radius:6px" id="prop-termino-tipo" onchange="propActualizarTermino()">
+                  <option value="simple">Simple</option>
+                  <option value="complejo">Complejo</option>
                 </select>
+                <span style="font-size:10px;font-weight:700;color:var(--muted)">UF:</span>
+                <input type="number" step="0.5" min="0.5" style="width:65px;border-radius:6px;padding:4px 8px;font-size:11px;border:1px solid var(--border)" id="prop-termino-uf" value="4" onclick="event.stopPropagation()" oninput="propActualizarPreview()">
               </div>
             </div>
           </label>
@@ -3855,7 +3857,7 @@ function propGetDatos() {
   const proyeccionUF      = parseFloat(document.getElementById('prop-proyeccion-uf')?.value) || 0.3;
   const termino           = document.getElementById('prop-termino')?.checked || false;
   const terminoTipo       = document.getElementById('prop-termino-tipo')?.value || 'simple';
-  const terminoUF         = terminoTipo === 'complejo' ? 7 : 4;
+  const terminoUF = parseFloat(document.getElementById('prop-termino-uf')?.value) || (terminoTipo === 'complejo' ? 7 : 4);
 
   const [y, m, d] = fechaRaw.split('-');
   const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -3923,7 +3925,7 @@ function propGenerar() {
     propGenerarDocx(d);
   } else {
     if(typeof toast==='function') toast('docx.js no disponible — agrega el script en el <head>', false);
-    console.error('docx.js no cargó. Agrega: <script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js"><\/script> en el <head>');
+    console.error('docx.js no cargó. Agrega: <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js"><\/script> en el <head>');
   }
 }
 
@@ -3931,11 +3933,11 @@ function propGenerarDocx(d) {
   if(typeof docx === 'undefined'){
     if(typeof toast==='function') toast('Cargando librería Word... intenta en 3 segundos', false);
     var s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js';
+    s.src='https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js';
     s.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },500); };
     s.onerror=function(){
       var s2=document.createElement('script');
-      s2.src='https://unpkg.com/docx@9.6.1/build/index.js';
+      s2.src='https://unpkg.com/docx@7.8.2/build/index.js';
       s2.onload=function(){ setTimeout(function(){ propGenerarDocx(d); },500); };
       s2.onerror=function(){ if(typeof toast==='function') toast('No se pudo cargar docx.js — verifica tu conexión',false); };
       document.head.appendChild(s2);
@@ -3943,7 +3945,7 @@ function propGenerarDocx(d) {
     document.head.appendChild(s);
     return;
   }
-  const { Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat } = docx;
+  const { Document, Packer, Paragraph, TextRun, AlignmentType } = docx;
 
   // Helpers de estilo
   const FONT = 'Arial Narrow';
@@ -4256,4 +4258,10 @@ renderDash();
 initGS();
 </script>
 </body>
-</html>
+</html
+function propActualizarTermino(){
+  const tipo=document.getElementById('prop-termino-tipo')?.value;
+  const uf=document.getElementById('prop-termino-uf');
+  if(uf) uf.value=tipo==='complejo'?'7':'4';
+  propActualizarPreview();
+}>
