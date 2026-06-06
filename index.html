@@ -3821,6 +3821,313 @@ function renderProp() {
   }
 }
 
+function propCapitalizar(str){if(!str)return'';return str.charAt(0).toUpperCase()+str.slice(1).toLowerCase();}
+
+function propSaludo(nombre){const n=(nombre||'').trim().toLowerCase();const fem=['a','ia','na','ra','la','sa','da','ta','ca'];if(fem.some(s=>n.endsWith(s)))return'Estimada';return'Estimado';}
+
+function propSetFirmante(val){document.getElementById('prop-firmante').value=val;const j=document.getElementById('lbl-firmante-javi');const b=document.getElementById('lbl-firmante-berny');if(j){j.style.borderColor=val==='Javi'?'var(--blue)':'var(--border)';j.style.background=val==='Javi'?'var(--blue-light)':'transparent';}if(b){b.style.borderColor=val==='Berny'?'var(--blue)':'var(--border)';b.style.background=val==='Berny'?'var(--blue-light)':'transparent';}propActualizarPreview();}
+
+function propGuardarHistorial(d) {
+  if (typeof S === 'undefined') return;
+  if (!S.propuestas) S.propuestas = [];
+  S.propuestas.unshift({
+    id: 'p' + Date.now(),
+    nombre: d.nombre,
+    empresa: d.empresa,
+    fecha: d.fechaRaw,
+    uf: d.uf,
+    servicios: [
+      d.base ? 'Base' : '',
+      d.facturacion ? 'Facturación' : '',
+      d.cartera ? 'Cartera' : '',
+      d.rrhh ? 'RRHH' : '',
+      d.constitucion ? 'SpA' : '',
+      d.proyeccion ? 'Proyección' : '',
+      d.termino ? 'Término' : ''
+    ].filter(Boolean).join(', ')
+  });
+  if (S.propuestas.length > 10) S.propuestas = S.propuestas.slice(0, 10);
+  if (typeof save === 'function') save();
+  propRenderHistorial();
+}
+
+function propRenderHistorial() {
+  const el = document.getElementById('prop-historial');
+  if (!el || typeof S === 'undefined' || !S.propuestas?.length) return;
+  el.innerHTML = S.propuestas.map(p => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div>
+        <div style="font-size:12px;font-weight:800">${p.nombre}${p.empresa ? ' · ' + p.empresa : ''}</div>
+        <div style="font-size:10px;color:var(--muted)">${p.fecha}${p.uf ? ' · ' + p.uf + ' UF/mes' : ''} · ${p.servicios}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function propGenerarConDocxJS(d) {
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, BorderStyle, UnderlineType } = docx;
+
+  const estiloNormal = { font: 'Arial Narrow', size: 20 };
+  const negrita = (txt) => new TextRun({ text: txt, bold: true, ...estiloNormal });
+  const normal = (txt) => new TextRun({ text: txt, ...estiloNormal });
+  const p = (children, opts = {}) => new Paragraph({ children: Array.isArray(children) ? children : [children], ...opts });
+  const bullet = (txt) => new Paragraph({ bullet: { level: 0 }, children: [normal(txt)], style: 'Sinespaciado' });
+  const sep = () => p([normal('')]);
+
+  const serviciosMensuales = [];
+  if (d.base) {
+    serviciosMensuales.push(
+      p([negrita('Asesoría Administrativa y Contable Permanente:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Acompañamiento técnico continuo en materias administrativas y contables, con atención permanente de consultas, orientación en el orden y respaldo de la información contable.')]),
+      sep(),
+      p([negrita('Contabilidad Mensual:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Registro contable mensual, revisión de consistencia y análisis general de la información registrada.')]),
+      sep(),
+      p([negrita('Impuestos Mensuales:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Preparación y presentación de declaraciones mensuales (Formulario 29, PPM, retenciones). Enfoque orientado a evitar errores, multas y diferencias futuras.')]),
+      sep(),
+      p([negrita('Impuestos Anuales:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Determinación de base imponible afecta a Impuesto de Primera Categoría, confección de declaraciones juradas y asistencia ante revisiones del SII.')]),
+      sep()
+    );
+  }
+
+  if (d.facturacion) {
+    serviciosMensuales.push(
+      p([negrita('Facturación Electrónica:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Emisión de facturas de venta electrónicas en representación de la empresa, en base a la información proporcionada por el cliente.')]),
+      sep()
+    );
+  }
+
+  if (d.cartera) {
+    serviciosMensuales.push(
+      p([negrita('Conciliación de Pagos y Reporte de Cartera:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Conciliación mensual de pagos recibidos e imputación a facturas emitidas. Elaboración de reporte periódico de cartera de clientes con saldos pendientes de cobro para que la empresa ejecute las acciones de gestión correspondientes.')]),
+      sep()
+    );
+  }
+
+  if (d.rrhh) {
+    serviciosMensuales.push(
+      p([negrita('Gestión de Recursos Humanos:')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Confección de liquidaciones de sueldo, cálculo de cotizaciones previsionales, preparación de información para pago de remuneraciones y tramitación de licencias médicas informadas por el cliente.')]),
+      sep()
+    );
+  }
+
+  const serviciosUnicos = [];
+  if (d.constitucion) {
+    serviciosUnicos.push(
+      p([negrita('Constitución de Empresa SpA (Servicio Único):')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Constitución de Sociedad por Acciones mediante el portal Empresa en un Día del Ministerio de Economía, con base legal adecuada a la estructura tributaria del cliente. Incluye: redacción de estatutos, inicio de actividades ante el SII, elección del régimen tributario más conveniente, e inscripción al sistema de facturación electrónica. La sociedad queda completamente operativa al término del proceso.')]),
+      p([negrita(`Valor: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  if (d.proyeccion) {
+    serviciosUnicos.push(
+      p([negrita('Proyección de Impuestos Anuales (Servicio Único):')], { bullet: { level: 0 } }),
+      sep(),
+      p([normal('Estimación anticipada de la carga tributaria del ejercicio vigente, permitiendo al cliente tomar decisiones informadas antes del cierre del año tributario.')]),
+      p([negrita(`Valor: ~${d.proyeccionUF} UF + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  if (d.termino) {
+    const terminoDesc = d.terminoTipo === 'complejo'
+      ? 'Cierre formal de actividades ante el SII en casos que requieren regularización previa de obligaciones tributarias pendientes.'
+      : 'Cierre formal de actividades ante el SII para empresas al día en sus obligaciones tributarias.';
+    serviciosUnicos.push(
+      p([negrita(`Término de Giro ${d.terminoTipo === 'complejo' ? 'Complejo' : 'Simple'} (Servicio Único):`)], { bullet: { level: 0 } }),
+      sep(),
+      p([normal(terminoDesc)]),
+      p([negrita(`Valor: ~${d.terminoUF} UF + IVA (pago único)`)]),
+      sep()
+    );
+  }
+
+  const honorariosLineas = [];
+  if (d.base || d.facturacion || d.cartera || d.rrhh) {
+    const desc = [
+      d.base ? 'contabilidad mensual, impuestos mensuales e impuestos anuales' : '',
+      d.facturacion ? 'emisión de facturas' : '',
+      d.cartera ? 'conciliación de pagos y reporte de cartera' : '',
+      d.rrhh ? 'gestión de RRHH' : ''
+    ].filter(Boolean).join(', ');
+    honorariosLineas.push(p([normal(`Servicio mensual (${desc}): ${d.uf} UF mensuales + IVA.`)]));
+  }
+  if (d.constitucion) honorariosLineas.push(p([normal(`Constitución de empresa: $${d.constitucionMonto.toLocaleString('es-CL')} + IVA (pago único).`)]));
+  if (d.proyeccion) honorariosLineas.push(p([normal(`Proyección de impuestos anuales: ~${d.proyeccionUF} UF + IVA (pago único).`)]));
+  if (d.termino) honorariosLineas.push(p([normal(`Término de giro ${d.terminoTipo}: ~${d.terminoUF} UF + IVA (pago único).`)]));
+
+  if (d.revision) {
+    honorariosLineas.push(
+      sep(),
+      p([normal('El valor del servicio mensual está definido en función del volumen de operaciones actual de la empresa. En caso de que el volumen de facturas emitidas, recibidas u operaciones contables experimente un aumento sostenido, las partes acordarán una revisión del honorario mensual acorde al nuevo nivel de actividad.')])
+    );
+  }
+
+  honorariosLineas.push(
+    sep(),
+    p([normal('Los servicios de carácter mensual serán facturados dentro de los primeros cinco días de cada mes. Los servicios extraordinarios o no contemplados serán cotizados y facturados de manera adicional.')]),
+    sep(),
+    p([normal('En caso de mora o retraso en el pago de honorarios, Nexa Enlaces Ltda. podrá suspender temporalmente la prestación de los servicios hasta la regularización de los pagos pendientes.')])
+  );
+
+  const saludo = d.nombre.endsWith('a') || ['Solange','Marcela','Javiera','Carolina','Francisca','Valentina','Daniela','Camila','Andrea','Patricia','Sandra','Mónica','Claudia','Alejandra','Nicole','Bárbara','Paola','Lorena','Verónica','Susana','Isabel','Teresa','Ana','María','Gabriela','Natalia','Beatriz','Rosa','Elena','Laura','Sara','Alicia','Emma','Sofía','Lucía','Mía','Carla','Karla'].includes(d.nombre) ? 'Estimada' : 'Estimado';
+
+  const children = [
+    p([negrita('Propuesta Prestación de Servicios')], { alignment: AlignmentType.CENTER }),
+    sep(),
+    p([normal(`${saludo} ${d.nombre}`)]),
+    sep(),
+    p([negrita('Presente')]),
+    sep(),
+    p([normal(`De nuestra consideración:\n\nJunto con saludar, y de acuerdo con lo conversado, tenemos el agrado de presentar nuestra Propuesta de Asesoría Contable y Tributaria Estratégica, diseñada para empresas que requieren más que cumplimiento, y buscan control, orden y respaldo técnico permanente en su gestión financiera y tributaria.`)]),
+    sep(),
+    p([normal('En Nexa Enlaces entendemos que una contabilidad bien llevada no solo permite cumplir con el Servicio de Impuestos Internos, sino que es una herramienta clave para la toma de decisiones, la prevención de riesgos y la continuidad del negocio.')]),
+    sep(),
+    p([negrita('Objetivo:')]),
+    sep(),
+    p([normal('El objetivo de esta asesoría es acompañar de manera permanente y especializada la gestión contable y tributaria, asegurando: cumplimiento normativo oportuno, información contable confiable, reducción de riesgos tributarios y acompañamiento técnico continuo para la toma de decisiones.')]),
+    sep(),
+    p([negrita('Alcances de los Servicios:')]),
+    sep(),
+    ...serviciosMensuales,
+    ...(serviciosUnicos.length ? [
+      p([negrita('Responsabilidades del Cliente:')]),
+      sep(),
+      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria de la empresa; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados; y confirmar los pagos recibidos dentro del plazo definido para mantener el reporte de cartera actualizado.')]),
+      sep(),
+      p([negrita('Profesionales a cargo:')]),
+      sep(),
+      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
+      sep(),
+      p([normal(`El correo de contacto oficial es: contacto@nexaen.cl`)]),
+      sep(),
+      p([negrita('Honorarios:')]),
+      sep(),
+      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
+      sep(),
+      ...honorariosLineas,
+      sep(),
+      ...serviciosUnicos
+    ] : [
+      p([negrita('Responsabilidades del Cliente:')]),
+      sep(),
+      p([normal('Para una correcta ejecución del servicio, el cliente deberá: proporcionar documentación contable en forma oportuna; informar de inmediato cualquier hecho relevante que pueda afectar la situación tributaria; realizar el pago oportuno de impuestos y demás obligaciones legales una vez informados.')]),
+      sep(),
+      p([negrita('Profesionales a cargo:')]),
+      sep(),
+      p([normal('La responsabilidad del trabajo será de los socios de la firma:\n\nJaviera Lizama\t\tSocia Impuestos\nBernardita Sepúlveda\tSocia Contabilidad\nSuemy Pardo Labra\tAsistente Contable')]),
+      sep(),
+      p([normal('El correo de contacto oficial es: contacto@nexaen.cl')]),
+      sep(),
+      p([negrita('Honorarios:')]),
+      sep(),
+      p([normal('Proponemos los siguientes honorarios para los servicios contratados:')]),
+      sep(),
+      ...honorariosLineas
+    ]),
+    sep(),
+    p([normal('Cualquier duda con respecto a esta propuesta, pueden contactarnos para precisar cualquier asunto descrito. Una vez aceptada la propuesta, se coordinará el plan de trabajo y los plazos para ambas partes.')]),
+    sep(),
+    p([normal('Sólo si están de acuerdo con los términos, favor enviarla debidamente firmada o confirmar la aceptación por correo electrónico.')]),
+    sep(),
+    p([normal('Saludos cordiales,')]),
+    sep(),
+    p([negrita('Javiera Lizama')]),
+    p([normal('Nexa Enlaces Ltda.')]),
+    sep(),
+    p([normal(`${d.ciudad}, ${d.fechaTexto}`)]),
+    sep(),
+    p([normal('─'.repeat(80))]),
+    sep(),
+    p([normal('Aceptación de servicios:')]),
+    sep(),
+    p([normal('Expresamos nuestro entendimiento y acuerdo con los servicios y términos establecidos en esta propuesta.')]),
+    sep(),
+    p([normal('Firma:\t_____________________\t\tNombre y cargo:\t_______________________')])
+  ];
+
+  const doc_obj = new Document({
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 11906, height: 16838 },
+          margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 }
+        }
+      },
+      children
+    }]
+  });
+
+  Packer.toBlob(doc_obj).then(blob => {
+    const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    // Guardar en historial
+    propGuardarHistorial(d);
+    if (typeof toast === 'function') toast(`Propuesta para ${d.nombre} descargada`);
+    // Subir copia a Google Drive
+    if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+      driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`);
+    }
+  }).catch(err => {
+    console.error(err);
+    if (typeof toast === 'function') toast('Error al generar el archivo: '+err.message, false);
+    propGenerarHTMLFallback(d);
+  });
+}
+
+function propGenerarHTMLFallback(d) {
+  // Fallback si docx.js no carga — genera HTML descargable
+  const nombre = (d.empresa || d.nombre).replace(/\s+/g, '_');
+  const saludo = d.nombre.endsWith('a') ? 'Estimada' : 'Estimado';
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Propuesta ${d.nombre}</title>
+  <style>body{font-family:Arial Narrow,Arial;font-size:10pt;margin:2cm;color:#000}
+  h1{font-size:14pt;text-align:center}p{margin:6px 0;line-height:1.5}
+  strong{font-weight:bold}.firma{margin-top:40px}</style></head><body>
+  <h1>Propuesta Prestación de Servicios</h1>
+  <p>${saludo} ${d.nombre}</p><p><strong>Presente</strong></p>
+  <p>De nuestra consideración, junto con saludar presentamos nuestra propuesta de asesoría contable y tributaria.</p>
+  ${d.uf ? `<p><strong>Honorario mensual:</strong> ${d.uf} UF + IVA</p>` : ''}
+  ${d.constitucion ? `<p><strong>Constitución de empresa:</strong> $${d.constitucionMonto.toLocaleString('es-CL')} + IVA</p>` : ''}
+  <p>Saludos cordiales,<br><strong>Javiera Lizama</strong><br>Nexa Enlaces Ltda.</p>
+  <p>${d.ciudad}, ${d.fechaTexto}</p>
+  </body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+  propGuardarHistorial(d);
+  if (typeof toast === 'function') toast('Descargado como HTML (agrega docx.js para .docx)', false);
+  // Upload to Drive
+  if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+    driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.html`);
+  }
+}
+
 function propToggle(id) {
   const cb = document.getElementById('prop-' + id);
   if (!cb) return;
