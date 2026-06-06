@@ -6,7 +6,15 @@
 <title>Nexa · Sistema de Gestión</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/build/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js" crossorigin="anonymous"></script>
+<script>
+// Fallback: if docx didn't load from jsdelivr, try unpkg
+if(typeof docx === 'undefined'){
+  var s = document.createElement('script');
+  s.src = 'https://unpkg.com/docx@7.8.2/build/index.js';
+  document.head.appendChild(s);
+}
+</script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -857,6 +865,7 @@ textarea.finput{resize:vertical;min-height:68px}
     <div>
       <div class="ph-title">Generador de <span>Propuestas</span></div>
       <div class="ph-sub">Completa los datos y descarga el .docx listo para enviar</div>
+      <div id="prop-docx-status" style="font-size:10px;font-family:var(--font2);margin-top:2px"></div>
       <div id="prop-drive-status" style="font-size:10px;font-family:var(--font2);margin-top:4px;color:var(--muted)"></div>
     </div>
   </div>
@@ -3788,6 +3797,17 @@ function renderProp() {
   // Poner fecha de hoy por defecto
   const fd = document.getElementById('prop-fecha');
   if (fd && !fd.value) fd.value = new Date().toISOString().split('T')[0];
+  // docx status
+  const docxEl = document.getElementById('prop-docx-status');
+  if(docxEl){
+    if(typeof docx !== 'undefined'){
+      docxEl.innerHTML = '📄 docx.js cargado — se generará archivo Word (.docx)';
+      docxEl.style.color = '#2d6a00';
+    } else {
+      docxEl.innerHTML = '⚠️ docx.js no cargado — se generará HTML. Recarga la página o verifica tu conexión.';
+      docxEl.style.color = 'var(--red)';
+    }
+  }
   // Drive status
   const ds = document.getElementById('prop-drive-status');
   if(ds){
@@ -3956,13 +3976,16 @@ function propGenerar() {
 }
 
 function propGenerarDocx(d) {
-  // Generar el texto completo de la propuesta como HTML string
-  // luego crear el .docx usando la API fetch a Anthropic
-  // Si docx.js no está disponible, generar HTML descargable como fallback
-
   if (typeof docx !== 'undefined') {
-    propGenerarConDocxJS(d);
+    try {
+      propGenerarConDocxJS(d);
+    } catch(e) {
+      console.error('docx error:', e);
+      if(typeof toast==='function') toast('Error generando .docx: '+e.message+' — usando fallback', false);
+      propGenerarHTMLFallback(d);
+    }
   } else {
+    if(typeof toast==='function') toast('Librería docx no cargada — generando HTML. Verifica tu conexión.', false);
     propGenerarHTMLFallback(d);
   }
 }
@@ -4188,9 +4211,14 @@ function propGenerarConDocxJS(d) {
     // Guardar en historial
     propGuardarHistorial(d);
     if (typeof toast === 'function') toast(`Propuesta para ${d.nombre} descargada`);
+    // Subir copia a Google Drive
+    if(typeof driveUploadDocx==='function' && typeof gsIsSignedIn==='function' && gsIsSignedIn()){
+      driveUploadDocx(blob, `Propuesta_Nexa_${nombre}_${d.fechaRaw}.docx`);
+    }
   }).catch(err => {
     console.error(err);
-    if (typeof toast === 'function') toast('Error al generar el archivo', false);
+    if (typeof toast === 'function') toast('Error al generar el archivo: '+err.message, false);
+    propGenerarHTMLFallback(d);
   });
 }
 
