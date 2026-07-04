@@ -1303,7 +1303,7 @@ textarea.finput{resize:vertical;min-height:68px}
       <div class="fgrid">
         <div class="fg"><label class="flbl">Código</label><input class="finput" id="nv-cod" readonly></div>
         <div class="fg"><label class="flbl">Cliente *</label><select class="finput" id="nv-cl"></select></div>
-        <div class="fg"><label class="flbl">Fecha</label><input class="finput" id="nv-fecha" type="date" onchange="(function(){const el=document.getElementById('nv-uf-val');if(el){getUFDia5(document.getElementById('nv-fecha').value).then(uf=>{if(uf&&el){el.value=Math.round(uf);calcNVTotal();}});}})()"></div>
+        <div class="fg"><label class="flbl">Fecha</label><input class="finput" id="nv-fecha" type="date" onchange="(function(){const mon=document.getElementById('nv-moneda')?.value||'CLP';if(mon!=='UF')return;const el=document.getElementById('nv-uf-val');if(el){getUFDia5(document.getElementById('nv-fecha').value).then(uf=>{if(uf&&el){el.value=Math.round(uf);calcNVTotal();}});}})()"></div>
         <div class="fg"><label class="flbl">Moneda</label><select class="finput" id="nv-moneda" onchange="updateNVMonedaLabels()"><option value="CLP">CLP — Pesos</option><option value="UF">UF — Unidad de Fomento</option></select></div>
         <div class="fg"><label class="flbl">Válida hasta</label><input class="finput" id="nv-validez" type="date"></div>
         <div class="fg" id="nv-uf-row" style="display:none"><label class="flbl">Valor UF del día</label><input class="finput" id="nv-uf-val" type="number" step="1" placeholder="39200" oninput="calcNVTotal()"></div>
@@ -1811,13 +1811,9 @@ function printF(){const h=document.getElementById('fp-inner').innerHTML;const w=
 // ══ NOTAS DE VENTA ══
 let _nvTab=0,_nvEditId=null,_nvItems=[{det:'',qty:1,precio:0}];
 function openNV(){_nvEditId=null;_nvTab=0;_nvItems=[{det:'',qty:1,precio:0}];document.getElementById('nv-modal-t').textContent='Nueva Nota de Venta';document.getElementById('nv-cod').value='NV-2026-'+String(S.notaN).padStart(3,'0');document.getElementById('nv-fecha').value=new Date().toISOString().split('T')[0];const vd=new Date();vd.setDate(vd.getDate()+30);document.getElementById('nv-validez').value=vd.toISOString().split('T')[0];document.getElementById('nv-cl').innerHTML=S.clientes.map(c=>`<option value="${c.id}">${c.alias||c.nom}</option>`).join('');['nv-desc','nv-obs','nv-aprobador'].forEach(id=>document.getElementById(id).value='');document.getElementById('nv-est').value='borrador';const _em=document.getElementById('nv-moneda');if(_em)_em.value='CLP';const _er=document.getElementById('nv-uf-row');if(_er)_er.style.display='none';document.getElementById('nv-flink').innerHTML='<option value="">— Sin factura —</option>'+S.facturas.map(f=>`<option value="${f.id}">${f.folio} — ${cl(f.cid).alias||cl(f.cid).nom}</option>`).join('');nvTab(0);renderNVItems();
-  // Auto-cargar UF del día 5 del mes
+  // UF se carga automáticamente cuando se selecciona moneda UF (ver updateNVMonedaLabels)
   const _nvUfEl = document.getElementById('nv-uf-val');
-  if(_nvUfEl && !_nvUfEl.value){
-    getUFDia5(document.getElementById('nv-fecha')?.value).then(uf=>{
-      if(uf && _nvUfEl) { _nvUfEl.value=Math.round(uf); calcNVTotal(); }
-    });
-  }openM('nv');}
+  if(_nvUfEl) _nvUfEl.value='';openM('nv');}
 function editNV(id){const n=S.notas.find(x=>x.id===id);if(!n)return;_nvEditId=id;_nvTab=0;_nvItems=n.items?n.items.map(i=>({...i})):[{det:'',qty:1,precio:0}];document.getElementById('nv-modal-t').textContent='Editar '+n.cod;document.getElementById('nv-cod').value=n.cod;document.getElementById('nv-fecha').value=n.fecha;document.getElementById('nv-cl').innerHTML=S.clientes.map(c=>`<option value="${c.id}"${c.id===n.cid?' selected':''}>${c.alias||c.nom}</option>`).join('');document.getElementById('nv-desc').value=n.desc||'';document.getElementById('nv-obs').value=n.obs||'';document.getElementById('nv-est').value=n.estado;const _rm=document.getElementById('nv-moneda');if(_rm){_rm.value=n.moneda||'CLP';updateNVMonedaLabels();}const _ru=document.getElementById('nv-uf-val');if(_ru)_ru.value=(n.moneda==='UF'&&n.ufRef)?n.ufRef:'';document.getElementById('nv-aprobador').value=n.aprobadoPor||'';document.getElementById('nv-flink').innerHTML='<option value="">— Sin factura —</option>'+S.facturas.map(f=>`<option value="${f.id}"${f.id===n.factId?' selected':''}>${f.folio} — ${cl(f.cid).alias||cl(f.cid).nom}</option>`).join('');nvTab(0);renderNVItems();openM('nv');}
 function nvTab(i){_nvTab=i;document.querySelectorAll('.nv-tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));document.querySelectorAll('.nv-tc').forEach((c,idx)=>c.classList.toggle('active',idx===i));document.getElementById('nv-prev-btn').style.display=i>0?'inline-flex':'none';const nb=document.getElementById('nv-next-btn');if(i===2){nb.textContent='💾 Guardar';nb.onclick=saveNV;}else{nb.textContent='Siguiente →';nb.onclick=nvNext;}if(i===1)renderNVItems();if(i===2)renderNVProg();}
 function nvNext(){if(_nvTab<2)nvTab(_nvTab+1);}
@@ -1825,7 +1821,19 @@ function nvPrev(){if(_nvTab>0)nvTab(_nvTab-1);}
 function renderNVItems(){document.getElementById('nv-items').innerHTML=_nvItems.map((item,i)=>`<div class="item-row"><input class="finput" placeholder="Descripción del ítem" value="${item.det}" oninput="_nvItems[${i}].det=this.value"><input class="finput qty-inp" type="number" min="1" value="${item.qty}" oninput="_nvItems[${i}].qty=Number(this.value);calcNVTotal()"><input class="finput price-inp" type="number" min="0" value="${item.precio}" placeholder="Precio unit." oninput="_nvItems[${i}].precio=Number(this.value);calcNVTotal()"><button class="del-item" onclick="_nvItems.splice(${i},1);renderNVItems()">✕</button></div>`).join('');calcNVTotal();}
 function addItem(){_nvItems.push({det:'',qty:1,precio:0});renderNVItems();}
 function calcNVTotal(){const mon=document.getElementById('nv-moneda')?.value||'CLP';const ufEl=document.getElementById('nv-uf-val');const ufV=(ufEl&&ufEl.value)?Number(ufEl.value):39200;const t=_nvItems.reduce((s,i)=>s+(Number(i.qty)||0)*(Number(i.precio)||0),0);const el=document.getElementById('nv-total');if(el){if(mon==='UF'){el.textContent='UF '+t.toFixed(4)+' ($ '+Math.round(t*ufV).toLocaleString('es-CL')+')';}else{el.textContent='$ '+t.toLocaleString('es-CL');}}return t;}
-function updateNVMonedaLabels(){const mon=document.getElementById('nv-moneda')?.value||'CLP';const row=document.getElementById('nv-uf-row');if(row)row.style.display=mon==='UF'?'flex':'none';calcNVTotal();}
+function updateNVMonedaLabels(){
+  const mon=document.getElementById('nv-moneda')?.value||'CLP';
+  const row=document.getElementById('nv-uf-row');
+  if(row) row.style.display=mon==='UF'?'flex':'none';
+  if(mon==='UF'){
+    const ufEl=document.getElementById('nv-uf-val');
+    if(ufEl && !ufEl.value){
+      const fecha=document.getElementById('nv-fecha')?.value||new Date().toISOString().split('T')[0];
+      getUFDia5(fecha).then(uf=>{ if(uf&&ufEl){ ufEl.value=Math.round(uf); calcNVTotal(); } });
+    }
+  }
+  calcNVTotal();
+}
 function renderNVProg(){const est=document.getElementById('nv-est').value,stages=['borrador','aprobado','facturado'],cur=stages.indexOf(est);document.getElementById('nv-prog-prev').innerHTML=`<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-family:var(--font2);margin-bottom:10px">Progreso actual</div><div style="display:flex;align-items:center">${stages.map((s,i)=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;${i<=cur?'background:var(--blue);color:#fff;':'background:var(--bg);border:2px solid var(--border);'}">${i<cur?'✓':i===cur?(s==='borrador'?'📝':s==='aprobado'?'✅':'🧾'):'○'}</div><div style="font-size:9px;font-weight:800;text-transform:uppercase;color:${i<=cur?'var(--blue)':'var(--muted)'}">${s}</div></div>${i<stages.length-1?`<div style="flex:1;height:3px;background:${i<cur?'var(--blue)':'var(--border)'};margin-bottom:18px"></div>`:''}`).join('')}</div>`;}
 async function getUFDia5(fechaBase){
   // Obtiene UF del día 5 del mes de fechaBase, o el día anterior disponible
