@@ -710,6 +710,16 @@ textarea.finput{resize:vertical;min-height:68px}
       <div class="ef-group"><label class="ef-lbl">Destinatario</label><input class="finput" id="em-to"></div>
       <div class="ef-group"><label class="ef-lbl">Asunto</label><input class="finput" id="em-subj"></div>
       <div class="ef-group"><label class="ef-lbl">Mensaje</label><textarea class="finput" id="em-msg" rows="4"></textarea></div>
+      <div class="ef-group">
+        <label class="ef-lbl">Adjunto PDF <span style="color:var(--muted);font-weight:400">(opcional — solo Gmail)</span></label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;flex:1;font-size:12px;color:var(--muted);font-family:var(--font2);transition:.15s" id="em-adj-lbl">
+            📎 Seleccionar archivo PDF...
+            <input type="file" id="em-adj" accept=".pdf" style="display:none" onchange="(function(){const f=document.getElementById('em-adj').files[0];const lbl=document.getElementById('em-adj-lbl');lbl.textContent=f?'📎 '+f.name:'📎 Seleccionar archivo PDF...';})()">
+          </label>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('em-adj').value='';document.getElementById('em-adj-lbl').textContent='📎 Seleccionar archivo PDF...'" style="padding:8px 10px">✕</button>
+        </div>
+      </div>
       <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="sendEmail()">📤 Enviar Email</button>
       <div id="em-st" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700"></div>
     </div>
@@ -2084,30 +2094,70 @@ async function sendEmail(){
     // ── Gmail API ──
     try{
       const fromName='Nexa · Conectando Negocios';
-      const boundary='nexaboundary'+Date.now();
-      // Build RFC 2822 email with proper UTF-8 encoding
-      // Subject uses RFC 2047 encoded-word for non-ASCII safety
       const encodeSubject=s=>'=?UTF-8?B?'+btoa(unescape(encodeURIComponent(s)))+'?=';
-      const emailBody=[
-        'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: base64',
-        `To: ${to}`,
-        `Subject: ${encodeSubject(subj)}`,
-        `From: ${fromName} <me>`,
-        '',
-        btoa(unescape(encodeURIComponent(msg))),
-      ].join('\r\n');
-      // Base64url encode the full email
-      const encoded = btoa(unescape(encodeURIComponent(emailBody)))
-        .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      const adjFile = document.getElementById('em-adj')?.files?.[0];
+
+      let emailRaw;
+      if(adjFile){
+        // MIME multipart con adjunto
+        const boundary = 'nexa_'+Date.now();
+        const adjB64 = await new Promise((res,rej)=>{
+          const fr=new FileReader();
+          fr.onload=e=>res(e.target.result.split(',')[1]);
+          fr.onerror=rej;
+          fr.readAsDataURL(adjFile);
+        });
+        const msgB64 = btoa(unescape(encodeURIComponent(msg)));
+        const parts = [
+          `MIME-Version: 1.0`,
+          `To: ${to}`,
+          `Subject: ${encodeSubject(subj)}`,
+          `From: ${fromName} <me>`,
+          `Content-Type: multipart/mixed; boundary="${boundary}"`,
+          ``,
+          `--${boundary}`,
+          `Content-Type: text/plain; charset=UTF-8`,
+          `Content-Transfer-Encoding: base64`,
+          ``,
+          msgB64,
+          ``,
+          `--${boundary}`,
+          `Content-Type: application/pdf; name="${adjFile.name}"`,
+          `Content-Transfer-Encoding: base64`,
+          `Content-Disposition: attachment; filename="${adjFile.name}"`,
+          ``,
+          adjB64,
+          ``,
+          `--${boundary}--`,
+        ].join('\r\n');
+        emailRaw = btoa(unescape(encodeURIComponent(parts)))
+          .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      } else {
+        // Sin adjunto — email simple
+        const emailBody=[
+          'MIME-Version: 1.0',
+          'Content-Type: text/plain; charset=UTF-8',
+          'Content-Transfer-Encoding: base64',
+          `To: ${to}`,
+          `Subject: ${encodeSubject(subj)}`,
+          `From: ${fromName} <me>`,
+          '',
+          btoa(unescape(encodeURIComponent(msg))),
+        ].join('\r\n');
+        emailRaw = btoa(unescape(encodeURIComponent(emailBody)))
+          .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      }
+
       const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
         method:'POST',
         headers:{'Authorization':'Bearer '+GS.token,'Content-Type':'application/json'},
-        body:JSON.stringify({raw:encoded})
+        body:JSON.stringify({raw:emailRaw})
       });
       if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Error Gmail API');}
-      showSt('✓ Email enviado vía Gmail','ok');
+      // Limpiar adjunto después de enviar
+      document.getElementById('em-adj').value='';
+      document.getElementById('em-adj-lbl').textContent='📎 Seleccionar archivo PDF...';
+      showSt('✓ Email enviado vía Gmail'+(adjFile?' (con adjunto)':''),'ok');
       S.emails.unshift({id:'e'+Date.now(),fecha:new Date().toISOString().split('T')[0],folio:f?.folio||'—',to,tipo:document.getElementById('em-tipo').value,estado:'enviado (Gmail)'});
       save();renderEmHist();toast('Email enviado a '+to);
     }catch(err){
