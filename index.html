@@ -541,7 +541,15 @@ textarea.finput{resize:vertical;min-height:68px}
     <button class="btn btn-blue" onclick="openM_nc_new()">+ Nuevo Cliente</button>
   </div>
   <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;justify-content:space-between">
-    <input class="srch" style="width:280px" placeholder="🔍 Buscar cliente..." id="cs-q" oninput="renderCL()">
+    <div style="display:flex;align-items:center;gap:8px">
+      <input class="srch" style="width:240px" placeholder="🔍 Buscar cliente..." id="cs-q" oninput="renderCL()">
+      <select class="fsel" id="cl-sort" onchange="renderCL()" style="font-size:11px;padding:6px 10px;border-radius:8px">
+        <option value="nom-az">A → Z</option>
+        <option value="nom-za">Z → A</option>
+        <option value="fact-asc">Menor facturado</option>
+        <option value="fact-desc">Mayor facturado</option>
+      </select>
+    </div>
     <div style="display:flex;gap:4px;background:var(--bg2);padding:3px;border-radius:8px">
       <button class="btn-view-toggle" id="cl-view-grid" onclick="setCLView('grid')" style="padding:6px 10px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:700">▦ Tarjetas</button>
       <button class="btn-view-toggle" id="cl-view-list" onclick="setCLView('list')" style="padding:6px 10px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:700">☰ Lista</button>
@@ -640,6 +648,18 @@ textarea.finput{resize:vertical;min-height:68px}
     <div class="card-h">
       <span class="card-t">🔍 Resultado de Validación</span>
       <select class="fsel" id="sii-val-f" onchange="renderSII()"><option value="">Todos</option><option value="ok">✅ Coinciden</option><option value="diff">⚠️ Diferencias</option><option value="solo_sii">🔵 Solo en SII</option><option value="solo_nexa">🔴 Sin doc SII</option></select>
+      <select class="fsel" id="sii-mes" onchange="renderSII()" style="min-width:105px">
+        <option value="">Todos los meses</option>
+        <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+        <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+        <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+        <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+      </select>
+      <select class="fsel" id="sii-año" onchange="renderSII()" style="min-width:90px">
+        <option value="">Todos los años</option>
+        <option value="2024">2024</option><option value="2025">2025</option>
+        <option value="2026">2026</option><option value="2027">2027</option>
+      </select>
     </div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>Folio</th><th>Fecha Doc</th><th>RUT</th><th>Razón Social</th><th>Total Nexa</th><th>Total SII</th><th>Diferencia</th><th>Tipo Doc</th><th>Resultado</th><th></th></tr></thead>
@@ -1283,7 +1303,7 @@ textarea.finput{resize:vertical;min-height:68px}
       <div class="fgrid">
         <div class="fg"><label class="flbl">Código</label><input class="finput" id="nv-cod" readonly></div>
         <div class="fg"><label class="flbl">Cliente *</label><select class="finput" id="nv-cl"></select></div>
-        <div class="fg"><label class="flbl">Fecha</label><input class="finput" id="nv-fecha" type="date"></div>
+        <div class="fg"><label class="flbl">Fecha</label><input class="finput" id="nv-fecha" type="date" onchange="(function(){const el=document.getElementById('nv-uf-val');if(el){getUFDia5(document.getElementById('nv-fecha').value).then(uf=>{if(uf&&el){el.value=Math.round(uf);calcNVTotal();}});}})()"></div>
         <div class="fg"><label class="flbl">Moneda</label><select class="finput" id="nv-moneda" onchange="updateNVMonedaLabels()"><option value="CLP">CLP — Pesos</option><option value="UF">UF — Unidad de Fomento</option></select></div>
         <div class="fg"><label class="flbl">Válida hasta</label><input class="finput" id="nv-validez" type="date"></div>
         <div class="fg" id="nv-uf-row" style="display:none"><label class="flbl">Valor UF del día</label><input class="finput" id="nv-uf-val" type="number" step="1" placeholder="39200" oninput="calcNVTotal()"></div>
@@ -1721,6 +1741,14 @@ function renderCL(){
   document.getElementById('cl-view-list')?.classList.toggle('active', _clView==='list');
 
   const filtered = S.clientes.filter(c=>!q||c.nom.toLowerCase().includes(q)||(c.alias||'').toLowerCase().includes(q)||c.rut.includes(q));
+  const sortVal = document.getElementById('cl-sort')?.value || 'nom-az';
+  filtered.sort((a,b)=>{
+    if(sortVal==='nom-az') return (a.alias||a.nom).localeCompare(b.alias||b.nom);
+    if(sortVal==='nom-za') return (b.alias||b.nom).localeCompare(a.alias||a.nom);
+    const tA=S.facturas.filter(f=>f.cid===a.id).reduce((s,f)=>s+Number(f.monto),0);
+    const tB=S.facturas.filter(f=>f.cid===b.id).reduce((s,f)=>s+Number(f.monto),0);
+    return sortVal==='fact-asc' ? tA-tB : tB-tA;
+  });
 
   if(_clView==='list'){
     grid.innerHTML = filtered.map(c=>{
@@ -1782,7 +1810,14 @@ function verF(id){
 function printF(){const h=document.getElementById('fp-inner').innerHTML;const w=window.open('','_blank','width=800,height=900');w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Factura Nexa</title><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet"><style>:root{--blue:#003ad0;--purple:#c175ef;--green:#8eda3c;--yellow:#fbca00;--blue-light:#e8eeff;--bg:#f2f5fc;--border:#dde3f0;--text:#0d1f4e;--muted:#7b8ab8;--red:#ef4444}*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Nunito",sans-serif;color:var(--text);padding:28px;background:#fff}.fp-strip{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--blue) 60%,#c175ef 60%,#c175ef 80%,var(--yellow) 80%,var(--yellow) 95%,#8eda3c 95%);margin-bottom:18px}.fp-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:3px solid var(--blue)}.fp-logo{font-size:26px;font-weight:900;color:var(--blue)}.fp-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.fp-mbox{background:var(--bg);border-radius:10px;padding:12px 14px}.fp-mlbl{font-size:8.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:800;margin-bottom:4px}.fp-mval{font-size:13px;font-weight:700}.fp-tbl{width:100%;border-collapse:collapse;margin-bottom:16px}.fp-tbl th{background:var(--blue);color:#fff;padding:8px 12px;font-size:10px;font-weight:700;text-align:left}.fp-tbl td{padding:8px 12px;font-size:11px;border-bottom:1px solid var(--border)}.fp-tots{display:flex;flex-direction:column;align-items:flex-end;gap:5px;margin-bottom:16px}.fp-tr{display:flex;gap:18px;font-size:12px}.fp-trl{width:100px;text-align:right;color:var(--muted)}.fp-trv{width:90px;text-align:right;font-weight:700}.fp-total{font-size:16px;font-weight:900;color:var(--blue);background:var(--blue-light);padding:8px 14px;border-radius:9px;margin-top:3px}.fp-foot{border-top:1px solid var(--border);padding-top:12px;font-size:9.5px;color:var(--muted);text-align:center;line-height:1.8}</style></head><body>'+h+'</body></html>');w.document.close();setTimeout(()=>w.print(),700);}
 // ══ NOTAS DE VENTA ══
 let _nvTab=0,_nvEditId=null,_nvItems=[{det:'',qty:1,precio:0}];
-function openNV(){_nvEditId=null;_nvTab=0;_nvItems=[{det:'',qty:1,precio:0}];document.getElementById('nv-modal-t').textContent='Nueva Nota de Venta';document.getElementById('nv-cod').value='NV-2026-'+String(S.notaN).padStart(3,'0');document.getElementById('nv-fecha').value=new Date().toISOString().split('T')[0];const vd=new Date();vd.setDate(vd.getDate()+30);document.getElementById('nv-validez').value=vd.toISOString().split('T')[0];document.getElementById('nv-cl').innerHTML=S.clientes.map(c=>`<option value="${c.id}">${c.alias||c.nom}</option>`).join('');['nv-desc','nv-obs','nv-aprobador'].forEach(id=>document.getElementById(id).value='');document.getElementById('nv-est').value='borrador';const _em=document.getElementById('nv-moneda');if(_em)_em.value='CLP';const _er=document.getElementById('nv-uf-row');if(_er)_er.style.display='none';document.getElementById('nv-flink').innerHTML='<option value="">— Sin factura —</option>'+S.facturas.map(f=>`<option value="${f.id}">${f.folio} — ${cl(f.cid).alias||cl(f.cid).nom}</option>`).join('');nvTab(0);renderNVItems();openM('nv');}
+function openNV(){_nvEditId=null;_nvTab=0;_nvItems=[{det:'',qty:1,precio:0}];document.getElementById('nv-modal-t').textContent='Nueva Nota de Venta';document.getElementById('nv-cod').value='NV-2026-'+String(S.notaN).padStart(3,'0');document.getElementById('nv-fecha').value=new Date().toISOString().split('T')[0];const vd=new Date();vd.setDate(vd.getDate()+30);document.getElementById('nv-validez').value=vd.toISOString().split('T')[0];document.getElementById('nv-cl').innerHTML=S.clientes.map(c=>`<option value="${c.id}">${c.alias||c.nom}</option>`).join('');['nv-desc','nv-obs','nv-aprobador'].forEach(id=>document.getElementById(id).value='');document.getElementById('nv-est').value='borrador';const _em=document.getElementById('nv-moneda');if(_em)_em.value='CLP';const _er=document.getElementById('nv-uf-row');if(_er)_er.style.display='none';document.getElementById('nv-flink').innerHTML='<option value="">— Sin factura —</option>'+S.facturas.map(f=>`<option value="${f.id}">${f.folio} — ${cl(f.cid).alias||cl(f.cid).nom}</option>`).join('');nvTab(0);renderNVItems();
+  // Auto-cargar UF del día 5 del mes
+  const _nvUfEl = document.getElementById('nv-uf-val');
+  if(_nvUfEl && !_nvUfEl.value){
+    getUFDia5(document.getElementById('nv-fecha')?.value).then(uf=>{
+      if(uf && _nvUfEl) { _nvUfEl.value=Math.round(uf); calcNVTotal(); }
+    });
+  }openM('nv');}
 function editNV(id){const n=S.notas.find(x=>x.id===id);if(!n)return;_nvEditId=id;_nvTab=0;_nvItems=n.items?n.items.map(i=>({...i})):[{det:'',qty:1,precio:0}];document.getElementById('nv-modal-t').textContent='Editar '+n.cod;document.getElementById('nv-cod').value=n.cod;document.getElementById('nv-fecha').value=n.fecha;document.getElementById('nv-cl').innerHTML=S.clientes.map(c=>`<option value="${c.id}"${c.id===n.cid?' selected':''}>${c.alias||c.nom}</option>`).join('');document.getElementById('nv-desc').value=n.desc||'';document.getElementById('nv-obs').value=n.obs||'';document.getElementById('nv-est').value=n.estado;const _rm=document.getElementById('nv-moneda');if(_rm){_rm.value=n.moneda||'CLP';updateNVMonedaLabels();}const _ru=document.getElementById('nv-uf-val');if(_ru)_ru.value=(n.moneda==='UF'&&n.ufRef)?n.ufRef:'';document.getElementById('nv-aprobador').value=n.aprobadoPor||'';document.getElementById('nv-flink').innerHTML='<option value="">— Sin factura —</option>'+S.facturas.map(f=>`<option value="${f.id}"${f.id===n.factId?' selected':''}>${f.folio} — ${cl(f.cid).alias||cl(f.cid).nom}</option>`).join('');nvTab(0);renderNVItems();openM('nv');}
 function nvTab(i){_nvTab=i;document.querySelectorAll('.nv-tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));document.querySelectorAll('.nv-tc').forEach((c,idx)=>c.classList.toggle('active',idx===i));document.getElementById('nv-prev-btn').style.display=i>0?'inline-flex':'none';const nb=document.getElementById('nv-next-btn');if(i===2){nb.textContent='💾 Guardar';nb.onclick=saveNV;}else{nb.textContent='Siguiente →';nb.onclick=nvNext;}if(i===1)renderNVItems();if(i===2)renderNVProg();}
 function nvNext(){if(_nvTab<2)nvTab(_nvTab+1);}
@@ -1792,6 +1827,23 @@ function addItem(){_nvItems.push({det:'',qty:1,precio:0});renderNVItems();}
 function calcNVTotal(){const mon=document.getElementById('nv-moneda')?.value||'CLP';const ufEl=document.getElementById('nv-uf-val');const ufV=(ufEl&&ufEl.value)?Number(ufEl.value):39200;const t=_nvItems.reduce((s,i)=>s+(Number(i.qty)||0)*(Number(i.precio)||0),0);const el=document.getElementById('nv-total');if(el){if(mon==='UF'){el.textContent='UF '+t.toFixed(4)+' ($ '+Math.round(t*ufV).toLocaleString('es-CL')+')';}else{el.textContent='$ '+t.toLocaleString('es-CL');}}return t;}
 function updateNVMonedaLabels(){const mon=document.getElementById('nv-moneda')?.value||'CLP';const row=document.getElementById('nv-uf-row');if(row)row.style.display=mon==='UF'?'flex':'none';calcNVTotal();}
 function renderNVProg(){const est=document.getElementById('nv-est').value,stages=['borrador','aprobado','facturado'],cur=stages.indexOf(est);document.getElementById('nv-prog-prev').innerHTML=`<div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-family:var(--font2);margin-bottom:10px">Progreso actual</div><div style="display:flex;align-items:center">${stages.map((s,i)=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;${i<=cur?'background:var(--blue);color:#fff;':'background:var(--bg);border:2px solid var(--border);'}">${i<cur?'✓':i===cur?(s==='borrador'?'📝':s==='aprobado'?'✅':'🧾'):'○'}</div><div style="font-size:9px;font-weight:800;text-transform:uppercase;color:${i<=cur?'var(--blue)':'var(--muted)'}">${s}</div></div>${i<stages.length-1?`<div style="flex:1;height:3px;background:${i<cur?'var(--blue)':'var(--border)'};margin-bottom:18px"></div>`:''}`).join('')}</div>`;}
+async function getUFDia5(fechaBase){
+  // Obtiene UF del día 5 del mes de fechaBase, o el día anterior disponible
+  const d = fechaBase ? new Date(fechaBase+'T12:00:00') : new Date();
+  const año = d.getFullYear();
+  const mes  = String(d.getMonth()+1).padStart(2,'0');
+  // Intentar días: 5, 4, 3, 2, 1
+  for(let dia=5; dia>=1; dia--){
+    const dd = String(dia).padStart(2,'0');
+    try {
+      const r = await fetch(`https://mindicador.cl/api/uf/${dd}-${mes}-${año}`);
+      const j = await r.json();
+      if(j?.serie?.[0]?.valor) return j.serie[0].valor;
+    } catch(e) {}
+  }
+  return null;
+}
+
 function saveNV(){const cid=document.getElementById('nv-cl').value,desc=document.getElementById('nv-desc').value.trim();if(!cid||!desc){toast('Cliente y descripción son obligatorios',false);return;}
   const _mn=document.getElementById('nv-moneda')?.value||'CLP';
   const _ue=document.getElementById('nv-uf-val');
@@ -1945,7 +1997,15 @@ function renderSII(){
   document.getElementById('sii-n-diff').textContent=stats.diff||0;
   document.getElementById('sii-n-new').textContent=stats.solo_sii||0;
   const cfg={ok:{bg:'rgba(142,218,60,.06)',icon:'✅',lbl:'Coincide',cls:'b-fact'},diff:{bg:'rgba(251,202,0,.08)',icon:'⚠️',lbl:'Diferencia',cls:'b-pend'},solo_sii:{bg:'rgba(0,58,208,.05)',icon:'🔵',lbl:'Solo en SII',cls:'b-apro'},solo_nexa:{bg:'rgba(239,68,68,.05)',icon:'🔴',lbl:'Sin doc SII',cls:'b-venc'}};
-  const filtered=filter?results.filter(r=>r.tipo_r===filter):results;
+  const siiFiltroMes = document.getElementById('sii-mes')?.value||'';
+  const siiFiltroAño = document.getElementById('sii-año')?.value||'';
+  let filtered = filter ? results.filter(r=>r.tipo_r===filter) : results;
+  if(siiFiltroMes) filtered = filtered.filter(r=>{
+    const f = r.fecha||''; return f.slice(5,7)===siiFiltroMes || f.slice(3,5)===siiFiltroMes;
+  });
+  if(siiFiltroAño) filtered = filtered.filter(r=>{
+    const f = r.fecha||''; return f.startsWith(siiFiltroAño) || f.endsWith(siiFiltroAño);
+  });
   document.getElementById('sii-val-tbody').innerHTML=filtered.map(r=>{const c=cfg[r.tipo_r]||cfg.solo_nexa;return`<tr style="background:${c.bg}"><td><strong>${r.folio}</strong></td><td style="font-size:11px;color:var(--muted)">${r.fecha}</td><td style="font-size:11px">${r.rut}</td><td><div style="font-size:12px;font-weight:700">${r.razon}</div></td><td class="amt">${r.mN!==null?CLP(r.mN):'<span style="color:var(--muted)">—</span>'}</td><td class="amt" style="color:#2d6a00">${r.mS!==null?CLP(r.mS):'<span style="color:var(--muted)">—</span>'}</td><td style="font-size:11px;font-weight:700;color:${r.diff&&r.diff!==0?'var(--red)':'var(--muted)'}">${r.diff!==null?(r.diff===0?'—':(r.diff>0?'+':'')+CLP(r.diff)):'—'}</td><td style="font-size:11px;color:var(--muted)">${r.tipo}</td><td><span class="badge ${c.cls}">${c.icon} ${c.lbl}</span></td><td>${r._fid?`<button class="btn btn-red btn-xs" onclick="delF('${r._fid}')">🗑 Fact</button>`:r.tipo_r==='solo_sii'?`<button class="btn btn-red btn-xs" onclick="delSIIByFolio('${r.folio}')">🗑 SII</button>`:''}</td></tr>`;}).join('')||`<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--muted)">${S.sii.length===0?'Importa el archivo RCV del SII para comenzar':'Sin resultados'}</td></tr>`;
   document.getElementById('sii-raw-cnt').textContent=S.sii.length+' documentos';
   document.getElementById('sii-raw-tbody').innerHTML=S.sii.map((d,i)=>`<tr><td style="font-size:11px;color:var(--muted)">${d.nro}</td><td style="font-size:11px">${d.tipo}</td><td><strong>${d.folio}</strong></td><td style="font-size:11px;color:var(--muted)">${d.fecha}</td><td style="font-size:11px">${d.rut}</td><td style="font-size:12px;font-weight:700">${d.razon}</td><td class="amt" style="font-size:11px">${d.exento>0?CLP(d.exento):'—'}</td><td class="amt">${d.neto>0?CLP(d.neto):'—'}</td><td style="font-size:11px;color:var(--muted)">${d.iva>0?CLP(d.iva):'—'}</td><td class="amt">${CLP(d.total)}</td><td><button class="btn btn-red btn-xs" onclick="delSIIDoc(${i})">🗑</button></td></tr>`).join('')||'<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--muted)">Sin documentos importados</td></tr>';}
