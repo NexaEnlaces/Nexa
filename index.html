@@ -512,7 +512,12 @@ textarea.finput{resize:vertical;min-height:68px}
         <select class="fsel" id="fs-st" onchange="renderF()"><option value="">Todos los estados</option><option value="pendiente">Pendiente</option><option value="en-progreso">Por Vencer</option><option value="facturado">Pagado</option><option value="vencido">Vencido</option></select>
         <select class="fsel" id="fs-cl" onchange="renderF()"><option value="">Todos los clientes</option></select>
       </div>
+      </div>
+      <button class="btn btn-blue btn-sm" onclick="siiImportarModal()" style="white-space:nowrap">
+        ⬇️ Importar a Nexa
+      </button>
     </div>
+    <div id="sii-import-modal" style="display:none;margin:12px 0;background:var(--surface);border:1.5px solid var(--blue);border-radius:12px;padding:20px"></div>
     <div class="tbl-wrap"><table>
       <thead><tr>
   <th style="cursor:pointer;user-select:none" onclick="fSortBy('folio')">Folio <span id="fs-folio"></span></th>
@@ -1984,6 +1989,133 @@ function parseSII(file){
   };
   reader.readAsText(file,'ISO-8859-1');
 }
+
+function siiImportarModal(){
+  const modal = document.getElementById('sii-import-modal');
+  if(!S.sii||!S.sii.length){ toast('Carga primero un archivo RCV del SII',false); return; }
+
+  // Para cada doc SII que no tiene factura en Nexa → buscar match en notas aprobadas
+  const soloSII = S.sii.filter(d=>!S.facturas.find(f=>String(f.folio)===String(d.folio)));
+  if(!soloSII.length){ toast('No hay documentos del SII sin factura en Nexa'); return; }
+
+  const sugerencias = soloSII.map(d=>{
+    // Buscar cliente por RUT
+    const cliente = S.clientes.find(c=>c.rut.replace(/\./g,'').replace(/-/g,'')===d.rut.replace(/\./g,'').replace(/-/g,''));
+    // Buscar notas aprobadas de ese cliente con monto similar (±5%)
+    let notasMatch = [];
+    if(cliente){
+      notasMatch = S.notas.filter(n=>
+        n.cid===cliente.id &&
+        n.estado==='aprobado' &&
+        !n.factId
+      );
+      // Priorizar las que tienen monto similar
+      notasMatch.sort((a,b)=>{
+        const mA=Math.abs(Number(a.monto)-d.total), mB=Math.abs(Number(b.monto)-d.total);
+        return mA-mB;
+      });
+    }
+    return { d, cliente, notasMatch };
+  });
+
+  // Construir UI de confirmación
+  let html = `<div style="font-size:14px;font-weight:800;margin-bottom:14px">
+    📥 Importar ${soloSII.length} factura(s) del SII a Nexa
+    <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:8px">Revisá y confirmá cada asociación</span>
+  </div>`;
+
+  sugerencias.forEach((sg,i)=>{
+    const {d,cliente,notasMatch}=sg;
+    const tipoLabel = d.tipo==='34'?'Exenta':d.tipo==='33'?'Afecta':'Tipo '+d.tipo;
+    const notaOpts = notasMatch.length
+      ? notasMatch.map(n=>`<option value="${n.id}">${n.cod} — ${CLP(n.monto)} — ${n.desc||'Sin desc'}</option>`).join('')
+      : '<option value="">— Sin nota aprobada —</option>';
+
+    html += `<div style="background:var(--bg2);border-radius:8px;padding:12px 16px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--font2)">FACTURA SII</div>
+        <div style="font-weight:800">Folio ${d.folio} — ${tipoLabel}</div>
+        <div style="font-size:12px">${d.razon}</div>
+        <div style="font-size:11px;color:var(--muted)">${d.rut} · ${d.fecha} · <strong>${CLP(d.total)}</strong></div>
+        ${cliente?`<div style="font-size:11px;color:var(--blue)">✓ Cliente encontrado: ${cliente.alias||cliente.nom}</div>`
+                 :`<div style="font-size:11px;color:var(--red)">⚠️ RUT no encontrado en clientes</div>`}
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--font2)">ASOCIAR A NOTA DE VENTA</div>
+        <select class="fsel" id="sii-imp-nota-${i}" style="width:100%;margin-top:4px">
+          ${notaOpts}
+        </select>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="sii-imp-chk-${i}" checked style="accent-color:var(--blue)">
+          <label for="sii-imp-chk-${i}" style="font-size:11px;cursor:pointer">Crear esta factura en Nexa</label>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html += `<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+    <button class="btn btn-ghost" onclick="document.getElementById('sii-import-modal').style.display='none'">Cancelar</button>
+    <button class="btn btn-blue" onclick="siiImportarConfirmar(${sugerencias.length})">✅ Confirmar importación</button>
+  </div>`;
+
+  modal.innerHTML = html;
+  modal.style.display = 'block';
+  modal.scrollIntoView({behavior:'smooth'});
+
+  // Guardar sugerencias globalmente para usarlas al confirmar
+  window._siiSugerencias = sugerencias;
+}
+
+function siiImportarConfirmar(n){
+  const sgs = window._siiSugerencias||[];
+  let creadas=0, asociadas=0;
+
+  sgs.forEach((sg,i)=>{
+    const chk = document.getElementById('sii-imp-chk-'+i);
+    if(!chk?.checked) return;
+
+    const {d, cliente} = sg;
+    const notaId = document.getElementById('sii-imp-nota-'+i)?.value||'';
+    const tipoLabel = d.tipo==='34'?'Exenta':d.tipo==='33'?'Afecta':'Tipo '+d.tipo;
+
+    // Crear factura en Nexa
+    const nueva = {
+      id: 'f'+Date.now()+i,
+      folio: d.folio,
+      cid: cliente?.id||'',
+      monto: d.total,
+      estado: 'pendiente',
+      em: d.fecha,
+      ve: '',
+      desc: `Factura ${tipoLabel} importada desde RCV SII`,
+      oc: '',
+      cond: '',
+      abonos: []
+    };
+    S.facturas.push(nueva);
+    S.folioN++;
+    creadas++;
+
+    // Asociar a nota de venta si se seleccionó una
+    if(notaId){
+      const nota = S.notas.find(n=>n.id===notaId);
+      if(nota){
+        nota.factId = nueva.id;
+        nota.estado = 'facturado';
+        asociadas++;
+      }
+    }
+  });
+
+  save();
+  renderSII();
+  renderNV();
+  renderF();
+  document.getElementById('sii-import-modal').style.display='none';
+  window._siiSugerencias=[];
+  toast(`✓ ${creadas} factura(s) creada(s), ${asociadas} nota(s) asociada(s)`);
+}
+
 function parseSIIText(text,filename){
   const lines=text.trim().split('\n').filter(l=>l.trim());
   if(lines.length<2)throw new Error('CSV vacío');
