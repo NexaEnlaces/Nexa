@@ -2095,20 +2095,34 @@ async function sendEmail(){
     try{
       const fromName='Nexa · Conectando Negocios';
       const encodeSubject=s=>'=?UTF-8?B?'+btoa(unescape(encodeURIComponent(s)))+'?=';
+      // Helper: string → base64url usando chunks para evitar límite de call stack
+      const toB64url=str=>{
+        const bytes=new TextEncoder().encode(str);
+        const chunkSize=8192;
+        let bin='';
+        for(let i=0;i<bytes.length;i+=chunkSize){
+          bin+=String.fromCharCode(...bytes.slice(i,i+chunkSize));
+        }
+        return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      };
       const adjFile = document.getElementById('em-adj')?.files?.[0];
 
       let emailRaw;
       if(adjFile){
-        // MIME multipart con adjunto
+        // MIME multipart con adjunto PDF
         const boundary = 'nexa_'+Date.now();
+        // Leer PDF como base64 (ya es el contenido binario en base64, no necesita re-encode)
         const adjB64 = await new Promise((res,rej)=>{
           const fr=new FileReader();
-          fr.onload=e=>res(e.target.result.split(',')[1]);
+          fr.onload=e=>res(e.target.result.split(',')[1].replace(/[\r\n]/g,''));
           fr.onerror=rej;
           fr.readAsDataURL(adjFile);
         });
+        // Texto del mensaje en base64
         const msgB64 = btoa(unescape(encodeURIComponent(msg)));
-        const parts = [
+        // Construir MIME — NO codificar el string completo, solo codificar como base64url
+        // el header + partes, preservando el base64 del PDF intacto
+        const mime = [
           `MIME-Version: 1.0`,
           `To: ${to}`,
           `Subject: ${encodeSubject(subj)}`,
@@ -2130,22 +2144,21 @@ async function sendEmail(){
           ``,
           `--${boundary}--`,
         ].join('\r\n');
-        emailRaw = btoa(unescape(encodeURIComponent(parts)))
-          .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+        // Codificar el MIME completo como base64url byte a byte
+        emailRaw = toB64url(mime);
       } else {
-        // Sin adjunto — email simple
-        const emailBody=[
-          'MIME-Version: 1.0',
-          'Content-Type: text/plain; charset=UTF-8',
-          'Content-Transfer-Encoding: base64',
+        // Sin adjunto — email simple (texto plano)
+        const mime = [
+          `MIME-Version: 1.0`,
+          `Content-Type: text/plain; charset=UTF-8`,
+          `Content-Transfer-Encoding: base64`,
           `To: ${to}`,
           `Subject: ${encodeSubject(subj)}`,
           `From: ${fromName} <me>`,
-          '',
+          ``,
           btoa(unescape(encodeURIComponent(msg))),
         ].join('\r\n');
-        emailRaw = btoa(unescape(encodeURIComponent(emailBody)))
-          .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+        emailRaw = toB64url(mime);
       }
 
       const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
@@ -2155,8 +2168,10 @@ async function sendEmail(){
       });
       if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Error Gmail API');}
       // Limpiar adjunto después de enviar
-      document.getElementById('em-adj').value='';
-      document.getElementById('em-adj-lbl').textContent='📎 Seleccionar archivo PDF...';
+      const _adjInput = document.getElementById('em-adj');
+      const _adjLbl   = document.getElementById('em-adj-lbl');
+      if(_adjInput) _adjInput.value='';
+      if(_adjLbl)   _adjLbl.textContent='📎 Seleccionar archivo PDF...';
       showSt('✓ Email enviado vía Gmail'+(adjFile?' (con adjunto)':''),'ok');
       S.emails.unshift({id:'e'+Date.now(),fecha:new Date().toISOString().split('T')[0],folio:f?.folio||'—',to,tipo:document.getElementById('em-tipo').value,estado:'enviado (Gmail)'});
       save();renderEmHist();toast('Email enviado a '+to);
