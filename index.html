@@ -1841,7 +1841,7 @@ async function getUFDia5(fechaBase){
   const año = d.getFullYear();
   const mes  = String(d.getMonth()+1).padStart(2,'0');
   // Intentar días: 5, 4, 3, 2, 1
-  for(let dia=5; dia>=1; dia--){
+  for(let dia=1; dia<=7; dia++){
     const dd = String(dia).padStart(2,'0');
     try {
       const r = await fetch(`https://mindicador.cl/api/uf/${dd}-${mes}-${año}`);
@@ -3946,6 +3946,15 @@ function cmResetTareas(){
 function cloneNV(id){
   const n = S.notas.find(x=>x.id===id); if(!n) return;
   const nuevoCod = 'NV-'+new Date().getFullYear()+'-'+String(S.notaN).padStart(3,'0');
+  // Si la nota original no tiene ítems pero tiene monto, construir un ítem sintético
+  let itemsClone;
+  if(n.items && n.items.length>0){
+    itemsClone = n.items.map(i=>({...i}));
+  } else {
+    // Fallback: un ítem con la descripción y el monto original
+    const precioItem = n.moneda==='UF' ? (n.montoOriginal||n.monto||0) : (n.monto||0);
+    itemsClone = [{det: n.desc||'', qty:1, precio: precioItem}];
+  }
   const clone = {
     ...n,
     id: 'nv'+Date.now(),
@@ -3954,12 +3963,15 @@ function cloneNV(id){
     estado: 'borrador',
     factId: null,
     aprobadoPor: '',
+    items: itemsClone,
   };
   S.notas.push(clone);
   S.notaN++;
   save();
   renderNV();
-  toast('Nota clonada: '+nuevoCod);
+  toast('Nota clonada: '+nuevoCod+' — verifica y guarda los cambios');
+  // Abrir modal de edición para que el usuario revise antes de confirmar
+  editNV(clone.id);
 }
 
 
