@@ -1670,7 +1670,7 @@ function initSidebar(){
     }
   }
 }
-function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));const el=document.getElementById('view-'+v);if(el)el.classList.add('active');document.querySelectorAll('.nav-item').forEach(x=>{if(x.getAttribute('onclick')?.includes("'"+v+"'"))x.classList.add('active');});({dashboard:renderDash,facturas:renderF,kanban:renderKB,clientes:renderCL,notas:renderNV,sii:renderSII,email:renderEmail,informes:renderInf,control:renderCM,unicos:renderCU,renta:renderRenta,credenciales:()=>{renderCred();credCheckAccess();},propuestas:renderProp,gsheets:()=>{loadGSConfig();if(gsIsSignedIn())gsOnSignedIn();}})[v]?.();}
+function go(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));const el=document.getElementById('view-'+v);if(el)el.classList.add('active');const mainEl=document.querySelector('.main');if(mainEl)mainEl.scrollTop=0;document.querySelectorAll('.nav-item').forEach(x=>{if(x.getAttribute('onclick')?.includes("'"+v+"'"))x.classList.add('active');});({dashboard:renderDash,facturas:renderF,kanban:renderKB,clientes:renderCL,notas:renderNV,sii:renderSII,email:renderEmail,informes:renderInf,control:renderCM,unicos:renderCU,renta:renderRenta,credenciales:()=>{renderCred();credCheckAccess();},propuestas:renderProp,gsheets:()=>{loadGSConfig();if(gsIsSignedIn())gsOnSignedIn();}})[v]?.();}
 // ══ DASHBOARD ══
 function renderDash(){
   const fs=S.facturas,
