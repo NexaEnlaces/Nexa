@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexa · Sistema de Gestión</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js" crossorigin="anonymous"></script>
 <script>
 // Fallback: if docx didn't load from jsdelivr, try unpkg
@@ -35,10 +34,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .shell{display:flex;height:100vh}
 .sidebar{width:236px;background:var(--blue);display:flex;flex-direction:column;flex-shrink:0;position:fixed;height:100vh;z-index:200;box-shadow:4px 0 24px rgba(0,58,208,.25);overflow-y:auto;transition:width .25s ease,transform .25s ease;overflow-x:visible}
 .sidebar.collapsed{width:56px}
-.sidebar.collapsed .nav-label,.sidebar.collapsed .logo-txt,.sidebar.collapsed .sidebar-section-label,.sidebar.collapsed .gs-status-bar{display:none}
+.sidebar.collapsed .nav-label,.sidebar.collapsed .logo-txt,.sidebar.collapsed .nav-sec,.sidebar.collapsed .nav-badge,.sidebar.collapsed .gs-status-bar{display:none}
 .sidebar.collapsed .nav-icon{width:18px;height:18px;flex-shrink:0}
 .nav-label{white-space:nowrap;overflow:hidden;transition:opacity .2s}
-.nav-item{justify-content:center;padding:10px 0}
+.sidebar.collapsed .nav-item{justify-content:center;padding:10px 0}
 .sidebar.collapsed .nav-icon{margin:0}
 #sidebar-toggle-btn.collapsed{left:18px}
 
@@ -428,7 +427,7 @@ textarea.finput{resize:vertical;min-height:68px}
   <!-- ═══ NAV ═══ -->
   <div class="nav-sec">📊 Ventas</div>
   <div class="nav-item active" onclick="go('dashboard')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-label">Dashboard</span>
   </div>
   <div class="nav-item" onclick="go('facturas')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span class="nav-label">Facturas</span>
     <span class="nav-badge" id="nb-venc" style="display:none">!</span>
@@ -442,6 +441,15 @@ textarea.finput{resize:vertical;min-height:68px}
   </div>
   <div class="nav-item" onclick="go('informes')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="nav-label">Informes</span>
   </div>
+  <div class="nav-item" onclick="go('propuestas')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+  <span class="nav-label">Propuestas</span>
+</div>
   <div class="nav-sec">👥 Clientes</div>
   <div class="nav-item" onclick="go('clientes')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="nav-label">Ficha Clientes</span>
   </div>
@@ -459,16 +467,7 @@ textarea.finput{resize:vertical;min-height:68px}
   <div class="nav-item" onclick="go('renta')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg><span class="nav-label">Renta Anual</span>
     <span class="nav-badge" id="nb-renta" style="display:none;background:var(--yellow)">0</span>
   </div>
-  <div class="nav-sec">⚙️ Configuraciones</div>
-  <div class="nav-item" onclick="go('propuestas')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-    <polyline points="14 2 14 8 20 8"/>
-    <line x1="16" y1="13" x2="8" y2="13"/>
-    <line x1="16" y1="17" x2="8" y2="17"/>
-    <polyline points="10 9 9 9 8 9"/>
-  </svg>
-  <span class="nav-label">Propuestas</span>
-</div>
+  <div class="nav-sec">✉️ Comunicaciones</div>
   <div class="nav-item" onclick="go('email')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Envío de Emails</span>
   </div>
   <div class="nav-item" onclick="go('gsheets')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><span class="nav-label">Config. Google</span>
@@ -699,59 +698,84 @@ textarea.finput{resize:vertical;min-height:68px}
 
 <!-- EMAIL -->
 <div id="view-email" class="view">
-  <div class="ph"><div><div class="ph-title">Envío de <span>Emails</span></div><div class="ph-sub">Notificaciones y seguimiento vía EmailJS</div></div></div>
+  <div class="ph"><div><div class="ph-title">Envío de <span>Emails</span></div><div class="ph-sub">Biblioteca de Correos Nexa — envío centralizado vía Gmail</div></div></div>
   <div id="em-method-status" class="alert a-info" style="margin-bottom:16px">
-  ℹ️ Para enviar emails conecta con Google con el botón de arriba. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.
+  ℹ️ Para enviar emails conecta con Google con el botón de arriba. Los correos saldrán directamente desde tu Gmail.
 </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
     <div class="card" style="padding:20px;margin-bottom:0">
-      <div class="card-t" style="margin-bottom:6px">📧 Método de envío</div>
+      <div class="card-t" style="margin-bottom:6px">📧 Gmail</div>
       <div style="font-size:11px;color:var(--muted);font-family:var(--font2);margin-bottom:16px;line-height:1.6">
-        La app detecta automáticamente el método disponible:<br>
-        <strong>1° opción:</strong> Gmail directo (si estás conectada con Google)<br>
-        <strong>2° opción:</strong> EmailJS (alternativa sin Google)
+        Los correos se envían directamente desde tu cuenta de Gmail conectada.
       </div>
-      <div style="background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px;margin-bottom:14px">
-        <div style="font-size:11px;font-weight:800;margin-bottom:8px">🔗 Gmail (recomendado)</div>
+      <div style="background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px">
         <div class="gconn-box"></div>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:14px">
-        <div style="font-size:11px;font-weight:800;margin-bottom:10px;color:var(--muted)">⚡ EmailJS (alternativa)</div>
-        <div class="ef-group"><label class="ef-lbl">Public Key</label><input class="finput" id="ejs-pk" placeholder="user_xxxxxxxxxx" oninput="saveEJS()"></div>
-        <div class="ef-group"><label class="ef-lbl">Service ID</label><input class="finput" id="ejs-sid" placeholder="service_xxxxxxx" oninput="saveEJS()"></div>
-        <div class="ef-group"><label class="ef-lbl">Template ID</label><input class="finput" id="ejs-tid" placeholder="template_xxxxxxx" oninput="saveEJS()"></div>
-        <div class="ef-group"><label class="ef-lbl">Tu Email</label><input class="finput" id="ejs-from" placeholder="tu@email.cl" oninput="saveEJS()"></div>
-        <div id="ejs-ok" class="alert a-ok" style="display:none;margin:0">✓ EmailJS configurado</div>
       </div>
     </div>
     <div class="card" style="padding:20px;margin-bottom:0">
-      <div class="card-t" style="margin-bottom:14px">📧 Enviar Email</div>
-      <div class="ef-group"><label class="ef-lbl">Factura</label><select class="finput" id="em-fact" onchange="fillEmail()"><option value="">— Seleccionar —</option></select></div>
-      <div class="ef-group"><label class="ef-lbl">Tipo</label><select class="finput" id="em-tipo" onchange="setEmailTpl()"><option value="emision">Emisión de factura</option><option value="recordatorio">Recordatorio de pago</option><option value="vencido">Factura vencida</option><option value="cobrado">Confirmación de cobro</option></select></div>
-      <div class="ef-group"><label class="ef-lbl">Destinatario</label><input class="finput" id="em-to"></div>
-      <div class="ef-group"><label class="ef-lbl">Asunto</label><input class="finput" id="em-subj"></div>
-      <div class="ef-group"><label class="ef-lbl">Mensaje</label><textarea class="finput" id="em-msg" rows="4"></textarea></div>
-      <div class="ef-group">
-        <label class="ef-lbl">Adjunto PDF <span style="color:var(--muted);font-weight:400">(opcional — solo Gmail)</span></label>
-        <input type="file" id="em-adj" accept=".pdf"
-          style="opacity:0;position:absolute;width:0;height:0;pointer-events:none"
-          onchange="(function(){_emAdjFile=document.getElementById('em-adj').files[0]||null;const lbl=document.getElementById('em-adj-lbl');lbl.textContent=_emAdjFile?'📎 '+_emAdjFile.name:'📎 Seleccionar archivo PDF...';})()" >
-        <div style="display:flex;align-items:center;gap:8px">
-          <div id="em-adj-lbl"
-            onclick="document.getElementById('em-adj').click()"
-            style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;flex:1;font-size:12px;color:var(--muted);font-family:var(--font2);transition:.15s">
-            📎 Seleccionar archivo PDF...
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="_emAdjFile=null;document.getElementById('em-adj').value='';document.getElementById('em-adj-lbl').textContent='📎 Seleccionar archivo PDF...'" style="padding:8px 10px">✕</button>
+      <div class="card-t" style="margin-bottom:14px">✍️ Firmante</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div id="lbl-em-firmante-javi" onclick="emSetFirmante('Javi')"
+          style="cursor:pointer;padding:10px 14px;border:1.5px solid var(--blue);background:var(--blue-light);border-radius:8px;transition:.15s">
+          <div style="font-size:11px;font-weight:800;color:var(--blue)">Javiera Lizama</div>
+          <div style="font-size:10px;color:var(--muted)">Socia Impuestos</div>
+        </div>
+        <div id="lbl-em-firmante-berny" onclick="emSetFirmante('Berny')"
+          style="cursor:pointer;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;transition:.15s">
+          <div style="font-size:11px;font-weight:800">Bernardita Sepúlveda</div>
+          <div style="font-size:10px;color:var(--muted)">Socia Contabilidad</div>
         </div>
       </div>
-      <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="sendEmail()">📤 Enviar Email</button>
-      <div id="em-st" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700"></div>
+      <input type="hidden" id="em-firmante" value="Javi">
+      <div style="font-size:10px;color:var(--muted);font-family:var(--font2);margin-top:10px;line-height:1.5">Reemplaza la firma al final del correo.</div>
     </div>
+  </div>
+  <div class="card" style="padding:20px">
+    <div class="card-t" style="margin-bottom:14px">📧 Nuevo correo</div>
+    <div class="ef-group"><label class="ef-lbl">Cliente</label><select class="finput" id="em-cl" onchange="emSelectCliente()"><option value="">— Seleccionar —</option></select></div>
+    <div class="ef-group"><label class="ef-lbl">Tipo</label><select class="finput" id="em-tipo" onchange="emSelectTipo()">
+      <optgroup label="Onboarding">
+        <option value="bienvenida_cumplimiento">Bienvenida — Plan Cumplimiento</option>
+        <option value="bienvenida_control">Bienvenida — Plan Control</option>
+      </optgroup>
+      <optgroup label="Gestión mensual">
+        <option value="rrhh_liquidaciones">Liquidaciones y cotizaciones RRHH</option>
+        <option value="f29">F29 listo para declarar</option>
+        <option value="f29_f50">F29 + F50 listos para declarar</option>
+      </optgroup>
+      <optgroup label="Cobranza">
+        <option value="emision">Emisión de factura</option>
+        <option value="recordatorio">Recordatorio de pago</option>
+        <option value="vencido">Factura vencida</option>
+      </optgroup>
+    </select></div>
+    <div class="ef-group" id="em-facturas-group" style="display:none">
+      <label class="ef-lbl">Facturas <span style="color:var(--muted);font-weight:400">(marca una o varias)</span></label>
+      <div id="em-facturas-list" style="border:1.5px solid var(--border);border-radius:8px;padding:10px;max-height:180px;overflow-y:auto;font-size:12px"></div>
+    </div>
+    <div id="em-campos-manuales"></div>
+    <div class="ef-group"><label class="ef-lbl">Nombre destinatario</label><input class="finput" id="em-nombre" placeholder="Nombre de quien recibe el correo" oninput="emActualizarPlantilla()"></div>
+    <div class="ef-group"><label class="ef-lbl">Destinatario (email)</label><input class="finput" id="em-to"></div>
+    <div class="ef-group"><label class="ef-lbl">Asunto</label><input class="finput" id="em-subj"></div>
+    <div class="ef-group"><label class="ef-lbl">Mensaje</label><textarea class="finput" id="em-msg" rows="10"></textarea></div>
+    <div class="ef-group">
+      <label class="ef-lbl">Adjuntos PDF <span style="color:var(--muted);font-weight:400">(opcional — solo Gmail)</span></label>
+      <input type="file" id="em-adj" accept=".pdf" multiple
+        style="opacity:0;position:absolute;width:0;height:0;pointer-events:none"
+        onchange="emAdjAgregar(this.files)">
+      <div id="em-adj-lbl"
+        onclick="document.getElementById('em-adj').click()"
+        style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;font-size:12px;color:var(--muted);font-family:var(--font2);transition:.15s">
+        📎 Agregar archivo(s) PDF...
+      </div>
+      <div id="em-adj-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </div>
+    <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="sendEmail()">📤 Enviar Email</button>
+    <div id="em-st" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700"></div>
   </div>
   <div class="card">
     <div class="card-h"><span class="card-t">📋 Historial enviados</span></div>
-    <div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Factura</th><th>Destinatario</th><th>Tipo</th><th>Estado</th></tr></thead><tbody id="em-hist"></tbody></table></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Cliente / Ref.</th><th>Destinatario</th><th>Tipo</th><th>Estado</th></tr></thead><tbody id="em-hist"></tbody></table></div>
   </div>
 </div>
 
@@ -1248,9 +1272,15 @@ textarea.finput{resize:vertical;min-height:68px}
     <div class="fgrid">
       <div class="fg full"><label class="flbl">Razón Social / Nombre *</label><input class="finput" id="nc-nom" placeholder="EMPRESA LTDA."></div>
       <div class="fg"><label class="flbl">Alias / Nombre Fantasía</label><input class="finput" id="nc-alias" placeholder="Ej: Café del Centro, Clínica Norte..."></div>
-      <div class="fg" style="display:flex;align-items:flex-end"><div style="font-size:10px;color:var(--muted);font-family:var(--font2);line-height:1.5;padding-bottom:2px">El alias aparecerá en los asuntos de email y tarjetas de cliente para identificarlos más rápido.</div></div>
+      <div class="fg" style="display:flex;align-items:flex-end"><div style="font-size:10px;color:var(--muted);font-family:var(--font2);line-height:1.5;padding-bottom:2px">Solo el nombre corto — el código (M-XXX / U-XXX) lo asigna el sistema. Se usa en los asuntos de email y tarjetas de cliente.</div></div>
       <div class="fg"><label class="flbl">Tipo de Cliente</label>
-        <select class="finput" id="nc-tipo"><option value="Mensual">Mensual</option><option value="Único">Único / Esporádico</option></select></div>
+        <select class="finput" id="nc-tipo" onchange="ncPeekCodigo()"><option value="Mensual">Mensual</option><option value="Único">Único / Esporádico</option></select></div>
+      <div class="fg"><label class="flbl">Código</label>
+        <div style="display:flex;gap:6px">
+          <input class="finput" id="nc-codigo" readonly placeholder="—">
+          <button type="button" class="btn btn-ghost btn-sm" id="nc-codigo-asignar" style="display:none;white-space:nowrap" onclick="ncPeekCodigo()">Asignar código</button>
+        </div>
+      </div>
       <div class="fg"><label class="flbl">A Cargo</label>
         <select class="finput" id="nc-acargo"><option value="Berny">Berny</option><option value="Javi">Javi</option><option value="Nexa">Nexa</option></select></div>
       <div class="fg"><label class="flbl">¿Tiene Liquidación de Sueldo?</label>
@@ -1782,7 +1812,7 @@ function iniciarRealtimeEncargos(){
     .subscribe();
 }
 
-let S={facturas:[],clientes:[],notas:[],sii:[],emails:[],ejs:{pk:'',sid:'',tid:'',from:''},gsConfig:{clientId:'',sheetId:''},cmChecks:{},cmTareas:{},encargos:[],rentaClientes:[],creds:{},propuestas:[],folioN:1,notaN:1,lastSync:null};
+let S={facturas:[],clientes:[],notas:[],sii:[],emails:[],gsConfig:{clientId:'',sheetId:''},cmChecks:{},cmTareas:{},encargos:[],rentaClientes:[],creds:{},propuestas:[],folioN:1,notaN:1,lastSync:null};
 // ══════════════════════════════════════════════
 // LOAD desde Supabase — reemplaza el load() de localStorage
 // ══════════════════════════════════════════════
@@ -1819,7 +1849,7 @@ async function load(){
 
     // ── Clientes ──
     S.clientes = cliR.data.map(c => ({
-      id: c.id, nom: c.nom, alias: c.alias || '', rut: c.rut,
+      id: c.id, nom: c.nom, alias: c.alias || '', codigo: c.codigo || '', rut: c.rut,
       giro: c.giro || '', email: c.email || '', tel: c.tel || '',
       dir: c.dir || '', ciudad: c.ciudad || '', cpago: c.cpago || '',
       ci: c.ci || 0, tipo: c.tipo || 'Mensual',
@@ -1941,8 +1971,6 @@ async function load(){
     // ── SII se re-importa mensualmente, arranca vacío ──
     S.sii = [];
 
-    // ── Config heredado (no se usa, se mantiene por compatibilidad) ──
-    S.ejs = S.ejs || {pk:'',sid:'',tid:'',from:''};
     S.gsConfig = S.gsConfig || {clientId:'',sheetId:''};
 
     console.log('[Nexa] Datos cargados desde Supabase:', {
@@ -2205,7 +2233,7 @@ function renderKB(){
   });
 }
 // ══ CLIENTES ══
-let _emAdjFile = null; // archivo adjunto email
+let _emAdjFiles = []; // archivos PDF adjuntos email
 let _clView = localStorage.getItem('nexa_cl_view') || 'grid';
 let _clExpanded = {};
 
@@ -2847,214 +2875,333 @@ function renderSII(){
   document.getElementById('sii-raw-tbody').innerHTML=S.sii.map((d,i)=>`<tr><td style="font-size:11px;color:var(--muted)">${d.nro}</td><td style="font-size:11px">${d.tipo}</td><td><strong>${d.folio}</strong></td><td style="font-size:11px;color:var(--muted)">${d.fecha}</td><td style="font-size:11px">${d.rut}</td><td style="font-size:12px;font-weight:700">${d.razon}</td><td class="amt" style="font-size:11px">${d.exento>0?CLP(d.exento):'—'}</td><td class="amt">${d.neto>0?CLP(d.neto):'—'}</td><td style="font-size:11px;color:var(--muted)">${d.iva>0?CLP(d.iva):'—'}</td><td class="amt">${CLP(d.total)}</td><td><button class="btn btn-red btn-xs" onclick="delSIIDoc(${i})">🗑</button></td></tr>`).join('')||'<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--muted)">Sin documentos importados</td></tr>';}
 function exportSIIExcel(){if(!window.XLSX){toast('XLSX no disponible',false);return;}const rows=[['Folio','Fecha','RUT','Razón Social','Neto Nexa','Neto SII','Diferencia','Tipo Doc','Resultado']];S.facturas.forEach(f=>{const d=S.sii.find(x=>String(x.folio)===String(f.folio)),mN=Number(f.monto),mS=d?d.neto:null;rows.push([f.folio,f.em,cl(f.cid).rut,cl(f.cid).nom,mN,mS,mS!==null?mN-mS:'',d?d.tipo:'—',d?(Math.abs((mN-(d.neto||0))/mN*100)<1?'Coincide':'Diferencia'):'Sin doc SII']);});S.sii.forEach(d=>{if(!S.facturas.find(f=>String(f.folio)===String(d.folio)))rows.push([d.folio,d.fecha,d.rut,d.razon,'',d.neto,'',d.tipo,'Solo en SII']);});const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:14},{wch:12},{wch:16},{wch:26},{wch:14},{wch:14},{wch:12},{wch:10},{wch:14}];XLSX.utils.book_append_sheet(wb,ws,'Validación SII');XLSX.writeFile(wb,'validacion_sii_'+new Date().toISOString().split('T')[0]+'.xlsx');toast('Excel exportado');}
 // ══ EMAIL ══
-function saveEJS(){S.ejs={pk:document.getElementById('ejs-pk').value,sid:document.getElementById('ejs-sid').value,tid:document.getElementById('ejs-tid').value,from:document.getElementById('ejs-from').value};save();const ok=document.getElementById('ejs-ok');(S.ejs.pk&&S.ejs.sid&&S.ejs.tid)?ok.style.display='flex':ok.style.display='none';}
 function renderEmail(){
   if(typeof renderGConn==="function") renderGConn();
-  ['pk','sid','tid','from'].forEach(k=>{const el=document.getElementById('ejs-'+k);if(el)el.value=S.ejs?.[k]||'';});
-  if(S.ejs?.pk&&S.ejs?.sid&&S.ejs?.tid)document.getElementById('ejs-ok').style.display='flex';
-  const sel=document.getElementById('em-fact');
-  sel.innerHTML='<option value="">— Seleccionar —</option>'+S.facturas.map(f=>`<option value="${f.id}">${f.folio} — ${cl(f.cid).alias||cl(f.cid).nom}</option>`).join('');
-  // Show Gmail connected status
+  const clSel=document.getElementById('em-cl');
+  const curCl=clSel.value;
+  clSel.innerHTML='<option value="">— Seleccionar —</option>'+S.clientes.map(c=>`<option value="${c.id}">${c.alias||c.nom}</option>`).join('');
+  if(curCl) clSel.value=curCl;
   const stEl=document.getElementById('em-method-status');
   if(stEl){
     if(gsIsSignedIn()){
       stEl.className='alert a-ok';
-      stEl.innerHTML='✅ <strong>Gmail conectado</strong> — Los emails se enviarán directamente desde tu cuenta Google. Sin límites adicionales.';
+      stEl.innerHTML='✅ <strong>Gmail conectado</strong> — Los emails se enviarán directamente desde tu cuenta Google.';
     } else {
       stEl.className='alert a-info';
-      stEl.innerHTML='ℹ️ Para enviar emails conecta con Google con el botón de arriba. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.';
+      stEl.innerHTML='ℹ️ Para enviar emails conecta con Google con el botón de arriba. Los correos saldrán directamente desde tu Gmail.';
     }
   }
   renderEmHist();
 }
 // Helper: display name uses alias if set
 const cAlias=c=>c.alias||c.nom||'Cliente';
-// Safe subject: no special chars that break email headers
-const safeSubj=(alias,folio,motivo)=>alias+' | '+folio+' | '+motivo;
+// Asunto: "Alias - tema" (sin prefijo de código, que vive aparte en clientes.codigo)
+const emAsunto=(alias,tema)=>alias?alias+' - '+tema:tema;
 
 const BANCO_DATA = '\n\nDatos para transferencia:\nNEXA ENLACES ASESORIAS Y CONSULTORIAS LIMITADA\nRUT: 78.015.634-1\nBanco de Chile\nCuenta FAN Emprende / Cta Vista\nN 00-015-97243-33\nEmail: contacto@nexaen.cl';
 
-const FIRMA = '\n\nAgradecemos sinceramente su confianza y preferencia. Para nosotros es un gusto poder seguir colaborando con ustedes y quedamos atentos ante cualquier consulta o informacion adicional que requieran.\n\nReciban un cordial saludo,\nArea de Facturacion\nNexa Enlaces';
+const FIRMANTE_NOMBRE = {Javi:'Javiera Lizama', Berny:'Bernardita Sepúlveda'};
+const firmaTxt=firmante=>'\n\n'+(FIRMANTE_NOMBRE[firmante]||FIRMANTE_NOMBRE.Javi);
 
 function saludar(){const h=new Date().getHours();return h>=5&&h<12?'dias':h>=12&&h<19?'tardes':'noches';}
+function saludoCompleto(){const h=new Date().getHours();return h>=5&&h<12?'Buenos días':h>=12&&h<19?'Buenas tardes':'Buenas noches';}
+function emMesActual(){const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];const d=new Date();return meses[d.getMonth()]+' '+d.getFullYear();}
 
 const ETPL={
-  emision:(f,c)=>({
-    s:safeSubj(cAlias(c),'Factura N'+f.folio,'Emision de Factura'),
-    m:'Estimado cliente, muy buenas '+saludar()+',\n\nJunto con saludarles cordialmente, enviamos '+f.folio+', correspondiente a la prestacion del siguiente servicio:\n\n* '+(f.desc||'Servicios profesionales')+BANCO_DATA+FIRMA
+  bienvenida_cumplimiento:(ctx)=>({
+    s: emAsunto(cAlias(ctx.cliente), 'Bienvenido/a a Nexa Enlaces — todo lo que necesitas saber para empezar'),
+    m: 'Hola '+ctx.nombre+',\n\nNos alegra mucho tenerte como parte de Nexa. A partir de este mes somos tu equipo contable y estamos aquí para que puedas enfocarte en tu negocio con la tranquilidad de que los números están en orden.\n\nLo que incluye tu plan\n- Contabilidad mensual\n- F29 lista para que revises y declares, más otros formularios que correspondan (F50, PPM)\n- Informe semestral con el resumen de cómo va tu empresa\n- Asesoría permanente ante cualquier duda tributaria\n\nQué recibes cada mes y cuándo\n- Antes del día 14: tu F29 lista para que revises y declares, con todos los respaldos\n- En junio y diciembre: tu informe semestral\n\nCómo comunicarte con nosotras\nTenemos un grupo de WhatsApp donde puedes escribirnos cuando necesites. Respondemos en el mismo día hábil.\n\nLo que necesitamos de ti\nNosotros obtenemos tu información directamente desde el SII. Lo que necesitamos de ti es que revises lo que te enviamos y nos confirmes si todo está correcto o si hay algo que debamos ajustar.\n\nTu equipo\nJaviera Lizama y Bernardita Sepúlveda\n\nCualquier duda de este primer mes, escríbenos sin problema.\nBienvenido/a al equipo.'+firmaTxt(ctx.firmante)
   }),
-  recordatorio:(f,c)=>({
-    s:safeSubj(cAlias(c),'Factura N'+f.folio,'Recordatorio de Pago'),
-    m:'Estimado cliente, muy buenas '+saludar()+',\n\nJunto con saludarles, le recordamos que la '+f.folio+' por '+CLP(f.monto)+' vence el '+f.ve+'.\n\nSi ya realizo el pago, por favor ignore este mensaje.'+FIRMA
+  bienvenida_control:(ctx)=>({
+    s: emAsunto(cAlias(ctx.cliente), 'Bienvenido/a a Nexa Enlaces — tu plan Control explicado'),
+    m: 'Hola '+ctx.nombre+',\n\nNos alegra mucho tenerte como parte de Nexa. Con el Plan Control no solo mantenemos tu contabilidad al día — tu objetivo es que entiendas tus números sin ser contador.\n\nLo que incluye tu plan\n- Contabilidad mensual completa\n- F29 lista para que revises y declares, y otros formularios que correspondan\n- Informe mensual de gestión — entiendes en números cómo van tus ingresos, gastos y dónde se va la plata\n- Reunión online mensual para explicarte el informe y resolver dudas\n- Optimización de gastos — revisamos juntos si hay margen de mejora\n- Proyección anual de impuestos — así sabes cuánto vas a pagar sin sorpresas\n- Asesoría permanente ante cualquier duda tributaria\n\nQué recibes cada mes y cuándo\n- Antes del día 14: tu F29 lista para que revises y declares, con todos los respaldos\n- Antes del día 20: tu informe mensual de gestión\n- Llamada mensual: tú propones el día que te venga mejor\n- En junio y diciembre: informe semestral adicional\n\nCómo comunicarte con nosotras\nTenemos un grupo de WhatsApp donde puedes escribirnos cuando necesites. Respondemos en el mismo día hábil.\n\nLo que necesitamos de ti\nNosotros obtenemos tu información directamente desde el SII. Lo que necesitamos de ti es que revises lo que te enviamos y nos confirmes si todo está correcto o si hay algo que debamos ajustar. Para la reunión mensual: si hay algo específico que quieras revisar, cuéntanos con un par de días de anticipación.\n\nTu equipo\nJaviera Lizama y Bernardita Sepúlveda\n\nCualquier duda de este primer mes, escríbenos sin problema.\nBienvenido/a al equipo.'+firmaTxt(ctx.firmante)
   }),
-  vencido:(f,c)=>({
-    s:safeSubj(cAlias(c),'Factura N'+f.folio,'Factura Vencida'),
-    m:'Estimado cliente, muy buenas '+saludar()+',\n\nNos permitimos informarle que la '+f.folio+' por '+CLP(f.monto)+' se encuentra VENCIDA desde el '+f.ve+'.\n\nLe solicitamos regularizar el pago a la brevedad.'+BANCO_DATA+FIRMA
+  rrhh_liquidaciones:(ctx)=>({
+    s: emAsunto(cAlias(ctx.cliente), 'Liquidaciones y cotizaciones '+(ctx.mes||'')),
+    m: saludoCompleto()+' '+ctx.nombre+',\n\nTe enviamos adjuntas las liquidaciones de sueldo del mes y el archivo con la distribución de cotizaciones previsionales para pagar.\n\nDos cosas importantes antes de pagar:\n1. Firma y guarda la liquidación. Una vez que tu trabajador la firme, escanéala y guárdala en la carpeta de Drive compartida — es un documento que debe conservarse durante toda la vida de la empresa.\n2. Si no puedes pagar a tiempo, avísanos antes del día 10. Puedes hacer una Declaración y no pago en Previred para postergar sin multas. Después de esa fecha se generan multas automáticas.\n\nTotal a pagar en Previred: '+CLP(ctx.montoPrevired||0)+'\n\nInstrucciones de pago en Previred\n1. Ingresa a www.previred.cl con tu usuario y contraseña\n2. Clic en Ingrese aquí en el recuadro EMPRESAS\n3. Clic en la flecha debajo de la palabra Ingresar\n4. Clic en Remuneraciones\n5. Si aparece la opción, clic en Calcular Total A Pagar\n6. Verifica que el monto en Total Nómina coincida con el total informado en este mail. Si no coincide, avísanos de inmediato\n7. Marca el recuadro naranjo al lado de Nombre de Nómina y elige tu forma de pago: Transferencia bancaria / Cupón de pago (imprime y paga en Sencillito o banco presencial) / Tarjeta de crédito\n8. Verifica que todas las casillas de pago estén etiquetadas correctamente\n9. Clic en Generar órdenes de pago y luego en Pagar'+firmaTxt(ctx.firmante)
   }),
-  cobrado:(f,c)=>({
-    s:safeSubj(cAlias(c),'Factura N'+f.folio,'Confirmacion de Pago'),
-    m:'Estimado cliente, muy buenas '+saludar()+',\n\nConfirmamos la recepcion del pago correspondiente a la '+f.folio+' por '+CLP(f.monto)+'.\n\nGracias por su confianza.'+FIRMA
+  f29:(ctx)=>({
+    s: emAsunto(cAlias(ctx.cliente), 'F29 listo para declarar — '+(ctx.mes||'')),
+    m: saludoCompleto()+' '+ctx.nombre+',\n\nTu Formulario 29 de '+(ctx.mes||'')+' está listo y cargado en el SII. Incluye IVA y otros conceptos del período (retenciones y/o PPM según corresponda).\n\nTotal a pagar: '+CLP(ctx.montoF29||0)+'\n\nPara declarar y pagar:\n1. Entra al SII con tu clave personal en www.sii.cl\n2. Busca el F29 del período '+(ctx.mes||'')+'\n3. Verifica que el monto coincida con el informado arriba\n4. Procede al pago\n\nSi el monto no coincide, avísanos antes de declarar.\n\nFecha límite de pago: día 20 del mes siguiente'+firmaTxt(ctx.firmante)
   }),
+  f29_f50:(ctx)=>({
+    s: emAsunto(cAlias(ctx.cliente), 'F29 y F50 listos para declarar — '+(ctx.mes||'')),
+    m: saludoCompleto()+' '+ctx.nombre+',\n\nTu Formulario 29 y Formulario 50 de '+(ctx.mes||'')+' están listos y cargados en el SII. Incluyen IVA, impuesto adicional y otros conceptos del período según corresponda.\n\nTotal a pagar F29: '+CLP(ctx.montoF29||0)+'\nTotal a pagar F50: '+CLP(ctx.montoF50||0)+'\n\nPara declarar y pagar cada formulario:\n1. Entra al SII con tu clave personal en www.sii.cl\n2. Busca el formulario del período '+(ctx.mes||'')+'\n3. Verifica que el monto coincida con el informado arriba\n4. Procede al pago\n\nSi algún monto no coincide, avísanos antes de declarar.\n\nFecha límite de pago: día 20 del mes siguiente'+firmaTxt(ctx.firmante)
+  }),
+  emision:(ctx)=>{
+    const fs=ctx.facturas||[];
+    if(!fs.length)return{s:'',m:''};
+    if(fs.length===1){
+      const f=fs[0];
+      return {
+        s: emAsunto(cAlias(ctx.cliente), 'Factura N°'+f.folio),
+        m: saludoCompleto()+' '+ctx.nombre+',\n\nTe enviamos la factura N°'+f.folio+' por el siguiente servicio:\n\n'+(f.desc||'Servicios profesionales')+'\n\nGracias por tu confianza — es un gusto seguir acompañándote.'+BANCO_DATA+'\n\nCualquier consulta, escríbenos.'+firmaTxt(ctx.firmante)
+      };
+    }
+    const lineas=fs.map(f=>'• Factura N°'+f.folio+' — '+(f.desc||'Servicios profesionales')+' — '+CLP(f.monto)).join('\n');
+    return {
+      s: emAsunto(cAlias(ctx.cliente), fs.length+' facturas emitidas'),
+      m: saludoCompleto()+' '+ctx.nombre+',\n\nTe enviamos las siguientes facturas:\n\n'+lineas+'\n\nGracias por tu confianza — es un gusto seguir acompañándote.'+BANCO_DATA+'\n\nCualquier consulta, escríbenos.'+firmaTxt(ctx.firmante)
+    };
+  },
+  recordatorio:(ctx)=>{
+    const fs=ctx.facturas||[];
+    if(!fs.length)return{s:'',m:''};
+    if(fs.length===1){
+      const f=fs[0];
+      return {
+        s: emAsunto(cAlias(ctx.cliente), 'Recordatorio de pago — Factura N°'+f.folio),
+        m: saludoCompleto()+' '+ctx.nombre+',\n\nTe recordamos que la factura N°'+f.folio+' por '+CLP(f.monto)+' vence el '+fmtF(f.ve)+'.\n\nSi ya realizaste el pago, ignora este mensaje.\n\nPara cualquier consulta, escríbenos.'+firmaTxt(ctx.firmante)
+      };
+    }
+    const total=fs.reduce((a,f)=>a+Number(f.monto||0),0);
+    const lineas=fs.map(f=>'• Factura N°'+f.folio+' — '+CLP(f.monto)+' — vence '+fmtF(f.ve)).join('\n');
+    return {
+      s: emAsunto(cAlias(ctx.cliente), 'Recordatorio de pago — '+fs.length+' facturas pendientes'),
+      m: saludoCompleto()+' '+ctx.nombre+',\n\nTe recordamos que tienes las siguientes facturas pendientes de pago:\n\n'+lineas+'\n\nTotal pendiente: '+CLP(total)+'\n\nSi ya realizaste el pago de alguna de ellas, ignora esa línea.\nPara cualquier consulta, escríbenos.'+firmaTxt(ctx.firmante)
+    };
+  },
+  vencido:(ctx)=>{
+    const fs=ctx.facturas||[];
+    if(!fs.length)return{s:'',m:''};
+    if(fs.length===1){
+      const f=fs[0];
+      return {
+        s: emAsunto(cAlias(ctx.cliente), 'Factura vencida N°'+f.folio+' — acción requerida'),
+        m: saludoCompleto()+' '+ctx.nombre+',\n\nLa factura N°'+f.folio+' por '+CLP(f.monto)+' venció el '+fmtF(f.ve)+' y aún no registra pago.\n\nTe pedimos regularizar a la brevedad para evitar inconvenientes en la continuidad del servicio.'+BANCO_DATA+'\n\nSi ya realizaste el pago, avísanos para registrarlo.'+firmaTxt(ctx.firmante)
+      };
+    }
+    const total=fs.reduce((a,f)=>a+Number(f.monto||0),0);
+    const lineas=fs.map(f=>'• Factura N°'+f.folio+' — '+CLP(f.monto)+' — venció '+fmtF(f.ve)).join('\n');
+    return {
+      s: emAsunto(cAlias(ctx.cliente), fs.length+' facturas vencidas — acción requerida'),
+      m: saludoCompleto()+' '+ctx.nombre+',\n\nLas siguientes facturas se encuentran vencidas y aún no registran pago:\n\n'+lineas+'\n\nTotal vencido: '+CLP(total)+'\n\nTe pedimos regularizar a la brevedad para evitar inconvenientes en la continuidad del servicio.'+BANCO_DATA+'\n\nSi ya realizaste el pago de alguna, avísanos para registrarlo.'+firmaTxt(ctx.firmante)
+    };
+  },
 };
-function fillEmail(){const id=document.getElementById('em-fact').value;if(!id)return;const f=S.facturas.find(x=>x.id===id),c=cl(f.cid);document.getElementById('em-to').value=c.email||'';setEmailTpl();}
-function setEmailTpl(){const id=document.getElementById('em-fact').value;if(!id)return;const f=S.facturas.find(x=>x.id===id),c=cl(f.cid),t=document.getElementById('em-tipo').value,tpl=ETPL[t]?.(f,c)||{s:'',m:''};document.getElementById('em-subj').value=tpl.s;document.getElementById('em-msg').value=tpl.m;}
+
+const EM_TIPOS_FACTURA = ['emision','recordatorio','vencido'];
+
+function emSetFirmante(val){
+  document.getElementById('em-firmante').value=val;
+  const j=document.getElementById('lbl-em-firmante-javi'), b=document.getElementById('lbl-em-firmante-berny');
+  if(j){j.style.borderColor=val==='Javi'?'var(--blue)':'var(--border)';j.style.background=val==='Javi'?'var(--blue-light)':'transparent';}
+  if(b){b.style.borderColor=val==='Berny'?'var(--blue)':'var(--border)';b.style.background=val==='Berny'?'var(--blue-light)':'transparent';}
+  emActualizarPlantilla();
+}
+function emSelectCliente(){
+  const cid=document.getElementById('em-cl').value;
+  const c=S.clientes.find(x=>x.id===cid);
+  document.getElementById('em-to').value=c?.email||'';
+  document.getElementById('em-nombre').value=c?.cpago||'';
+  emSelectTipo();
+}
+function emRenderFacturas(){
+  const cid=document.getElementById('em-cl').value;
+  const tipo=document.getElementById('em-tipo').value;
+  const cont=document.getElementById('em-facturas-list');
+  if(!cid){cont.innerHTML='<div style="color:var(--muted)">Selecciona un cliente primero</div>';return;}
+  let fs=S.facturas.filter(f=>f.cid===cid);
+  if(tipo==='recordatorio'||tipo==='vencido'){
+    fs=fs.filter(f=>['pendiente','por_vencer','vencido'].includes(st(f)));
+  }
+  fs=[...fs].sort((a,b)=>(a.ve||'').localeCompare(b.ve||''));
+  if(!fs.length){cont.innerHTML='<div style="color:var(--muted)">Este cliente no tiene facturas'+(tipo==='emision'?'':' pendientes')+'</div>';return;}
+  cont.innerHTML=fs.map(f=>`<label style="display:flex;align-items:center;gap:8px;padding:5px 2px;cursor:pointer">
+    <input type="checkbox" class="em-fact-chk" value="${f.id}" onchange="emActualizarPlantilla()">
+    <span><strong>${f.folio}</strong> — ${CLP(f.monto)} — ${st(f)==='vencido'?'venció':'vence'} ${fmtF(f.ve)}</span>
+  </label>`).join('');
+}
+function emFacturasSeleccionadas(){
+  return [...document.querySelectorAll('.em-fact-chk:checked')].map(el=>S.facturas.find(f=>f.id===el.value)).filter(Boolean);
+}
+function emRenderCamposManuales(tipo){
+  const cont=document.getElementById('em-campos-manuales');
+  if(tipo==='rrhh_liquidaciones'){
+    cont.innerHTML=`<div class="ef-group"><label class="ef-lbl">Mes</label><input class="finput" id="em-mes" value="${emMesActual()}" oninput="emActualizarPlantilla()"></div>
+      <div class="ef-group"><label class="ef-lbl">Monto total a pagar en Previred</label><input class="finput" id="em-monto-previred" type="number" placeholder="0" oninput="emActualizarPlantilla()"></div>`;
+  } else if(tipo==='f29'){
+    cont.innerHTML=`<div class="ef-group"><label class="ef-lbl">Mes / Período</label><input class="finput" id="em-mes" value="${emMesActual()}" oninput="emActualizarPlantilla()"></div>
+      <div class="ef-group"><label class="ef-lbl">Monto F29</label><input class="finput" id="em-monto-f29" type="number" placeholder="0" oninput="emActualizarPlantilla()"></div>`;
+  } else if(tipo==='f29_f50'){
+    cont.innerHTML=`<div class="ef-group"><label class="ef-lbl">Mes / Período</label><input class="finput" id="em-mes" value="${emMesActual()}" oninput="emActualizarPlantilla()"></div>
+      <div class="ef-group"><label class="ef-lbl">Monto F29</label><input class="finput" id="em-monto-f29" type="number" placeholder="0" oninput="emActualizarPlantilla()"></div>
+      <div class="ef-group"><label class="ef-lbl">Monto F50</label><input class="finput" id="em-monto-f50" type="number" placeholder="0" oninput="emActualizarPlantilla()"></div>`;
+  } else {
+    cont.innerHTML='';
+  }
+}
+function emSelectTipo(){
+  const tipo=document.getElementById('em-tipo').value;
+  const facGroup=document.getElementById('em-facturas-group');
+  if(EM_TIPOS_FACTURA.includes(tipo)){
+    facGroup.style.display='block';
+    emRenderFacturas();
+  } else {
+    facGroup.style.display='none';
+  }
+  emRenderCamposManuales(tipo);
+  emActualizarPlantilla();
+}
+function emActualizarPlantilla(){
+  const cid=document.getElementById('em-cl').value;
+  const c=S.clientes.find(x=>x.id===cid);
+  const tipo=document.getElementById('em-tipo').value;
+  if(!c||!tipo)return;
+  const ctx={
+    cliente:c,
+    nombre:document.getElementById('em-nombre')?.value||'',
+    facturas:emFacturasSeleccionadas(),
+    mes:document.getElementById('em-mes')?.value||'',
+    montoPrevired:Number(document.getElementById('em-monto-previred')?.value)||0,
+    montoF29:Number(document.getElementById('em-monto-f29')?.value)||0,
+    montoF50:Number(document.getElementById('em-monto-f50')?.value)||0,
+    firmante:document.getElementById('em-firmante')?.value||'Javi',
+  };
+  const tpl=ETPL[tipo]?.(ctx)||{s:'',m:''};
+  document.getElementById('em-subj').value=tpl.s;
+  document.getElementById('em-msg').value=tpl.m;
+}
+function emAdjAgregar(files){
+  [...files].forEach(f=>_emAdjFiles.push(f));
+  document.getElementById('em-adj').value='';
+  emRenderAdjChips();
+}
+function emAdjQuitar(idx){
+  _emAdjFiles.splice(idx,1);
+  emRenderAdjChips();
+}
+function emRenderAdjChips(){
+  const cont=document.getElementById('em-adj-chips');
+  if(!cont)return;
+  cont.innerHTML=_emAdjFiles.map((f,i)=>`<span style="display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:11px">📎 ${f.name}<span onclick="emAdjQuitar(${i})" style="cursor:pointer;color:var(--red);font-weight:800">✕</span></span>`).join('');
+}
 async function sendEmail(){
-  // Use Gmail API if Google token available, else fallback to EmailJS
   const to=document.getElementById('em-to').value;
   const subj=document.getElementById('em-subj').value;
   const msg=document.getElementById('em-msg').value;
-  const fid=document.getElementById('em-fact').value;
+  const cid=document.getElementById('em-cl').value;
+  const tipo=document.getElementById('em-tipo').value;
   if(!to||!subj){toast('Completa destinatario y asunto',false);return;}
-  const f=fid?S.facturas.find(x=>x.id===fid):{};
+  if(!gsIsSignedIn()){toast('Conecta con Google para enviar emails',false);return;}
+  const c=S.clientes.find(x=>x.id===cid);
+  const fs=emFacturasSeleccionadas();
+  const ref = fs.length ? fs.map(f=>f.folio).join(', ') : (c?.alias||c?.nom||'—');
   const stEl=document.getElementById('em-st');
   const showSt=(txt,type)=>{stEl.style.display='block';stEl.style.cssText='display:block;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;background:var(--'+(type==='ok'?'green-light);border:1px solid var(--green);color:#2d6a00':type==='err'?'red-light);border:1px solid #fca5a5;color:var(--red)':'blue-light);border:1px solid var(--blue-mid);color:var(--blue)')+';';stEl.textContent=txt;};
   showSt('Enviando...','info');
-  if(gsIsSignedIn()){
-    // ── Gmail API ──
-    try{
-      const fromName='Nexa · Conectando Negocios';
-      const encodeSubject=s=>'=?UTF-8?B?'+btoa(unescape(encodeURIComponent(s)))+'?=';
-      // Helper: string → base64url usando chunks para evitar límite de call stack
-      const toB64url=str=>{
-        const bytes=new TextEncoder().encode(str);
-        const chunkSize=8192;
-        let bin='';
-        for(let i=0;i<bytes.length;i+=chunkSize){
-          bin+=String.fromCharCode(...bytes.slice(i,i+chunkSize));
-        }
-        return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-      };
-      const adjFile = _emAdjFile || null;
-
-      let emailRaw;
-      if(adjFile){
-        // MIME multipart con adjunto PDF
-        const boundary = 'nexa_'+Date.now();
-        // Leer PDF como base64 (ya es el contenido binario en base64, no necesita re-encode)
-        const adjB64 = await new Promise((res,rej)=>{
-          const fr=new FileReader();
-          fr.onload=e=>res(e.target.result.split(',')[1].replace(/[\r\n]/g,''));
-          fr.onerror=rej;
-          fr.readAsDataURL(adjFile);
-        });
-        // Texto del mensaje en base64
-        const msgB64 = btoa(unescape(encodeURIComponent(msg)));
-        // Construir MIME — NO codificar el string completo, solo codificar como base64url
-        // el header + partes, preservando el base64 del PDF intacto
-        const mime = [
-          `MIME-Version: 1.0`,
-          `To: ${to}`,
-          `Subject: ${encodeSubject(subj)}`,
-          `From: ${fromName} <me>`,
-          `Content-Type: multipart/mixed; boundary="${boundary}"`,
-          ``,
-          `--${boundary}`,
-          `Content-Type: text/plain; charset=UTF-8`,
-          `Content-Transfer-Encoding: base64`,
-          ``,
-          msgB64,
-          ``,
-          `--${boundary}`,
-          `Content-Type: application/pdf; name="${adjFile.name}"`,
-          `Content-Transfer-Encoding: base64`,
-          `Content-Disposition: attachment; filename="${adjFile.name}"`,
-          ``,
-          adjB64,
-          ``,
-          `--${boundary}--`,
-        ].join('\r\n');
-        // Codificar el MIME completo como base64url byte a byte
-        emailRaw = toB64url(mime);
-      } else {
-        // Sin adjunto — email simple (texto plano)
-        const mime = [
-          `MIME-Version: 1.0`,
-          `Content-Type: text/plain; charset=UTF-8`,
-          `Content-Transfer-Encoding: base64`,
-          `To: ${to}`,
-          `Subject: ${encodeSubject(subj)}`,
-          `From: ${fromName} <me>`,
-          ``,
-          btoa(unescape(encodeURIComponent(msg))),
-        ].join('\r\n');
-        emailRaw = toB64url(mime);
+  try{
+    const fromName='Nexa · Conectando Negocios';
+    const encodeSubject=s=>'=?UTF-8?B?'+btoa(unescape(encodeURIComponent(s)))+'?=';
+    // Helper: string → base64url usando chunks para evitar límite de call stack
+    const toB64url=str=>{
+      const bytes=new TextEncoder().encode(str);
+      const chunkSize=8192;
+      let bin='';
+      for(let i=0;i<bytes.length;i+=chunkSize){
+        bin+=String.fromCharCode(...bytes.slice(i,i+chunkSize));
       }
+      return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    };
+    const leerB64=file=>new Promise((res,rej)=>{
+      const fr=new FileReader();
+      fr.onload=e=>res(e.target.result.split(',')[1].replace(/[\r\n]/g,''));
+      fr.onerror=rej;
+      fr.readAsDataURL(file);
+    });
 
-      const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
-        method:'POST',
-        headers:{'Authorization':'Bearer '+GS.token,'Content-Type':'application/json'},
-        body:JSON.stringify({raw:emailRaw})
+    let emailRaw;
+    if(_emAdjFiles.length){
+      // MIME multipart con uno o más adjuntos PDF
+      const boundary = 'nexa_'+Date.now();
+      const msgB64 = btoa(unescape(encodeURIComponent(msg)));
+      const partes=[];
+      for(const f of _emAdjFiles){
+        const b64=await leerB64(f);
+        partes.push(`--${boundary}`,`Content-Type: application/pdf; name="${f.name}"`,`Content-Transfer-Encoding: base64`,`Content-Disposition: attachment; filename="${f.name}"`,``,b64,``);
+      }
+      const mime = [
+        `MIME-Version: 1.0`,
+        `To: ${to}`,
+        `Subject: ${encodeSubject(subj)}`,
+        `From: ${fromName} <me>`,
+        `Content-Type: multipart/mixed; boundary="${boundary}"`,
+        ``,
+        `--${boundary}`,
+        `Content-Type: text/plain; charset=UTF-8`,
+        `Content-Transfer-Encoding: base64`,
+        ``,
+        msgB64,
+        ``,
+        ...partes,
+        `--${boundary}--`,
+      ].join('\r\n');
+      emailRaw = toB64url(mime);
+    } else {
+      const mime = [
+        `MIME-Version: 1.0`,
+        `Content-Type: text/plain; charset=UTF-8`,
+        `Content-Transfer-Encoding: base64`,
+        `To: ${to}`,
+        `Subject: ${encodeSubject(subj)}`,
+        `From: ${fromName} <me>`,
+        ``,
+        btoa(unescape(encodeURIComponent(msg))),
+      ].join('\r\n');
+      emailRaw = toB64url(mime);
+    }
+
+    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+GS.token,'Content-Type':'application/json'},
+      body:JSON.stringify({raw:emailRaw})
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Error Gmail API');}
+    const nAdj=_emAdjFiles.length;
+    _emAdjFiles=[];
+    emRenderAdjChips();
+    showSt('✓ Email enviado vía Gmail'+(nAdj?' (con '+nAdj+' adjunto'+(nAdj>1?'s':'')+')':''),'ok');
+    const registro = {
+      fecha: new Date().toISOString().split('T')[0],
+      folio: ref,
+      destinatario: to,
+      tipo,
+      estado: 'enviado (Gmail)',
+    };
+    try {
+      const { data: nuevo, error } = await _supabase.from('emails').insert(registro).select('id').single();
+      if (error) throw error;
+      S.emails.unshift({
+        id: nuevo.id, fecha: registro.fecha, folio: registro.folio,
+        to: registro.destinatario, tipo: registro.tipo, estado: registro.estado,
       });
-      if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Error Gmail API');}
-      // Limpiar adjunto después de enviar
-      _emAdjFile = null;
-      const _adjInput = document.getElementById('em-adj');
-      const _adjLbl   = document.getElementById('em-adj-lbl');
-      if(_adjInput) _adjInput.value='';
-      if(_adjLbl)   _adjLbl.textContent='📎 Seleccionar archivo PDF...';
-      showSt('✓ Email enviado vía Gmail'+(adjFile?' (con adjunto)':''),'ok');
-      const registro = {
-        fecha: new Date().toISOString().split('T')[0],
-        folio: f?.folio || '—',
-        destinatario: to,
-        tipo: document.getElementById('em-tipo').value,
-        estado: 'enviado (Gmail)',
-      };
-      try {
-        const { data: nuevo, error } = await _supabase.from('emails').insert(registro).select('id').single();
-        if (error) throw error;
-        S.emails.unshift({
-          id: nuevo.id, fecha: registro.fecha, folio: registro.folio,
-          to: registro.destinatario, tipo: registro.tipo, estado: registro.estado,
-        });
-      } catch(errLog){
-        console.error('sendEmail log Gmail:', errLog);
-        toast('Enviado, pero el historial no se guardó: '+errLog.message, false);
-      }
-      renderEmHist();
-      toast('Email enviado a '+to);
-    }catch(err){
-      showSt('Error Gmail: '+err.message,'err');
-      toast('Error al enviar: '+err.message,false);
+    } catch(errLog){
+      console.error('sendEmail log Gmail:', errLog);
+      toast('Enviado, pero el historial no se guardó: '+errLog.message, false);
     }
-  } else {
-    // ── EmailJS fallback ──
-    const cfg=S.ejs||{};
-    if(!cfg.pk||!cfg.sid||!cfg.tid){
-      showSt('Conecta con Google con el botón de arriba, o configura EmailJS abajo','err');
-      return;
-    }
-    try{
-      emailjs.init(cfg.pk);
-      await emailjs.send(cfg.sid,cfg.tid,{to_email:to,to_name:to.split('@')[0],subject:subj,message:msg,folio:f?.folio||'',monto:f?CLP(f.monto):'',vencimiento:f?.ve||'',from_name:'Nexa',reply_to:cfg.from});
-      showSt('✓ Email enviado vía EmailJS','ok');
-      const registro = {
-        fecha: new Date().toISOString().split('T')[0],
-        folio: f?.folio || '—',
-        destinatario: to,
-        tipo: document.getElementById('em-tipo').value,
-        estado: 'enviado (EmailJS)',
-      };
-      try {
-        const { data: nuevo, error } = await _supabase.from('emails').insert(registro).select('id').single();
-        if (error) throw error;
-        S.emails.unshift({
-          id: nuevo.id, fecha: registro.fecha, folio: registro.folio,
-          to: registro.destinatario, tipo: registro.tipo, estado: registro.estado,
-        });
-      } catch(errLog){
-        console.error('sendEmail log EmailJS:', errLog);
-        toast('Enviado, pero el historial no se guardó: '+errLog.message, false);
-      }
-      renderEmHist();
-      toast('Email enviado a '+to);
-    }catch(err){
-      showSt('Error EmailJS: '+(err.text||err.message),'err');
-      toast('Error al enviar',false);
-    }
+    renderEmHist();
+    toast('Email enviado a '+to);
+  }catch(err){
+    showSt('Error Gmail: '+err.message,'err');
+    toast('Error al enviar: '+err.message,false);
   }
 }
-function quickEmail(fid){go('email');setTimeout(()=>{renderEmail();const sel=document.getElementById('em-fact');sel.value=fid;fillEmail();setEmailTpl();},100);}
+function quickEmail(fid){
+  const f=S.facturas.find(x=>x.id===fid);
+  if(!f)return;
+  const tipo = st(f)==='vencido' ? 'vencido' : (st(f)==='pendiente'||st(f)==='por_vencer') ? 'recordatorio' : 'emision';
+  go('email');
+  setTimeout(()=>{
+    renderEmail();
+    document.getElementById('em-cl').value=f.cid;
+    document.getElementById('em-tipo').value=tipo;
+    emSelectCliente();
+    setTimeout(()=>{
+      const chk=document.querySelector(`.em-fact-chk[value="${fid}"]`);
+      if(chk){chk.checked=true;emActualizarPlantilla();}
+    },50);
+  },100);
+}
 function renderEmHist(){document.getElementById('em-hist').innerHTML=(S.emails||[]).slice(0,20).map(e=>`<tr><td style="font-size:11px">${fmtF(e.fecha)}</td><td><strong>${e.folio}</strong></td><td style="font-size:11px">${e.to}</td><td><span class="badge b-prog">${e.tipo}</span></td><td><span class="badge b-fact">✓ enviado</span></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Sin emails enviados aún</td></tr>';}
 // ══ INFORMES ══
 function resetInf(){['if-desde','if-hasta'].forEach(id=>document.getElementById(id).value='');['if-cl','if-st'].forEach(id=>{if(document.getElementById(id))document.getElementById(id).value='';});document.getElementById('if-grp').value='mes';renderInf();}
@@ -3156,6 +3303,25 @@ async function activarCL(id){
 // Alias para retrocompatibilidad si algún lugar aún llama delCL
 function delCL(id){ inactivarCL(id); }
 let _editCLId=null;
+let _ncCodigoPend=false; // true = hay que reclamar un código real de contadores al guardar
+async function ncPeekCodigo(){
+  const tipo=document.getElementById('nc-tipo')?.value||'Mensual';
+  const el=document.getElementById('nc-codigo');
+  const btn=document.getElementById('nc-codigo-asignar');
+  if(!el)return;
+  _ncCodigoPend=true;
+  if(btn)btn.style.display='none';
+  el.value='...';
+  try{
+    const fn=tipo==='Único'?'nexa_peek_next_cliente_u':'nexa_peek_next_cliente_m';
+    const { data, error } = await _supabase.rpc(fn);
+    if(error)throw error;
+    el.value=(tipo==='Único'?'U-':'M-')+String(data).padStart(3,'0');
+  }catch(err){
+    console.error('ncPeekCodigo:', err);
+    el.value='(se asigna al guardar)';
+  }
+}
 function openM_nc_new(){
   _editCLId=null;
   const t=document.getElementById('nc-modal-t'),b=document.getElementById('nc-save-btn');
@@ -3170,11 +3336,14 @@ function openM_nc_new(){
   const acargo=document.getElementById('nc-acargo'); if(acargo)acargo.value='Berny';
   const sueldo=document.getElementById('nc-sueldo'); if(sueldo)sueldo.value='';
   const nliq=document.getElementById('nc-nliq'); if(nliq)nliq.value='0';
+  const codBtn=document.getElementById('nc-codigo-asignar'); if(codBtn)codBtn.style.display='none';
+  ncPeekCodigo();
   openM('nc');
 }
 function editCL(id){
   const c=S.clientes.find(x=>x.id===id);if(!c)return;
   _editCLId=id;
+  _ncCodigoPend=false;
   const t=document.getElementById('nc-modal-t'),b=document.getElementById('nc-save-btn');
   if(t)t.textContent='Editar Cliente';
   if(b)b.textContent='💾 Guardar cambios';
@@ -3192,11 +3361,14 @@ function editCL(id){
   set('nc-servicio', c.servicio);
   set('nc-obs-cl', c.obsInterna);
   set('nc-nliq',   c.nLiq||0);
+  set('nc-codigo', c.codigo);
   // Selects
   const sel=(id,v,def)=>{const el=document.getElementById(id);if(el)el.value=v||def||'';};
   sel('nc-tipo',   c.tipo,   'Mensual');
   sel('nc-acargo', c.aCargo, 'Berny');
   sel('nc-sueldo', c.tieneSueldo?'si':'', '');
+  const codBtn=document.getElementById('nc-codigo-asignar');
+  if(codBtn)codBtn.style.display=c.codigo?'none':'inline-flex';
   openM('nc');
 }
 async function saveOrUpdateCL(){
@@ -3220,6 +3392,18 @@ async function saveOrUpdateCL(){
     nLiq: Number(document.getElementById('nc-nliq')?.value)||0,
     estado: 'activo',
   };
+  if(_ncCodigoPend){
+    try{
+      const fn=datos.tipo==='Único'?'nexa_claim_next_cliente_u':'nexa_claim_next_cliente_m';
+      const { data, error } = await _supabase.rpc(fn);
+      if(error)throw error;
+      datos.codigo=(datos.tipo==='Único'?'U-':'M-')+String(data).padStart(3,'0');
+    }catch(err){
+      toast('Error al asignar código: '+err.message, false);
+      console.error('saveCL claim codigo:', err);
+      return;
+    }
+  }
   const rowSupabase = {
     nom: datos.nom, alias: datos.alias || null, rut: datos.rut,
     giro: datos.giro || null, email: datos.email || null, tel: datos.tel || null,
@@ -3228,6 +3412,7 @@ async function saveOrUpdateCL(){
     tiene_sueldo: datos.tieneSueldo, n_liq: datos.nLiq,
     servicio: datos.servicio || null, obs_interna: datos.obsInterna || null,
     estado: 'activo',
+    ...(datos.codigo ? {codigo: datos.codigo} : {}),
   };
   if(_editCLId){
     const idx = S.clientes.findIndex(c=>c.id===_editCLId);
