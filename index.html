@@ -471,21 +471,12 @@ textarea.finput{resize:vertical;min-height:68px}
 </div>
   <div class="nav-item" onclick="go('email')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Envío de Emails</span>
   </div>
-  <div class="nav-item" onclick="go('gsheets')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><span class="nav-label">Google Sheets</span>
+  <div class="nav-item" onclick="go('gsheets')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg><span class="nav-label">Config. Google</span>
     <span class="nav-badge" id="nb-gs" style="display:none;background:var(--green)">✓</span>
   </div>
   <div class="sb-foot">
-    <div class="sync-row"><span class="sync-dot"></span>Auto-guardado activo</div>
-    <div class="sb-help" id="sb-sync-status">Auto-guardado local activo</div>
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <button class="btn btn-green btn-sm" style="border-radius:8px;justify-content:center" id="btn-gs-sync" onclick="go('gsheets')" title="Sincronizar con Google Sheets">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-        Google Sheets
-      </button>
-      <button class="btn btn-yellow btn-sm" style="border-radius:8px;justify-content:center" onclick="exportJSON()">⬆ Backup JSON</button>
-      <button class="btn btn-ghost btn-sm" style="border-radius:8px;justify-content:center" onclick="document.getElementById('imp-file').click()">⬇ Restaurar</button>
-    </div>
-    <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importJSON(event)">
+    <div class="sync-row"><span class="sync-dot sync-live"></span>Conectado a Supabase</div>
+    <div class="sb-help" id="sb-sync-status">Guardado automático en la nube</div>
   </div>
 </aside>
 <main class="main">
@@ -710,7 +701,7 @@ textarea.finput{resize:vertical;min-height:68px}
 <div id="view-email" class="view">
   <div class="ph"><div><div class="ph-title">Envío de <span>Emails</span></div><div class="ph-sub">Notificaciones y seguimiento vía EmailJS</div></div></div>
   <div id="em-method-status" class="alert a-info" style="margin-bottom:16px">
-  ℹ️ Para enviar emails conecta con Google en <strong>Configuraciones → Google Sheets</strong>. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.
+  ℹ️ Para enviar emails conecta con Google con el botón de arriba. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.
 </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
     <div class="card" style="padding:20px;margin-bottom:0">
@@ -722,8 +713,7 @@ textarea.finput{resize:vertical;min-height:68px}
       </div>
       <div style="background:var(--bg);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px;margin-bottom:14px">
         <div style="font-size:11px;font-weight:800;margin-bottom:8px">🔗 Gmail (recomendado)</div>
-        <div id="em-gmail-st" style="font-size:11px;font-family:var(--font2);color:var(--muted)">Conecta con Google en Configuraciones → Google Sheets</div>
-        <button class="btn btn-blue btn-sm" style="margin-top:10px" onclick="go('gsheets')">Ir a Google Sheets →</button>
+        <div class="gconn-box"></div>
       </div>
       <div style="border-top:1px solid var(--border);padding-top:14px">
         <div style="font-size:11px;font-weight:800;margin-bottom:10px;color:var(--muted)">⚡ EmailJS (alternativa)</div>
@@ -829,6 +819,7 @@ textarea.finput{resize:vertical;min-height:68px}
     </div>
   </div>
 
+  <div class="gconn-box" style="margin-bottom:10px"></div>
   <div id="cred-access-status" style="margin-bottom:18px"></div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
@@ -844,7 +835,7 @@ textarea.finput{resize:vertical;min-height:68px}
       <div style="font-size:11px;font-weight:800;margin-bottom:6px">⚙️ Configuración necesaria</div>
       <div style="font-size:11px;color:var(--muted);font-family:var(--font2);line-height:1.7">
         1. Crea un Google Sheet nuevo (solo para ti, sin compartir)<br>
-        2. Copia su ID en <strong>Configuraciones → Google Sheets → Spreadsheet ID Credenciales</strong><br>
+        2. Copia su ID en <strong>Config. Google → Spreadsheet ID Credenciales</strong><br>
         3. Conecta con Google y usa "Subir a Sheet"
       </div>
     </div>
@@ -957,6 +948,8 @@ textarea.finput{resize:vertical;min-height:68px}
       <div id="prop-drive-status" style="font-size:10px;font-family:var(--font2);margin-top:4px;color:var(--muted)"></div>
     </div>
   </div>
+
+  <div class="gconn-box" style="margin-bottom:16px"></div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
 
@@ -1209,59 +1202,7 @@ textarea.finput{resize:vertical;min-height:68px}
     <div id="gs-auth-status" class="gs-status" style="display:none"></div>
   </div>
 
-  <div class="gs-panel" id="gs-sync-panel" style="display:none">
-    <div class="card-t" style="margin-bottom:12px">🔄 Paso 3 — Sincronizar datos</div>
-    <div style="font-size:12px;font-family:var(--font2);color:var(--muted);margin-bottom:14px;line-height:1.6">
-      <strong>Primera vez:</strong> usa "Subir todo a Sheets" para crear las hojas y cargar tus datos.<br>
-      <strong>Uso diario:</strong> usa "Sincronizar" para enviar los cambios locales, o "Cargar desde Sheets" para recibir los de tu socia.
-    </div>
-    <div class="gs-btn-row">
-      <button class="btn btn-blue" onclick="gsSyncAll()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-        Sincronizar (subir cambios)
-      </button>
-      <button class="btn btn-ghost" onclick="gsLoadAll()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-        Cargar desde Sheets
-      </button>
-      <button class="btn btn-yellow" onclick="gsUploadAll()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
-        Subir todo (primera vez)
-      </button>
-    </div>
-    <div id="gs-sync-status" class="gs-status" style="display:none"></div>
-    <div id="gs-sync-detail" style="font-size:11px;color:var(--muted);font-family:var(--font2);margin-top:10px;line-height:1.7"></div>
-  </div>
-
-  <div class="gs-panel">
-    <div class="card-t" style="margin-bottom:16px">📋 Estructura de Google Sheets</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;font-size:12px;font-family:var(--font2)">
-      <div style="background:var(--bg);border-radius:var(--r-sm);padding:12px;border:1px solid var(--border2)">
-        <div style="font-weight:800;margin-bottom:6px;color:var(--blue)">📄 Clientes</div>
-        <div style="color:var(--muted);line-height:1.8;font-size:11px">id · nom · rut · giro · email · tel · dir · ciudad · cpago · ci</div>
-      </div>
-      <div style="background:var(--bg);border-radius:var(--r-sm);padding:12px;border:1px solid var(--border2)">
-        <div style="font-weight:800;margin-bottom:6px;color:var(--blue)">📄 Facturas</div>
-        <div style="color:var(--muted);line-height:1.8;font-size:11px">id · folio · cid · monto · estado · em · ve · desc · oc · cond</div>
-      </div>
-      <div style="background:var(--bg);border-radius:var(--r-sm);padding:12px;border:1px solid var(--border2)">
-        <div style="font-weight:800;margin-bottom:6px;color:var(--blue)">📄 Notas</div>
-        <div style="color:var(--muted);line-height:1.8;font-size:11px">id · cod · cid · monto · estado · fecha · desc · moneda · factId</div>
-      </div>
-      <div style="background:var(--bg);border-radius:var(--r-sm);padding:12px;border:1px solid var(--border2)">
-        <div style="font-weight:800;margin-bottom:6px;color:var(--blue)">📄 SII</div>
-        <div style="color:var(--muted);line-height:1.8;font-size:11px">nro · tipo · rut · razon · folio · fecha · exento · neto · iva · total</div>
-      </div>
-      <div style="background:var(--bg);border-radius:var(--r-sm);padding:12px;border:1px solid var(--border2)">
-        <div style="font-weight:800;margin-bottom:6px;color:var(--blue)">📄 Emails</div>
-        <div style="color:var(--muted);line-height:1.8;font-size:11px">id · fecha · folio · to · tipo · estado</div>
-      </div>
-      <div style="background:var(--bg);border-radius:var(--r-sm);padding:12px;border:1px solid var(--border2)">
-        <div style="font-weight:800;margin-bottom:6px;color:var(--blue)">📄 Config</div>
-        <div style="color:var(--muted);line-height:1.8;font-size:11px">folioN · notaN · lastSync · version</div>
-      </div>
-    </div>
-  </div>
+  
 </div>
 
 <div id="view-informes" class="view">
@@ -2023,8 +1964,6 @@ function save(){
     _saveWarned = true;
   }
 }
-function exportJSON(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='nexa_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();toast('Backup exportado — guárdalo en Google Drive');}
-function importJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{S=JSON.parse(ev.target.result);save();renderAll();toast('Backup restaurado');}catch{toast('Error al leer archivo',false);}};r.readAsText(f);}
 // ══ UTILS ══
 const CLP=n=>'CLP '+Number(n).toLocaleString('es-CL');
 // Fecha ISO (AAAA-MM-DD) → DD-MM-AAAA para mostrar. Devuelve el valor tal cual si no es ISO.
@@ -2910,6 +2849,7 @@ function exportSIIExcel(){if(!window.XLSX){toast('XLSX no disponible',false);ret
 // ══ EMAIL ══
 function saveEJS(){S.ejs={pk:document.getElementById('ejs-pk').value,sid:document.getElementById('ejs-sid').value,tid:document.getElementById('ejs-tid').value,from:document.getElementById('ejs-from').value};save();const ok=document.getElementById('ejs-ok');(S.ejs.pk&&S.ejs.sid&&S.ejs.tid)?ok.style.display='flex':ok.style.display='none';}
 function renderEmail(){
+  if(typeof renderGConn==="function") renderGConn();
   ['pk','sid','tid','from'].forEach(k=>{const el=document.getElementById('ejs-'+k);if(el)el.value=S.ejs?.[k]||'';});
   if(S.ejs?.pk&&S.ejs?.sid&&S.ejs?.tid)document.getElementById('ejs-ok').style.display='flex';
   const sel=document.getElementById('em-fact');
@@ -2922,7 +2862,7 @@ function renderEmail(){
       stEl.innerHTML='✅ <strong>Gmail conectado</strong> — Los emails se enviarán directamente desde tu cuenta Google. Sin límites adicionales.';
     } else {
       stEl.className='alert a-info';
-      stEl.innerHTML='ℹ️ Para enviar emails conecta con Google en <strong>Configuraciones → Google Sheets</strong>. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.';
+      stEl.innerHTML='ℹ️ Para enviar emails conecta con Google con el botón de arriba. Los correos saldrán directamente desde tu Gmail. Si no estás conectada puedes usar EmailJS como alternativa.';
     }
   }
   renderEmHist();
@@ -3081,7 +3021,7 @@ async function sendEmail(){
     // ── EmailJS fallback ──
     const cfg=S.ejs||{};
     if(!cfg.pk||!cfg.sid||!cfg.tid){
-      showSt('Conecta con Google (sidebar → Google Sheets) o configura EmailJS abajo','err');
+      showSt('Conecta con Google con el botón de arriba, o configura EmailJS abajo','err');
       return;
     }
     try{
@@ -3402,22 +3342,43 @@ function gsSignOut(){
 function gsIsSignedIn(){ return GS.token && Date.now() < GS.tokenExpiry; }
 
 function gsOnSignedIn(){
-  document.getElementById('btn-gs-login').style.display='none';
-  document.getElementById('btn-gs-logout').style.display='inline-flex';
-  document.getElementById('gs-sync-panel').style.display='block';
+  const bLogin=document.getElementById('btn-gs-login'); if(bLogin) bLogin.style.display='none';
+  const bLogout=document.getElementById('btn-gs-logout'); if(bLogout) bLogout.style.display='inline-flex';
   gsShowStatus('auth','✓ Conectado a Google. Token válido por 1 hora.','ok');
-  document.getElementById('sb-sync-status').textContent='Google Sheets conectado ✓';
-  document.querySelector('.sync-dot').classList.add('sync-live');
+  document.getElementById('sb-sync-status').textContent='Google conectado ✓';
   document.getElementById('nb-gs').style.display='inline';
+  renderGConn();
 }
 
 function gsOnSignedOut(){
-  document.getElementById('btn-gs-login').style.display='inline-flex';
-  document.getElementById('btn-gs-logout').style.display='none';
-  document.getElementById('gs-sync-panel').style.display='none';
+  const bLogin=document.getElementById('btn-gs-login'); if(bLogin) bLogin.style.display='inline-flex';
+  const bLogout=document.getElementById('btn-gs-logout'); if(bLogout) bLogout.style.display='none';
   gsShowStatus('auth','Desconectado','info');
-  document.getElementById('sb-sync-status').textContent='Auto-guardado local activo';
+  document.getElementById('sb-sync-status').textContent='Guardado automático en la nube';
   document.getElementById('nb-gs').style.display='none';
+  renderGConn();
+}
+
+// ── Indicador contextual de conexión Google (Emails / Propuestas / Credenciales) ──
+function renderGConn(){
+  const conectado = gsIsSignedIn();
+  const hayConfig = !!(GS.clientId);
+  document.querySelectorAll('.gconn-box').forEach(el=>{
+    if(!hayConfig){
+      el.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff7e0;border:1px solid #e8d590;border-radius:var(--r-sm);font-size:12px;font-family:var(--font2)">
+        ⚙️ Falta configurar el Client ID de Google — <a href="#" onclick="go('gsheets');return false" style="font-weight:700">ir a Config. Google</a>
+      </div>`;
+    } else if(conectado){
+      el.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#eef9e8;border:1px solid #bce3a8;border-radius:var(--r-sm);font-size:12px;font-family:var(--font2)">
+        🟢 <strong>Google conectado</strong> — envío de emails y subida a Drive habilitados
+      </div>`;
+    } else {
+      el.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fdeeee;border:1px solid #ecc8c8;border-radius:var(--r-sm);font-size:12px;font-family:var(--font2)">
+        🔴 Google no conectado
+        <button class="btn btn-blue btn-sm" onclick="gsSignIn()" style="margin-left:auto">Conectar con Google</button>
+      </div>`;
+    }
+  });
 }
 
 function gsShowStatus(area, msg, type){
@@ -3445,160 +3406,6 @@ async function gsRequest(method, endpoint, body){
     throw e;
   }
 }
-
-// ── SHEET STRUCTURE ──────────────────────────────────────────────────
-const GS_HEADERS = {
-  Clientes: ['id','nom','alias','rut','giro','email','tel','dir','ciudad','cpago','ci','tipo','aCargo','tieneSueldo','nLiq','servicio','obsInterna','estado'],
-  Facturas: ['id','folio','cid','monto','estado','em','ve','desc','oc','cond','abonos'],
-  Notas:    ['id','cod','cid','monto','estado','fecha','desc','moneda','montoOriginal','ufRef','factId','aprobadoPor','obs'],
-  SII:      ['nro','tipo','rut','razon','folio','fecha','exento','neto','iva','total'],
-  Emails:   ['id','fecha','folio','to','tipo','estado'],
-  Config:   ['key','value'],
-};
-
-function objToRow(obj, headers){ return headers.map(h => { const v=obj[h]; if(v===undefined||v===null)return''; if(typeof v==='object')return JSON.stringify(v); return String(v); }); }
-function rowToObj(row, headers){ const o={}; headers.forEach((h,i)=>{ o[h]=row[i]||''; }); return o; }
-
-// ── ENSURE SHEETS EXIST ───────────────────────────────────────────────
-async function gsEnsureSheets(){
-  const meta = await gsRequest('GET','?fields=sheets.properties.title');
-  if(!meta) return false;
-  const existing = meta.sheets.map(s=>s.properties.title);
-  const toCreate = GS.SHEETS.filter(s=>!existing.includes(s));
-  if(toCreate.length > 0){
-    await gsRequest('POST',':batchUpdate',{
-      requests: toCreate.map(title=>({ addSheet:{ properties:{title} } }))
-    });
-  }
-  return true;
-}
-
-// ── WRITE SHEET (clear + write headers + data) ────────────────────────
-async function gsWriteSheet(sheetName, data, headers){
-  const rows = [headers, ...data.map(obj=>objToRow(obj,headers))];
-  await gsRequest('PUT','/values/'+encodeURIComponent(sheetName+'!A1')+'?valueInputOption=RAW',
-    { range: sheetName+'!A1', majorDimension:'ROWS', values: rows }
-  );
-}
-
-// ── READ SHEET ────────────────────────────────────────────────────────
-async function gsReadSheet(sheetName, headers){
-  const res = await gsRequest('GET','/values/'+encodeURIComponent(sheetName+'!A1:ZZ'));
-  if(!res||!res.values||res.values.length<2) return [];
-  // Use the ACTUAL header row from the sheet — not the hardcoded headers
-  // This prevents column mismatch when sheet structure changes
-  const sheetHeaders = res.values[0].map(h=>(h||'').trim());
-  const dataRows = res.values.slice(1);
-  return dataRows.map(row => {
-    const obj = {};
-    sheetHeaders.forEach((h,i)=>{ if(h) obj[h] = row[i]||''; });
-    return obj;
-  });
-}
-
-// ── UPLOAD ALL DATA → SHEETS ──────────────────────────────────────────
-async function gsUploadAll(){
-  if(!gsIsSignedIn()){ gsShowStatus('sync','Primero conecta con Google','warn'); return; }
-  gsShowStatus('sync','Creando hojas y subiendo datos...','info');
-  document.getElementById('gs-sync-detail').textContent='';
-  try {
-    await gsEnsureSheets();
-    const ops = [
-      gsWriteSheet('Clientes', S.clientes, GS_HEADERS.Clientes),
-      gsWriteSheet('Facturas', S.facturas, GS_HEADERS.Facturas),
-      gsWriteSheet('Notas',    S.notas,    GS_HEADERS.Notas),
-      gsWriteSheet('SII',      S.sii,      GS_HEADERS.SII),
-      gsWriteSheet('Emails',   S.emails||[], GS_HEADERS.Emails),
-      gsWriteSheet('Config', [
-        {key:'folioN',       value:String(S.folioN)},
-        {key:'notaN',        value:String(S.notaN)},
-        {key:'lastSync',     value:new Date().toISOString()},
-        {key:'version',      value:'nexa-v5'},
-        {key:'cmTareas',     value:JSON.stringify(S.cmTareas||{})},
-        {key:'cmChecks',     value:JSON.stringify(S.cmChecks||{})},
-        {key:'encargos',     value:JSON.stringify(S.encargos||[])},
-        {key:'rentaClientes',value:JSON.stringify(S.rentaClientes||[])},
-        {key:'propuestas',   value:JSON.stringify(S.propuestas||[])},
-      ], GS_HEADERS.Config),
-    ];
-    await Promise.all(ops);
-    const ts = new Date().toLocaleString('es-CL');
-    gsShowStatus('sync','✅ Todos los datos subidos correctamente','ok');
-    document.getElementById('gs-sync-detail').textContent =
-      'Clientes: '+S.clientes.length+' · Facturas: '+S.facturas.length+' · Notas: '+S.notas.length+' · SII: '+S.sii.length+' docs · Sincronizado: '+ts;
-    S.lastSync = ts; save();
-  } catch(e){
-    gsShowStatus('sync','Error al subir: '+e.message,'err');
-  }
-}
-
-// ── SYNC (upload only) ────────────────────────────────────────────────
-async function gsSyncAll(){
-  await gsUploadAll(); // same operation — overwrite with local data
-}
-
-// ── LOAD ALL DATA FROM SHEETS ─────────────────────────────────────────
-async function gsLoadAll(){
-  if(!gsIsSignedIn()){ gsShowStatus('sync','Primero conecta con Google','warn'); return; }
-  gsShowStatus('sync','Cargando datos desde Google Sheets...','info');
-  try {
-    const [clientes, facturas, notas, sii, emails, config] = await Promise.all([
-      gsReadSheet('Clientes', GS_HEADERS.Clientes),
-      gsReadSheet('Facturas', GS_HEADERS.Facturas),
-      gsReadSheet('Notas',    GS_HEADERS.Notas),
-      gsReadSheet('SII',      GS_HEADERS.SII),
-      gsReadSheet('Emails',   GS_HEADERS.Emails),
-      gsReadSheet('Config',   GS_HEADERS.Config),
-    ]);
-
-    // Parse numeric fields
-    facturas.forEach(f=>{ f.monto=Number(f.monto)||0; });
-    notas.forEach(n=>{ n.monto=Number(n.monto)||0; n.montoOriginal=Number(n.montoOriginal)||0; n.ufRef=Number(n.ufRef)||39200; });
-    sii.forEach(d=>{ d.exento=Number(d.exento)||0; d.neto=Number(d.neto)||0; d.iva=Number(d.iva)||0; d.total=Number(d.total)||0; });
-    clientes.forEach(c=>{
-    c.ci=Number(c.ci)||0;
-    c.tieneSueldo = c.tieneSueldo==='true'||c.tieneSueldo===true;
-    c.nLiq = Number(c.nLiq)||0;
-  });
-  facturas.forEach(f=>{
-    f.monto=Number(f.monto)||0;
-    if(typeof f.abonos==='string'&&f.abonos){
-      try{f.abonos=JSON.parse(f.abonos);}catch(e){f.abonos=[];}
-    } else if(!Array.isArray(f.abonos)) f.abonos=[];
-  });
-
-    // Config
-    const cfgMap = {};
-    config.forEach(r=>{ cfgMap[r.key]=r.value; });
-
-    S.clientes = clientes.filter(c=>c.id);
-    S.facturas = facturas.filter(f=>f.id);
-    S.notas    = notas.filter(n=>n.id);
-    S.sii      = sii.filter(d=>d.folio);
-    S.emails   = emails.filter(e=>e.id);
-    S.folioN   = Number(cfgMap.folioN)||S.folioN||1;
-    S.notaN    = Number(cfgMap.notaN)||S.notaN||1;
-    // Restore JSON-encoded config fields
-    const parseJ = (k,def)=>{ try{ return cfgMap[k]?JSON.parse(cfgMap[k]):def; }catch(e){ return def; } };
-    S.cmTareas      = parseJ('cmTareas', {});
-    S.cmChecks      = parseJ('cmChecks', {});
-    S.encargos      = parseJ('encargos', []);
-    S.rentaClientes = parseJ('rentaClientes', []);
-    S.propuestas    = parseJ('propuestas',    []);
-    S.lastSync = new Date().toLocaleString('es-CL');
-    save();
-    renderAll();
-
-    const ts = new Date().toLocaleString('es-CL');
-    gsShowStatus('sync','✅ Datos cargados desde Google Sheets','ok');
-    document.getElementById('gs-sync-detail').textContent =
-      'Clientes: '+S.clientes.length+' · Facturas: '+S.facturas.length+' · Notas: '+S.notas.length+' · SII: '+S.sii.length+' docs · Actualizado: '+ts;
-    toast('Datos sincronizados desde Google Sheets');
-  } catch(e){
-    gsShowStatus('sync','Error al cargar: '+e.message,'err');
-  }
-}
-
 
 // ══════════════════════════════════════════════════════════
 // GOOGLE DRIVE — subir propuestas
@@ -4670,11 +4477,11 @@ async function credCheckAccess(){
   const el = document.getElementById('cred-access-status');
   if(!el) return;
   if(!credSheetId()){
-    el.innerHTML='<div class="cred-status cred-warn">⚙️ Configura el Spreadsheet ID del Sheet privado en Configuraciones → Google Sheets</div>';
+    el.innerHTML='<div class="cred-status cred-warn">⚙️ Configura el Spreadsheet ID del Sheet privado en Config. Google</div>';
     return false;
   }
   if(!gsIsSignedIn()){
-    el.innerHTML='<div class="cred-status cred-warn">🔑 Conecta con Google para acceder a las credenciales (Configuraciones → Google Sheets)</div>';
+    el.innerHTML='<div class="cred-status cred-warn">🔑 Conecta con Google para acceder a las credenciales (botón de arriba)</div>';
     return false;
   }
   el.innerHTML='<div class="cred-status cred-ok">🔒 Acceso activo — Sheet privado conectado. Solo visible para ti.</div>';
@@ -4682,6 +4489,7 @@ async function credCheckAccess(){
 }
 
 function renderCred(){
+  if(typeof renderGConn==="function") renderGConn();
   credCheckAccess();
   const q = (document.getElementById('cred-q')?.value||'').toLowerCase();
   const rf = document.getElementById('cred-resp')?.value||'';
@@ -4716,7 +4524,7 @@ function renderCred(){
           <button class="btn btn-blue btn-xs" onclick="event.stopPropagation();openCredModal('${c.id}')">✏️ Editar</button>
         </div>
         <div style="padding:16px 18px">
-          <div class="cred-blocked">🔑 Conecta con Google en Configuraciones → Google Sheets para ver las claves guardadas</div>
+          <div class="cred-blocked">🔑 Conecta con Google (botón de arriba) para ver las claves guardadas</div>
         </div>
       </div>`;
     }
@@ -5609,6 +5417,7 @@ async function cloneNV(id){
 
 // ══ PROPUESTAS ══
 function renderProp() {
+  if(typeof renderGConn==="function") renderGConn();
   propActualizarPreview();
   propRenderHistorial();
   // Poner fecha de hoy por defecto
@@ -5632,7 +5441,7 @@ function renderProp() {
       ds.innerHTML = '☁️ Las propuestas se guardarán automáticamente en Google Drive → carpeta <strong>"Propuestas APP"</strong>';
       ds.style.color = '#2d6a00';
     } else {
-      ds.innerHTML = '⚠️ Conecta con Google (Configuraciones → Google Sheets) para guardar automáticamente en Drive';
+      ds.innerHTML = '⚠️ Conecta con Google (botón de arriba) para guardar automáticamente en Drive';
       ds.style.color = '#8a6200';
     }
   }
