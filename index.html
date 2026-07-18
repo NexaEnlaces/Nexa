@@ -1820,7 +1820,7 @@ async function load(){
   try {
     const [
       cliR, facR, aboR, notR, itmR, ctareaR, ccheckR,
-      renR, encR, encTR, proR, credR, emlR, cntR, cfgR
+      renR, encR, encTR, proR, credR, emlR, cntR, cfgR, siiR
     ] = await Promise.all([
       _supabase.from('clientes').select('*'),
       _supabase.from('facturas').select('*'),
@@ -1837,9 +1837,10 @@ async function load(){
       _supabase.from('emails').select('*'),
       _supabase.from('contadores').select('*'),
       _supabase.from('config').select('*'),
+      _supabase.from('sii_docs').select('*'),
     ]);
 
-    const respuestas = [cliR,facR,aboR,notR,itmR,ctareaR,ccheckR,renR,encR,encTR,proR,credR,emlR,cntR,cfgR];
+    const respuestas = [cliR,facR,aboR,notR,itmR,ctareaR,ccheckR,renR,encR,encTR,proR,credR,emlR,cntR,cfgR,siiR];
     const err = respuestas.find(r => r.error);
     if (err) {
       alert('Error al leer Supabase: ' + err.error.message);
@@ -1968,8 +1969,13 @@ async function load(){
       if (cfg.clave === 'gs_config' && cfg.valor) S.gsConfig = cfg.valor;
     });
 
-    // ── SII se re-importa mensualmente, arranca vacío ──
-    S.sii = [];
+    // ── SII (RCV importado) ──
+    S.sii = (siiR.data||[]).map(d => ({
+      id: d.id, nro: d.nro || '', tipo: d.tipo || '', rut: d.rut || '',
+      razon: d.razon || '', folio: d.folio, fecha: d.fecha || '',
+      exento: Number(d.exento)||0, neto: Number(d.neto)||0,
+      iva: Number(d.iva)||0, total: Number(d.total)||0,
+    }));
 
     S.gsConfig = S.gsConfig || {clientId:'',sheetId:''};
 
@@ -2606,17 +2612,36 @@ function parseSIIMultiple(files){
   let loaded=0;
   fileArr.forEach(file=>{
     const reader=new FileReader();
-    reader.onload=ev=>{
+    reader.onload=async ev=>{
       try{
         const docs=parseSIIText(ev.target.result,file.name);
-        // Merge: keep existing docs, add new ones (avoid duplicate folios from same period)
-        docs.forEach(d=>{
-          const exists=S.sii.find(x=>String(x.folio)===String(d.folio)&&x.tipo===d.tipo);
-          if(!exists)S.sii.push(d);
-        });
+        // Solo los que no están ya en memoria (evita duplicados del mismo archivo/periodo)
+        const nuevos=docs.filter(d=>!S.sii.find(x=>String(x.folio)===String(d.folio)&&x.tipo===d.tipo));
+        if(nuevos.length){
+          const rows=nuevos.map(d=>({
+            nro:d.nro||null, tipo:d.tipo||null, rut:d.rut||null, razon:d.razon||null,
+            folio:String(d.folio), fecha:d.fecha||null,
+            exento:d.exento||0, neto:d.neto||0, iva:d.iva||0, total:d.total||0,
+          }));
+          const { data:insertados, error } = await _supabase.from('sii_docs')
+            .upsert(rows, { onConflict:'folio,tipo', ignoreDuplicates:true })
+            .select('*');
+          if(error){
+            siiSt('Error al guardar '+file.name+': '+error.message,'err');
+            console.error('parseSIIMultiple insert:', error);
+          } else {
+            (insertados||[]).forEach(d=>{
+              S.sii.push({
+                id:d.id, nro:d.nro||'', tipo:d.tipo||'', rut:d.rut||'',
+                razon:d.razon||'', folio:d.folio, fecha:d.fecha||'',
+                exento:Number(d.exento)||0, neto:Number(d.neto)||0,
+                iva:Number(d.iva)||0, total:Number(d.total)||0,
+              });
+            });
+          }
+        }
         loaded++;
         if(loaded===fileArr.length){
-          save();
           siiSt('✓ '+S.sii.length+' documentos en total ('+fileArr.length+' archivos cargados)','ok');
           renderSII();toast('RCV: '+S.sii.length+' documentos totales');
         }
@@ -2753,6 +2778,10 @@ async function siiImportarConfirmar(n){
       const abonosDespues = S.facturas.find(x=>x.id===facturaId)?.abonos?.length||0;
       if (abonosDespues>abonosAntes) {
         S.sii = S.sii.filter(x=>!(String(x.folio)===String(d.folio)&&x.tipo===d.tipo));
+        if (d.id) {
+          const { error: e3 } = await _supabase.from('sii_docs').delete().eq('id', d.id);
+          if (e3) console.error('siiImportar NC delete sii_docs:', e3);
+        }
         ncAplicadas++;
       } else {
         fallidas.push(`Nota de Crédito Folio ${d.folio}: no se pudo registrar el abono`);
@@ -2874,9 +2903,37 @@ function parseSII(file){
   reader.readAsText(file,'ISO-8859-1');
 }
 function siiSt(msg,t){const el=document.getElementById('sii-status');el.style.display='block';el.style.cssText=t==='ok'?'display:block;background:var(--green-light);border:1px solid var(--green);color:#2d6a00;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;margin-top:10px':'display:block;background:var(--red-light);border:1px solid #fca5a5;color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;margin-top:10px';el.textContent=msg;}
-function clearSII(){if(!confirm('¿Limpiar todos los documentos SII?'))return;S.sii=[];renderSII();toast('Documentos SII eliminados');}
-function delSIIDoc(idx){if(!confirm('¿Eliminar este documento del RCV?'))return;S.sii.splice(idx,1);renderSII();toast('Documento eliminado del RCV');}
-function delSIIByFolio(folio){if(!confirm('¿Eliminar el documento SII con folio '+folio+'?'))return;S.sii=S.sii.filter(d=>String(d.folio)!==String(folio));renderSII();toast('Documento SII '+folio+' eliminado');}
+async function clearSII(){
+  if(!confirm('¿Limpiar todos los documentos SII?'))return;
+  const anterior=S.sii; S.sii=[]; renderSII();
+  const ids=anterior.map(d=>d.id).filter(Boolean);
+  if(ids.length){
+    const { error } = await _supabase.from('sii_docs').delete().in('id', ids);
+    if(error){ S.sii=anterior; renderSII(); toast('Error al limpiar: '+error.message,false); console.error('clearSII:', error); return; }
+  }
+  toast('Documentos SII eliminados');
+}
+async function delSIIDoc(idx){
+  if(!confirm('¿Eliminar este documento del RCV?'))return;
+  const doc=S.sii[idx]; if(!doc)return;
+  S.sii.splice(idx,1); renderSII();
+  if(doc.id){
+    const { error } = await _supabase.from('sii_docs').delete().eq('id', doc.id);
+    if(error){ S.sii.splice(idx,0,doc); renderSII(); toast('Error al eliminar: '+error.message,false); console.error('delSIIDoc:', error); return; }
+  }
+  toast('Documento eliminado del RCV');
+}
+async function delSIIByFolio(folio){
+  if(!confirm('¿Eliminar el documento SII con folio '+folio+'?'))return;
+  const anterior=S.sii; const aEliminar=S.sii.filter(d=>String(d.folio)===String(folio));
+  S.sii=S.sii.filter(d=>String(d.folio)!==String(folio)); renderSII();
+  const ids=aEliminar.map(d=>d.id).filter(Boolean);
+  if(ids.length){
+    const { error } = await _supabase.from('sii_docs').delete().in('id', ids);
+    if(error){ S.sii=anterior; renderSII(); toast('Error al eliminar: '+error.message,false); console.error('delSIIByFolio:', error); return; }
+  }
+  toast('Documento SII '+folio+' eliminado');
+}
 function renderSII(){
   if(!S.sii)S.sii=[];
   const filter=document.getElementById('sii-val-f')?.value||'';
