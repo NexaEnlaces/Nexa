@@ -2157,7 +2157,7 @@ function fSortIcon(col){return _fSort.col===col?(_fSort.dir===1?'↑':'↓'):'�
 function renderF(){
   const q=(document.getElementById('fs-q')?.value||'').toLowerCase(),sf=document.getElementById('fs-st')?.value||'',cf=document.getElementById('fs-cl')?.value||'';
   const sel=document.getElementById('fs-cl');if(sel){const cur=sel.value;sel.innerHTML='<option value="">Todos los clientes</option>'+S.clientes.map(c=>`<option value="${c.id}"${cur===c.id?' selected':''}>${cNomCod(c)}</option>`).join('');}
-  const fs=[...S.facturas].filter(f=>{const c=cl(f.cid),s=st(f);return(!q||f.folio.toLowerCase().includes(q)||c.nom.toLowerCase().includes(q)||(c.alias||'').toLowerCase().includes(q)||(f.desc||'').toLowerCase().includes(q))&&(!sf||s===sf)&&(!cf||f.cid===cf);});
+  const fs=[...S.facturas].filter(f=>{const c=cl(f.cid),s=st(f);return(!q||String(f.folio).toLowerCase().includes(q)||c.nom.toLowerCase().includes(q)||(c.alias||'').toLowerCase().includes(q)||(c.rut||'').toLowerCase().includes(q)||(f.desc||'').toLowerCase().includes(q))&&(!sf||s===sf)&&(!cf||f.cid===cf);});
   [...['folio','cliente','monto','em','ve','estado']].forEach(c=>{const el=document.getElementById('fs-'+c);if(el)el.textContent=fSortIcon(c);});
   fs.sort((a,b)=>{const col=_fSort.col,dir=_fSort.dir;if(col==='folio')return dir*String(a.folio||'').localeCompare(String(b.folio||''),undefined,{numeric:true});if(col==='monto')return dir*(Number(a.monto)-Number(b.monto));if(col==='em'||col==='ve')return dir*(a[col]||'').localeCompare(b[col]||'');if(col==='estado')return dir*(st(a)).localeCompare(st(b));if(col==='cliente')return dir*((cl(a.cid)?.alias||cl(a.cid)?.nom)||'').localeCompare((cl(b.cid)?.alias||cl(b.cid)?.nom)||'');return 0;});
   document.getElementById('fact-tbody').innerHTML=fs.map(f=>{const c=cl(f.cid),s=st(f);return`<tr><td><strong>${f.folio}</strong></td><td><div style="font-weight:700;font-size:12px">${cNomCod(c)}</div><div style="font-size:10px;color:var(--muted)">${c.alias?c.nom+' · ':''}${c.rut}</div></td><td style="max-width:140px;color:var(--muted);font-size:11px">${f.desc||''}</td><td class="amt">${CLP(f.monto)}</td><td style="font-size:11px;color:var(--muted)">${fmtF(f.em)}</td><td style="font-size:11px;color:${isV(f)?'var(--red)':'var(--muted)'}">${fmtF(f.ve)}</td><td><select style="font-size:11px;font-weight:700;border-radius:20px;border:1.5px solid var(--border);padding:4px 10px;background:#fff;cursor:pointer;font-family:var(--font)" onchange="chSt('${f.id}',this.value)"><option value="pendiente"${f.estado==='pendiente'?' selected':''}>⏳ Pendiente</option><option value="por_vencer"${f.estado==='por_vencer'?' selected':''}>⚠️ Por Vencer</option><option value="facturado"${(f.estado==='facturado'||f.estado==='pagado')?' selected':''}>✅ Pagado</option><option value="vencido"${f.estado==='vencido'?' selected':''}>🔴 Vencido</option></select></td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-xs" onclick="verF('${f.id}')">👁</button><button class="btn btn-purple btn-xs" onclick="quickEmail('${f.id}')">✉</button><button class="btn btn-red btn-xs" onclick="delF('${f.id}')">🗑</button></div></td></tr>`;}).join('')||`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">${S.facturas.length===0?'Agrega tu primera factura':'Sin resultados'}</td></tr>`;
@@ -2773,14 +2773,41 @@ async function siiImportarConfirmar(n){
         fallidas.push(`Nota de Crédito Folio ${d.folio}: no se seleccionó factura para aplicar`);
         continue;
       }
-      const abonosAntes = S.facturas.find(x=>x.id===facturaId)?.abonos?.length||0;
+      const facturaOrigen = S.facturas.find(x=>x.id===facturaId);
+      const abonosAntes = facturaOrigen?.abonos?.length||0;
       await addAbono(facturaId, d.total, d.fecha||new Date().toISOString().split('T')[0], 'Nota de Crédito N°'+d.folio);
       const abonosDespues = S.facturas.find(x=>x.id===facturaId)?.abonos?.length||0;
       if (abonosDespues>abonosAntes) {
+        // Deja además la NC como documento propio (monto negativo) en el registro de Facturas,
+        // para que aparezca en la lista y los totales del Dashboard la descuenten correctamente.
+        const ncFolio = 'NC-'+d.folio;
+        const ncDesc = 'Nota de Crédito aplicada a factura '+(facturaOrigen?.folio ?? '');
+        try {
+          const { data: ncNueva, error: e3 } = await _supabase.from('facturas').insert({
+            folio: ncFolio,
+            cliente_id: cliente?.id || null,
+            monto: -Number(d.total),
+            estado: 'facturado',
+            fecha_em: d.fecha || null,
+            fecha_ve: null,
+            descripcion: ncDesc,
+            oc: null,
+            cond: null,
+          }).select('id').single();
+          if (e3) throw e3;
+          S.facturas.push({
+            id: ncNueva.id, folio: ncFolio, cid: cliente?.id||'', monto: -Number(d.total),
+            estado: 'facturado', em: d.fecha, ve: '',
+            desc: ncDesc, oc: '', cond: '', abonos: [],
+          });
+        } catch(errNC) {
+          console.error('siiImportar NC registro documento:', errNC);
+          fallidas.push(`Nota de Crédito Folio ${d.folio}: se aplicó el descuento pero no quedó registrada como documento`);
+        }
         S.sii = S.sii.filter(x=>!(String(x.folio)===String(d.folio)&&x.tipo===d.tipo));
         if (d.id) {
-          const { error: e3 } = await _supabase.from('sii_docs').delete().eq('id', d.id);
-          if (e3) console.error('siiImportar NC delete sii_docs:', e3);
+          const { error: e4 } = await _supabase.from('sii_docs').delete().eq('id', d.id);
+          if (e4) console.error('siiImportar NC delete sii_docs:', e4);
         }
         ncAplicadas++;
       } else {
